@@ -1,6 +1,6 @@
 ### STAGE 1: Build ###
 #FROM node:12.7-alpine AS build
-FROM node:10.20.1 AS build
+FROM node:14.19.0 AS build
 RUN npm config set registry http://registry.npmjs.org/ 
 ENV REDIS=redis-master
 ENV REDIS_PORT=6379

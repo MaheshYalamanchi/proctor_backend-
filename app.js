@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(cors());
 app.logger=require("./logger/logger");
 
-require("./routes/activitycalendar/index")({app:app});
+require("./routes/auth/index")({app:app});
 
 
 app.http = require("./lib/util/http");
@@ -44,6 +44,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
- var server = app.listen(3001, function () {
-   console.log("proctor Service")
+ var server = app.listen(process.env.PORT, function () {
+   console.log("proctor Service...")
  });
