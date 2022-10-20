@@ -2,6 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const crypto = require('crypto');
 const tokenService = require('../../routes/proctorToken/tokenService');
+const jwt_decode = require('jwt-decode')
 let proctorLoginCall = async (params) => {
     try{
         var postdata = {
@@ -36,6 +37,37 @@ let proctorLoginCall = async (params) => {
         }
     }
 };
+let proctorMeCall = async (params) => {
+    var decodeToken = jwt_decode(params.authorization);
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: {
+                username:decodeToken.id
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        if(responseData && responseData.data){
+            return{success:true,message:{browser:responseData.data.statusMessage[0].browser,
+                os:responseData.data.statusMessage[0].os,platform:responseData.data.statusMessage[0].platform,
+                role:responseData.data.statusMessage[0].role,labels:responseData.data.statusMessage[0].labels,
+                exclude:responseData.data.statusMessage[0].exclude,username:responseData.data.statusMessage[0].username,
+                createdAt:responseData.data.statusMessage[0].createdAt,similar:responseData.data.statusMessage[0].similar,
+                nickname:responseData.data.statusMessage[0].nickname,ipaddress:responseData.data.statusMessage[0].ipaddress,
+                loggedAt:responseData.data.statusMessage[0].loggedAt,group:responseData.data.statusMessage[0].group,
+                lang:responseData.data.statusMessage[0].lang,locked:responseData.data.statusMessage[0].locked,
+                secure:responseData.data.statusMessage[0].secure,useragent:responseData.data.statusMessage[0].useragent
+                }}
+        }else{
+            return {success:false, message : 'Data Not Found'}
+        }
+    }catch{
+        return {success:false, message : 'Please check username'}
+    }    
+};
 module.exports = {
-    proctorLoginCall
+    proctorLoginCall,
+    proctorMeCall
 }
