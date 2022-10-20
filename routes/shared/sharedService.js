@@ -67,7 +67,29 @@ let proctorMeCall = async (params) => {
         return {success:false, message : 'Please check username'}
     }    
 };
+let proctorFetchCall = async (params) => {
+    var decodeToken = jwt_decode(params.authorization);
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: {
+                username:decodeToken.id
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        if(responseData && responseData.data){
+            return{success:true,message:{}}
+        }else{
+            return {success:false, message : 'Data Not Found'}
+        }
+    }catch{
+
+    }
+};
 module.exports = {
     proctorLoginCall,
-    proctorMeCall
+    proctorMeCall,
+    proctorFetchCall
 }
