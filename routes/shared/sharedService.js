@@ -2,7 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const crypto = require('crypto');
 const tokenService = require('../../routes/proctorToken/tokenService');
-const jwt_decode = require('jwt-decode')
+const jwt_decode = require('jwt-decode');
 let proctorLoginCall = async (params) => {
     try{
         var postdata = {
@@ -85,11 +85,37 @@ let proctorFetchCall = async (params) => {
             return {success:false, message : 'Data Not Found'}
         }
     }catch{
-
     }
 };
+let proctorAuthCall = async (params) => {
+    var decodeToken = jwt_decode(params.authorization);
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: {
+                username:decodeToken.id
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        if(responseData && responseData.data){
+            let Token = await tokenService.generateProctorToken(responseData);
+            return {success:true,message:{exp: decodeToken.exp,iat:decodeToken.iat,id:responseData.data.statusMessage[0].username,
+                role:responseData.data.statusMessage[0].role,
+                token:Token}
+            }
+        }else{
+            return {success:false, message : 'Data Not Found'}   
+        }
+    }catch{
+        return {success:false, message : 'Please check TokenId'}
+    }
+};
+
 module.exports = {
     proctorLoginCall,
     proctorMeCall,
-    proctorFetchCall
+    proctorFetchCall,
+    proctorAuthCall
 }
