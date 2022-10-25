@@ -112,10 +112,54 @@ let proctorAuthCall = async (params) => {
         return {success:false, message : 'Please check TokenId'}
     }
 };
+let proctorLimitCall = async (params) => {
+    var sort;
+    if(params.query&&params.query.sort&&params.query.sort.subject){
+        if(params.query.sort.subject=='desc'){
+            sort=-1;
+        }else if(params.query.sort.subject=='asc'){
+            sort=1;
+        }
+    }
+    var limit = parseInt(params.query.limit);
+    var start= parseInt(params.query.start);
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query:[
+                {
+                 $facet: 
+                        {
+                            "data": [
+                                        {$sort: { subject: sort }}, 
+                                        { "$skip": start }, 
+                                        { "$limit": limit }
+                                    ],
+                            "total_count":  [
+                                                { $group: { _id: null, count:{ $sum: 1 }}},
+                                                { $project: { _id: 0 } }
+                                            ]
+                        }
+                },
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData && responseData.data){
+            return{success:true,message:{data:responseData.data.statusMessage[0].data,pos:start,total_count:responseData.data.statusMessage[0].total_count[0].count}}
+        }else{
+            return {success:false, message : 'Data Not Found'}
+        }
+    }catch{
+        return {success:false, message : 'Please check the Token'}
+    }
+};
 
 module.exports = {
     proctorLoginCall,
     proctorMeCall,
     proctorFetchCall,
-    proctorAuthCall
+    proctorAuthCall,
+    proctorLimitCall
 }
