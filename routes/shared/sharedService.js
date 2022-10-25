@@ -100,10 +100,9 @@ let proctorAuthCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if(responseData && responseData.data){
-            let Token = await tokenService.generateProctorToken(responseData);
             return {success:true,message:{exp: decodeToken.exp,iat:decodeToken.iat,id:responseData.data.statusMessage[0].username,
                 role:responseData.data.statusMessage[0].role,
-                token:Token}
+                token:params.authorization}
             }
         }else{
             return {success:false, message : 'Data Not Found'}   
