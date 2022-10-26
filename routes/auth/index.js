@@ -96,20 +96,31 @@ module.exports = function (params) {
     app.get("/api/room",async (req, res) => {
         "use strict";
         try{
-            let result = await sharedSevices.proctorLimitCall(req)
-            if (result && result.success) {
-                app.logger.info({ success: true, message: result.message });
-                app.http.customResponse(res, result.message, 200);
-            } else {
-                app.logger.info({ success: false, message: result.message });
-                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-            }
+            if(req && req.query && req.query.filter){
+                let result = await sharedSevices.proctorSearchCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            }else if(req && req.query && req.query.start){
+                let result = await sharedSevices.proctorLimitCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            };
         }catch{
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
-                app.http.customResponse(res, { success: false, message: error.message }, 400)
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
             } else {
-                app.http.customResponse(res, { success: false, message: error }, 400)
+                app.http.customResponse(res, { success: false, message: error }, 400);
             }
         }
     });
