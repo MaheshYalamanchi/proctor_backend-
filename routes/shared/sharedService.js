@@ -202,6 +202,47 @@ let proctorSearchCall = async (params) => {
         return {success:false, message : 'Please check the Token'};
     }
 };
+let proctorSuggestCall = async (params) => {
+    try{
+        
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: [
+                {
+                   $match:{
+                            $and:[
+                                    {role:{$regex:"student", $options:'i'}},
+                                    {nickname:{$regex:params.query.filter.value, $options:'i'}}
+                                ]
+                         }
+                },
+                { 
+                    $limit : 100 
+                },
+                {
+                    $project : { "_id": 1, "nickname" : 1 , "role" : 1,username:"$_id" }
+                },
+                            
+                {
+                    $sort:{"nickname":1}
+                },
+             ]
+            
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+
+        console.log('res------>',responseData.data);
+        if(responseData && responseData.data){
+            return {success:true,message:responseData.data.statusMessage}
+        }else{
+            return {success:false, message : 'Data Not Found'}   
+        }
+    }catch{
+        return {success:false, message : 'Please check params'}
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -209,5 +250,6 @@ module.exports = {
     proctorFetchCall,
     proctorAuthCall,
     proctorLimitCall,
-    proctorSearchCall
+    proctorSearchCall,
+    proctorSuggestCall
 }
