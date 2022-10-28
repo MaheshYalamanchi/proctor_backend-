@@ -204,7 +204,6 @@ let proctorSearchCall = async (params) => {
 };
 let proctorSuggestCall = async (params) => {
     try{
-        
         var getdata = {
             url: process.env.MONGO_URI,
             client: "users",
@@ -224,16 +223,13 @@ let proctorSuggestCall = async (params) => {
                 {
                     $project : { "_id": 1, "nickname" : 1 , "role" : 1,username:"$_id" }
                 },
-                            
+
                 {
                     $sort:{"nickname":1}
                 },
-             ]
-            
+             ]   
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-
-        console.log('res------>',responseData.data);
         if(responseData && responseData.data){
             return {success:true,message:responseData.data.statusMessage}
         }else{
