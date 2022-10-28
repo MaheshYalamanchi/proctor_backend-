@@ -309,6 +309,43 @@ let proctorUserDetailsCall =async (params) => {
         return {success:false, message : 'Please check the username'};
     }
 };
+let proctorUserInfoCall = async(params) =>{
+    try{
+        var postdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: [
+                {
+                    $match:{
+                        _id:params.id
+                    }
+                },
+                {
+                    $project:{_id:1,provider:1,role:1}
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
+        if(responseData && responseData.data && responseData.data.statusMessage&&responseData.data.statusMessage.length){
+            let token = await tokenService.ProctorTokenGeneration(responseData.data);
+            if(token){
+                var decodeToken = jwt_decode(token);
+                if(decodeToken){
+                    return {success:true,message:{exp:decodeToken.exp,id:decodeToken.id,provider:decodeToken.provider,role:decodeToken.role,token:token}}
+                }else{
+                    return {success:false,message:'Error While Decoding Token'}
+                }
+            }else{
+                return {success:false,message:'Token Not Generated'}
+            }
+        }else{
+            return {success:false,message:'Data Not Found'}
+        }
+    }catch{
+        return {success:false,message:'Please check ID.'}
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -318,5 +355,6 @@ module.exports = {
     proctorLimitCall,
     proctorSearchCall,
     proctorSuggestCall,
-    proctorUserDetailsCall
+    proctorUserDetailsCall,
+    proctorUserInfoCall
 }
