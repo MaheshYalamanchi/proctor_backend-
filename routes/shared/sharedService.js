@@ -332,7 +332,7 @@ let proctorUserInfoCall = async(params) =>{
             if(token){
                 var decodeToken = jwt_decode(token);
                 if(decodeToken){
-                    return {success:true,message:{exp:decodeToken.exp,id:decodeToken.id,provider:decodeToken.provider,role:decodeToken.role,token:decodeToken}}
+                    return {success:true,message:{exp:decodeToken.exp,id:decodeToken.id,provider:decodeToken.provider,role:decodeToken.role,token:token}}
                 }else{
                     return {success:false,message:'Error While Decoding Token'}
                 }
