@@ -239,6 +239,76 @@ let proctorSuggestCall = async (params) => {
         return {success:false, message : 'Please check params'}
     }
 };
+let proctorUserDetailsCall =async (params) => {
+    var getusername = params.username;
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: [
+                {
+                    $match:{
+                             _id:getusername
+                           }
+                },
+                {
+                    $project:{_id:1,rep:0}
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData && responseData.data){
+            var userdata = {
+                url: process.env.MONGO_URI,
+                client: "users",
+                docType: 1,
+                query:[
+                    {
+                        $match:{
+                                 _id:getusername
+                               }
+                    },
+                    {
+                        $unwind:"$similar"
+                    },
+                    {
+                        $lookup:{
+                                    from: 'users',
+                                    localField: 'similar.user',
+                                    foreignField: '_id',
+                                    as: 'data',
+                                }
+                    },
+                     { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
+                    {
+                        $project:{
+                            _id:0,
+                            user:{
+                                "id":"$data._id",
+                                "face":"$data.face",
+                                "nickname":"$data.nickname",
+                                "username":"$data._id"    
+                            },
+                            "distance":"$similar.distance"
+                        }
+                    }
+                ]
+            }
+            let userData = await invoke.makeHttpCall("post", "aggregate",userdata)
+            responseData.data.statusMessage[0].similar=userData.data.statusMessage
+            if(userData && userData.data){
+                return{success:true,message:{data:responseData.data.statusMessage[0],username:getusername}}
+            }else{
+                return {success:false, message : 'Data Not Found'};
+            }
+        }else{
+            return {success:false, message : 'Data Not Found'};
+        }
+    }catch{
+        return {success:false, message : 'Please check the username'};
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -247,5 +317,6 @@ module.exports = {
     proctorAuthCall,
     proctorLimitCall,
     proctorSearchCall,
-    proctorSuggestCall
+    proctorSuggestCall,
+    proctorUserDetailsCall
 }
