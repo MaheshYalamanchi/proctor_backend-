@@ -369,6 +369,45 @@ let proctorRoomDetails = async(params) =>{
         return {success:false, message : 'Please check the UserId'};
     }
 };
+let proctorSuggestSaveCall = async (params) => {
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 0,
+            query: params
+        };
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        if(responseData && responseData.data&&responseData.data.iid){
+            var getdata1 = {
+                url: process.env.MONGO_URI,
+                client: "rooms",
+                docType: 1,
+                query: [
+                        {
+                             $addFields: { test: { $toString: "$_id" } } 
+                        },
+                        {
+                            $match:{test:responseData.data.iid}
+                        }
+                    ]
+            };
+            let getData = await invoke.makeHttpCall("post", "aggregate", getdata1);
+            if(getData && getData.data && getData.data.statusMessage){
+                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
+                delete getData.data.statusMessage[0].test;
+                delete getData.data.statusMessage[0]._id;
+                return {success:true,message:getData.data.statusMessage}
+            }else{
+                return {success:false, message : 'Data Not Found'}  
+            }
+        }else{
+            return {success:false, message : 'Data Not Found'}   
+        }
+    }catch{
+        return {success:false, message : 'Please check the params'}
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -380,5 +419,6 @@ module.exports = {
     proctorSuggestCall,
     proctorUserDetailsCall,
     proctorUserInfoCall,
-    proctorRoomDetails
+    proctorRoomDetails,
+    proctorSuggestSaveCall
 }
