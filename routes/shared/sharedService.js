@@ -384,20 +384,16 @@ let proctorSuggestSaveCall = async (params) => {
                 client: "rooms",
                 docType: 1,
                 query: [
-                        {
-                             $addFields: { test: { $toString: "$_id" } } 
-                        },
-                        {
-                            $match:{test:responseData.data.iid}
-                        }
-                    ]
+                    {
+                        $match:{student:params.student}
+                    }
+                ]
             };
             let getData = await invoke.makeHttpCall("post", "aggregate", getdata1);
             if(getData && getData.data && getData.data.statusMessage){
                 getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
-                delete getData.data.statusMessage[0].test;
                 delete getData.data.statusMessage[0]._id;
-                return {success:true,message:getData.data.statusMessage}
+                return {success:true,message:getData.data.statusMessage[0]}
             }else{
                 return {success:false, message : 'Data Not Found'}  
             }
