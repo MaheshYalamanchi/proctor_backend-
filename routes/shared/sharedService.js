@@ -404,6 +404,28 @@ let proctorSuggestSaveCall = async (params) => {
         return {success:false, message : 'Please check the params'}
     }
 };
+let proctorRoomUserEdit = async(params) =>{
+    try{
+        var postdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: {
+                _id:params.id
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "readData", postdata);
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            responseData.data.statusMessage[0].id=responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0]._id;
+            return{success:true,message:responseData.data.statusMessage[0]};
+        }else{
+            return {success:false, message : 'Data Not Found'};
+        }
+    }catch{
+        return {success:false, message : 'Please check Id'};
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -416,5 +438,6 @@ module.exports = {
     proctorUserDetailsCall,
     proctorUserInfoCall,
     proctorRoomDetails,
-    proctorSuggestSaveCall
+    proctorSuggestSaveCall,
+    proctorRoomUserEdit
 }
