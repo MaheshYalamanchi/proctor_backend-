@@ -414,5 +414,4 @@ module.exports = {
     proctorUserInfoCall,
     proctorRoomDetails,
     proctorSuggestSaveCall,
-    proctorRoomUserEdit
 }
