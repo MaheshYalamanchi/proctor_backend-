@@ -65,7 +65,50 @@ let userEdit = async(params) =>{
         return "Data Not Found";
     }
 }
+let roomUserDelete = async(params) =>{
+    var getdata = {
+        url: process.env.MONGO_URI,
+        client: "rooms",
+        docType: 1,
+        query:{
+            _id:params._id
+        }  
+    };
+    let responseData = await invoke.makeHttpCall("post", "removeData", getdata);
+    if(responseData){
+        return responseData;
+    }else{
+        return "Data Not Found";
+    }
+};
+let roomUserSave = async(params) =>{
+    var getdata = {
+        url: process.env.MONGO_URI,
+        client: "rooms",
+        docType: 1,
+        query: [
+            { 
+                $addFields: {test: { $toString: "$_id" }} 
+            },
+            {
+                $match:{test:params}
+            },
+            {
+                $project:{_id:0,test:0}
+            }
+        ]
+    };
+    let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
+    if(getData){
+        return getData;
+    }else{
+        return "Data Not Found";
+    }
+};
+
 module.exports ={
     userDetails,
-    userEdit
+    userEdit,
+    roomUserDelete,
+    roomUserSave
 }

@@ -118,7 +118,11 @@ let proctorAuthCall = async (params) => {
             return {success:false, message : 'Data Not Found'}   
         }
     }catch{
-        return {success:false, message : 'Please check TokenId'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorLimitCall = async (params) => {
@@ -254,7 +258,11 @@ let proctorSuggestCall = async (params) => {
             return {success:false, message : 'Data Not Found'}   
         }
     }catch{
-        return {success:false, message : 'Please check params'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorUserDetailsCall =async (params) => {
@@ -376,17 +384,7 @@ let proctorSuggestSaveCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if(responseData && responseData.data&&responseData.data.iid){
-            var getdata1 = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
-                docType: 1,
-                query: [
-                    {
-                        $match:{student:params.student}
-                    }
-                ]
-            };
-            let getData = await invoke.makeHttpCall("post", "aggregate", getdata1);
+            let getData = await schedule.roomUserSave(responseData.data.iid);
             if(getData && getData.data && getData.data.statusMessage){
                 getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;
@@ -398,7 +396,11 @@ let proctorSuggestSaveCall = async (params) => {
             return {success:false, message : 'Data Not Found'}   
         }
     }catch{
-        return {success:false, message : 'Please check the params'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 
