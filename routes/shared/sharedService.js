@@ -3,6 +3,7 @@ const globalMsg = require('../../configuration/messages/message');
 const crypto = require('crypto');
 const tokenService = require('../../routes/proctorToken/tokenService');
 const jwt_decode = require('jwt-decode');
+const schedule = require("../auth/sehedule");
 let proctorLoginCall = async (params) => {
     try{
         var postdata = {
@@ -64,7 +65,11 @@ let proctorMeCall = async (params) => {
             return {success:false, message : 'Data Not Found'}
         }
     }catch{
-        return {success:false, message : 'Please check username'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }    
 };
 let proctorFetchCall = async (params) => {
@@ -85,6 +90,11 @@ let proctorFetchCall = async (params) => {
             return {success:false, message : 'Data Not Found'}
         }
     }catch{
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorAuthCall = async (params) => {
@@ -151,7 +161,11 @@ let proctorLimitCall = async (params) => {
             return {success:false, message : 'Data Not Found'}
         }
     }catch{
-        return {success:false, message : 'Please check the Token'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorSearchCall = async (params) => {
@@ -199,7 +213,11 @@ let proctorSearchCall = async (params) => {
             return {success:false, message : 'Data Not Found'};
         }
     }catch{
-        return {success:false, message : 'Please check the Token'};
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorSuggestCall = async (params) => {
@@ -258,47 +276,14 @@ let proctorUserDetailsCall =async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if(responseData && responseData.data){
-            var userdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
-                docType: 1,
-                query:[
-                    {
-                        $match:{
-                                 _id:getusername
-                               }
-                    },
-                    {
-                        $unwind:"$similar"
-                    },
-                    {
-                        $lookup:{
-                                    from: 'users',
-                                    localField: 'similar.user',
-                                    foreignField: '_id',
-                                    as: 'data',
-                                }
-                    },
-                     { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
-                    {
-                        $project:{
-                            _id:0,
-                            user:{
-                                "id":"$data._id",
-                                "face":"$data.face",
-                                "nickname":"$data.nickname",
-                                "username":"$data._id"    
-                            },
-                            "distance":"$similar.distance"
-                        }
-                    }
-                ]
-            }
-            let userData = await invoke.makeHttpCall("post", "aggregate",userdata)
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            let userData = await schedule.userDetails(responseData.data.statusMessage[0])
             responseData.data.statusMessage[0].similar=userData.data.statusMessage
             if(userData && userData.data){
-                return{success:true,message:{data:responseData.data.statusMessage[0],username:getusername}}
+                responseData.data.statusMessage[0].id= responseData.data.statusMessage[0]._id;
+                responseData.data.statusMessage[0].username = responseData.data.statusMessage[0]._id
+                delete responseData.data.statusMessage[0]._id;
+                return{success:true,message:responseData.data.statusMessage[0]}
             }else{
                 return {success:false, message : 'Data Not Found'};
             }
@@ -306,7 +291,11 @@ let proctorUserDetailsCall =async (params) => {
             return {success:false, message : 'Data Not Found'};
         }
     }catch{
-        return {success:false, message : 'Please check the username'};
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorUserInfoCall = async(params) =>{
@@ -343,7 +332,11 @@ let proctorUserInfoCall = async(params) =>{
             return {success:false,message:'Data Not Found'}
         }
     }catch{
-        return {success:false,message:'Please check ID.'}
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorRoomDetails = async(params) =>{
@@ -366,7 +359,11 @@ let proctorRoomDetails = async(params) =>{
             return {success:false, message : 'Data Not Found'};
         }
     }catch{
-        return {success:false, message : 'Please check the UserId'};
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
     }
 };
 let proctorSuggestSaveCall = async (params) => {
@@ -402,28 +399,6 @@ let proctorSuggestSaveCall = async (params) => {
         }
     }catch{
         return {success:false, message : 'Please check the params'}
-    }
-};
-let proctorRoomUserEdit = async(params) =>{
-    try{
-        var postdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
-            docType: 1,
-            query: {
-                _id:params.id
-            }
-        };
-        let responseData = await invoke.makeHttpCall("post", "readData", postdata);
-        if(responseData && responseData.data && responseData.data.statusMessage){
-            responseData.data.statusMessage[0].id=responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0]._id;
-            return{success:true,message:responseData.data.statusMessage[0]};
-        }else{
-            return {success:false, message : 'Data Not Found'};
-        }
-    }catch{
-        return {success:false, message : 'Please check Id'};
     }
 };
 

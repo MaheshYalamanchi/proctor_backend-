@@ -1,4 +1,5 @@
-let sharedSevices = require("../../routes/shared/sharedService");
+let sharedSevices = require("../shared/sharedService");
+let scheduleSevice = require("../shared/scheduleService");
 const { Validator } = require('node-input-validator')
 module.exports = function (params) {
     var app = params.app;
@@ -149,7 +150,15 @@ module.exports = function (params) {
     app.get("/api/user/:username", async (req,res) => {
         "use strict";
         try{
-            let result = await sharedSevices.proctorUserDetailsCall(req.params);
+            const validateSchema = new Validator(req.params, {
+                username : 'required'
+            });
+            var validateSchemaResponse = await validateSchema.check()
+            if (!validateSchemaResponse) {
+                app.logger.info({ success: false, message: validateSchema.errors });
+                app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
+            }else{
+                let result = await sharedSevices.proctorUserDetailsCall(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -157,6 +166,7 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
+            }
         }catch{
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -169,8 +179,15 @@ module.exports = function (params) {
     app.get("/api/auth/token", async (req,res) => {
         "use strict";
         try{
-            if(req && req.query){
-            let result = await sharedSevices.proctorUserInfoCall(req.query);
+            const validateSchema = new Validator(req.query, {
+                id : 'required'
+            });
+            var validateSchemaResponse = await validateSchema.check()
+            if (!validateSchemaResponse) {
+                app.logger.info({ success: false, message: validateSchema.errors });
+                app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
+            }else{
+                let result = await sharedSevices.proctorUserInfoCall(req.query);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -178,8 +195,6 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            }else{
-                app.http.customResponse(res,{success:false,message:'Room id is missing.'}, 200);
             }
         }catch{
             app.logger.error({ success: false, message: error });
@@ -193,7 +208,15 @@ module.exports = function (params) {
     app.get("/api/room/:userId", async (req,res) => {
         "use strict";
         try{
-            let result = await sharedSevices.proctorRoomDetails(req);
+            const validateSchema = new Validator(req.params, {
+                userId : 'required'
+            });
+            var validateSchemaResponse = await validateSchema.check()
+            if (!validateSchemaResponse) {
+                app.logger.info({ success: false, message: validateSchema.errors });
+                app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
+            }else{
+                let result = await sharedSevices.proctorRoomDetails(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -201,6 +224,7 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
+            }    
         }catch{
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -234,7 +258,7 @@ module.exports = function (params) {
         "use strict";
         try{
             if(req && req.body){
-                let result = await sharedSevices.proctorRoomUserEdit(req.body);
+                let result = await scheduleSevice.proctorRoomUserEdit(req.body);
                     if (result && result.success) {
                         app.logger.info({ success: true, message: result.message });
                         app.http.customResponse(res, result.message, 200);
