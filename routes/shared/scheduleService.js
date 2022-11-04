@@ -189,6 +189,66 @@ let UserEdit = async(params) =>{
         }
     }
 };
+let proctorUserSaveCall = async (params) => {
+    try{
+        params.createdAt=new Date()
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 0,
+            query: params
+        };
+        
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        if(responseData && responseData.data&&responseData.data.iid){
+            let getData = await schedule.UserSave(responseData.data.iid);
+            if(getData && getData.data && getData.data.statusMessage){
+                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
+                delete getData.data.statusMessage[0]._id;
+                return {success:true,message:getData.data.statusMessage[0]}
+            }else{
+                return {success:false, message : 'Data Not Found'}  
+            }
+        }else{
+            return {success:false, message : 'Data Not Found'}   
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
+let proctorUserDeleteCall = async (params) => {
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query:{
+                _id:params.UserId
+            } 
+        };
+        let responseData = await invoke.makeHttpCall("post", "readData", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            let response = await schedule.UserDelete(responseData.data.statusMessage[0]);
+        }
+        if(responseData && responseData.data){
+            responseData.data.statusMessage[0].id=responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0]._id;
+            return {success:true,message:responseData.data.statusMessage[0]}
+        }else{
+            return {success:false, message : 'Data Not Found'}  
+        }
+    }catch{
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
 
 module.exports = {
     proctorRoomUserEdit,
@@ -196,4 +256,6 @@ module.exports = {
     UserLimitCall,
     UserSearchCall,
     UserEdit,
+    proctorUserSaveCall,
+    proctorUserDeleteCall
 }
