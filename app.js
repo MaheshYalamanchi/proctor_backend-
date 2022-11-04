@@ -17,6 +17,7 @@ app.use(cors());
 app.logger=require("./logger/logger");
 
 require("./routes/auth/index")({app:app});
+require("./routes/shared/index")({app:app});
 
 
 app.http = require("./lib/util/http");

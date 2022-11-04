@@ -285,7 +285,7 @@ let proctorUserDetailsCall =async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage){
-            let userData = await schedule.userDetails(responseData.data.statusMessage[0])
+            let userData = await schedule.roomUserDetails(responseData.data.statusMessage[0])
             responseData.data.statusMessage[0].similar=userData.data.statusMessage
             if(userData && userData.data){
                 responseData.data.statusMessage[0].id= responseData.data.statusMessage[0]._id;

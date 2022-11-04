@@ -1,5 +1,5 @@
 const invoke = require("../../lib/http/invoke");
-let userDetails = async(params)=>{
+let roomUserDetails = async(params)=>{
     var userdata = {
         url: process.env.MONGO_URI,
         client: "users",
@@ -40,8 +40,8 @@ let userDetails = async(params)=>{
     }else{
         return "Data Not Found";
     }
-}
-let userEdit = async(params) =>{
+};
+let roomUserEdit = async(params) =>{
     var postdata = {
         url: process.env.MONGO_URI,
         client: "rooms",
@@ -64,7 +64,7 @@ let userEdit = async(params) =>{
     }else{
         return "Data Not Found";
     }
-}
+};
 let roomUserDelete = async(params) =>{
     var getdata = {
         url: process.env.MONGO_URI,
@@ -105,10 +105,35 @@ let roomUserSave = async(params) =>{
         return "Data Not Found";
     }
 };
+let userEdit = async(params) =>{
+    var postdata = {
+        url: process.env.MONGO_URI,
+        client: "users",
+        docType: 1,
+        query: [
+            { 
+                $addFields: {test: { $toString: "$_id" }} 
+            },
+            {
+                $match:{test:params}
+            },
+            {
+                $project:{_id:0,test:0}
+            }
+        ]
+    };
+    let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
+    if(responseData){
+        return responseData;
+    }else{
+        return "Data Not Found";
+    }
+}
 
 module.exports ={
-    userDetails,
-    userEdit,
+    roomUserDetails,
+    roomUserEdit,
     roomUserDelete,
-    roomUserSave
+    roomUserSave,
+    userEdit
 }
