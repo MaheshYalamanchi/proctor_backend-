@@ -1,4 +1,5 @@
 let scheduleSevice = require("../shared/scheduleService");
+let service = require("../shared/schedule.service");
 const { Validator } = require('node-input-validator');
 module.exports = function (params) {
     var app = params.app;
@@ -85,6 +86,54 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
             } else {
                 app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.get("/api/getCandidateMessageCount", async (req,res) => {
+        "use strict";
+        try{
+            if(req && req.query){
+                let result = await scheduleSevice.getCandidateMessageCount(req.query);
+                    if (result && result.success) {
+                        app.logger.info({ success: true, message: result.message });
+                        app.http.customResponse(res, result.message, 200);
+                    } else {
+                        app.logger.info({ success: false, message: result.message });
+                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                    }
+                }else{
+                    app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+                } 
+        }catch{
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+    app.get("/api/chat/:userId", async (req,res) => {
+        "use strict";
+        try{
+            if(req && req.query){
+                let result = await service.getCandidateMessages(req);
+                    if (result && result.success) {
+                        app.logger.info({ success: true, message: result.message });
+                        app.http.customResponse(res, result.message, 200);
+                    } else {
+                        app.logger.info({ success: false, message: result.message });
+                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                    }
+                }else{
+                    app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+                } 
+        }catch{
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
             }
         }
     });  
