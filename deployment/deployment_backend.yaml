@@ -28,6 +28,6 @@ spec:
                 name: proctor-dev-env
                 key: MONGO_URI                                                              
           ports:
-          - containerPort: 
+          - containerPort: 3002
       imagePullSecrets:
         - name: mysecret
