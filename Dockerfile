@@ -12,14 +12,7 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
 RUN npm install
 
-RUN npm install pm2 -g
-ENV PM2_PUBLIC_KEY 2r7xone702tn4gr
-ENV PM2_SECRET_KEY uk0fqq76fb9ahwn
-
 # Bundle app source
 COPY . /usr/src/app
 
-EXPOSE 3001
-
-# CMD ["node","app.js"]
-CMD ["pm2-runtime", "app.js"]
+EXPOSE 3002
