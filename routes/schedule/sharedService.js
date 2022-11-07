@@ -33,7 +33,32 @@ let getCandidateMessageSend = async (params) => {
         }
     }
 };
+let getMessageTemplates = async (params) => {
+    try{
+        start = 0;
+        count = 0;
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "Blank",
+            docType: 1,
+            query: params
+        };
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            return{success:true,message:{data:responseData.data.statusMessage,pos:start,total_count:count}}
+        }else{
+            return {success:false, message : 'Data Not Found'};
+        }
+    }catch{
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
+    getMessageTemplates,
 }
