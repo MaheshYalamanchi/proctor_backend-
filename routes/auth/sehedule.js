@@ -1,4 +1,5 @@
 const invoke = require("../../lib/http/invoke");
+const scheduleService = require("../auth/schedule.service");
 let roomUserDetails = async(params)=>{
     var userdata = {
         url: process.env.MONGO_URI,
@@ -169,6 +170,51 @@ let UserDelete = async(params) =>{
         return "Data Not Found";
     }
 };
+let MessageSend = async(params) =>{
+    var getdata = {
+        url: process.env.MONGO_URI,
+        client: "chats",
+        docType: 1,
+        query:[
+            { 
+                "$addFields": {"test": { "$toString": "$_id" }} 
+            },
+            {
+                "$match":{"test":params}
+            },
+            {
+                "$lookup":{
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+            },
+            { 
+                "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } 
+            },
+            {
+                "$project":{
+                            "attach":1,"createdAt":1,"id":"$test","message":1,"room":1,"type":1,"_id":0,"metadata":1,
+                            "user":{
+                                        "id":"$data._id",
+                                        "nickname":"$data.nickname",
+                                        "role":"$data.role",
+                                        "username":"$data._id"    
+                                    }
+                        }
+            }
+        ] 
+    };
+    let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+    if(responseData&& responseData.data && responseData.data.statusMessage){
+        let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+        responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
+        return responseData;
+    }else{
+        return "Data Not Found";
+    }
+};
 
 module.exports ={
     roomUserDetails,
@@ -177,5 +223,6 @@ module.exports ={
     roomUserSave,
     userEdit,
     UserSave,
-    UserDelete
+    UserDelete,
+    MessageSend,
 }

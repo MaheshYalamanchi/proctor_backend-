@@ -1,5 +1,6 @@
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
+const globalMsg = require('../../configuration/messages/message');
 let proctorRoomUserEdit = async(params) =>{
     try{
         var getdata = {
