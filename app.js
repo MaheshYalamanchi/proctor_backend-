@@ -46,6 +46,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
- var server = app.listen(process.env.PORT, function () {
-   console.log("proctor Service...")
+ var server = app.listen(3002, function () {
+   console.log("Proctorbackend")
  });
