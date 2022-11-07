@@ -47,5 +47,5 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
  var server = app.listen(3002, function () {
-   console.log("Proctorbackend")
+   console.log("Proctor backend")
  });
