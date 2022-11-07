@@ -1,24 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: proctorbackend
+  name: proaiservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: proctorbackend
+      app: proaiservice
   template:
     metadata:
       labels:
-        app: proctorbackend
+        app: proaiservice
     spec:
       containers:
-        - name: proctorbackend
-          image: proctordev.azurecr.io/proctorbackend:$tag
-          imagePullPolicy: Always                                                         
+        - name: proaiservice
+          image: proctordev.azurecr.io/proaiservice:$tag
+          imagePullPolicy: Always
+          env:
+          - name: DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-dev-env
+                key: DATA_SERVICE_ENDPOINT  
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: proctor-dev-env
+                key: MONGO_URI                                                              
           ports:
-          - containerPort: 3002
+          - containerPort: 3001
       imagePullSecrets:
         - name: mysecret
-        env:
-          
