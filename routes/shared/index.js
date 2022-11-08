@@ -40,7 +40,7 @@ module.exports = function (params) {
                 }else{
                     app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
                 } 
-        }catch{
+        }catch(error){
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -104,7 +104,7 @@ module.exports = function (params) {
                 }else{
                     app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
                 } 
-        }catch{
+        }catch(error){
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -128,7 +128,7 @@ module.exports = function (params) {
                 }else{
                     app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
                 } 
-        }catch{
+        }catch(error){
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
