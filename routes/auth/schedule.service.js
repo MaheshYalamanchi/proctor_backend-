@@ -26,7 +26,7 @@ let getcount = async(params) =>{
         }else{
             return "Data Not Found";
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{

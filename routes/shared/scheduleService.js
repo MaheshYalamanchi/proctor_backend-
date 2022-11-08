@@ -20,7 +20,7 @@ let proctorRoomUserEdit = async(params) =>{
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -99,7 +99,7 @@ let UserLimitCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -157,7 +157,7 @@ let UserSearchCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'};
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -184,7 +184,7 @@ let UserEdit = async(params) =>{
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(erroe){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -268,7 +268,7 @@ let getCandidateMessageCount = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{

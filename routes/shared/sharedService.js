@@ -64,7 +64,7 @@ let proctorMeCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -89,7 +89,7 @@ let proctorFetchCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -164,7 +164,7 @@ let proctorLimitCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -221,7 +221,7 @@ let proctorSearchCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'};
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -303,7 +303,7 @@ let proctorUserDetailsCall =async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'};
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -344,7 +344,7 @@ let proctorUserInfoCall = async(params) =>{
         }else{
             return {success:false,message:'Data Not Found'}
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -371,7 +371,7 @@ let proctorRoomDetails = async(params) =>{
         }else{
             return {success:false, message : 'Data Not Found'};
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
