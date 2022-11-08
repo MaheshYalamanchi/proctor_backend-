@@ -191,8 +191,13 @@ let proctorSearchCall = async (params) => {
             query:[
                     {
                         $match:{
-                                subject:{$regex:params.query.filter, $options:'i'}
-                            }
+                            $or:[
+                                {subject:{$regex:params.query.filter, $options:'i'}},
+                                {student:{$regex:params.query.filter, $options:'i'}},
+                                {startedAt:{$regex:params.query.filter, $options:'i'}},
+                                {status:{$regex:params.query.filter, $options:'i'}}
+                            ]
+                        }
                     },
                     {
                     $facet: 

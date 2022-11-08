@@ -128,7 +128,9 @@ let UserSearchCall = async (params) => {
                         $match:{
                             $or:[
                                 {nickname:{$regex:params.query.filter, $options:'i'}},
-                                {role:{$regex:params.query.filter, $options:'i'}}
+                                {role:{$regex:params.query.filter, $options:'i'}},
+                                {_id:{$regex:params.query.filter, $options:'i'}},
+                                {loggedAt:{$regex:params.query.filter, $options:'i'}}
                             ]
                         }
                     },
