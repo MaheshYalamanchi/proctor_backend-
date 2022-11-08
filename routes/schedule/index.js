@@ -3,13 +3,13 @@ var multer = require("multer");
 const inMemoryStorage = multer.memoryStorage();
 const multipleFileUpload = multer({ storage: inMemoryStorage });
 var Minio = require("minio");
-var minioClient = new Minio.Client({
-    endPoint: 'https://minioconsoledev.lntedutech.com/',
-    port: 9000,
-    secure: true,
-    accessKey: 'CXVH0A9XJW906PGB4857',
-    secretKey: 'ethcPXfCe8L4rkYhKoJDqwfimC1deCnWojzexl3C'
-});
+// var minioClient = new Minio.Client({
+//     endPoint: 'https://minioconsoledev.lntedutech.com/',
+//     port: 9000,
+//     secure: true,
+//     accessKey: 'CXVH0A9XJW906PGB4857',
+//     secretKey: 'ethcPXfCe8L4rkYhKoJDqwfimC1deCnWojzexl3C'
+// });
 module.exports = function (params) {
     var app = params.app;
     app.post("/api/chat/:userId", async (req,res) => {
@@ -60,12 +60,12 @@ module.exports = function (params) {
             }
         }
     });
-    app.post("/api/storage", multipleFileUpload.single('upload'), function(request, response) {
-        minioClient.fPutObject("testbucket", request.file.originalname, request.file.path, "application/octet-stream", function(error, etag) {
-            if(error) {
-                return console.log(error);
-            }
-            response.send(request.file);
-        });
-    });
+    // app.post("/api/storage", multipleFileUpload.single('upload'), function(request, response) {
+        // minioClient.fPutObject("testbucket", request.file.originalname, request.file.path, "application/octet-stream", function(error, etag) {
+        //     if(error) {
+        //         return console.log(error);
+        //     }
+        //     response.send(request.file);
+        // });
+    // });
 };
