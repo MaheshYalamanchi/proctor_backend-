@@ -77,15 +77,39 @@ let proctorFetchCall = async (params) => {
     try{
         var getdata = {
             url: process.env.MONGO_URI,
-            client: "users",
+            client: "rooms",
             docType: 1,
-            query: {
-                username:decodeToken.id
-            }
+            query: [
+                    {
+                        "$match":{"student":"admin"}
+                    },
+                    {
+                        "$lookup":{
+                                    from: 'users',
+                                    localField: 'student',
+                                    foreignField: '_id',
+                                    as: 'student',
+                                }
+                    },
+                    {
+                        "$unwind":"$student"
+                    },
+                    {
+                        "$project":{
+                                    "student.salt":0,
+                                    "student.hashedPassword":0,
+                                    "student.rep":0
+                                }
+                    }
+                ]
         };
-        let responseData = await invoke.makeHttpCall("post", "read", getdata);
-        if(responseData && responseData.data){
-            return{success:true,message:{}}
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+            responseData.data.statusMessage[0].student.id = responseData.data.statusMessage[0].student._id;
+            delete responseData.data.statusMessage[0].student._id;
+            delete responseData.data.statusMessage[0]._id
+            return{success:true,message:responseData.data.statusMessage[0]}
         }else{
             return {success:false, message : 'Data Not Found'}
         }
