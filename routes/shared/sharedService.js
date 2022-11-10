@@ -117,7 +117,7 @@ let proctorAuthCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}   
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -262,7 +262,7 @@ let proctorSuggestCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}   
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -400,7 +400,7 @@ let proctorSuggestSaveCall = async (params) => {
         }else{
             return {success:false, message : 'Data Not Found'}   
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
