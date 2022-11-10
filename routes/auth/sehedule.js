@@ -43,7 +43,7 @@ let roomUserDetails = async(params)=>{
         }else{
             return "Data Not Found";
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -75,7 +75,7 @@ let roomUserEdit = async(params) =>{
         }else{
             return "Data Not Found";
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -147,7 +147,7 @@ let userEdit = async(params) =>{
         }else{
             return "Data Not Found";
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
@@ -253,7 +253,7 @@ let MessageSend = async(params) =>{
         }else{
             return "Data Not Found";
         }
-    }catch{
+    }catch(error){
         if(error && error.code=='ECONNREFUSED'){
             return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
         }else{
