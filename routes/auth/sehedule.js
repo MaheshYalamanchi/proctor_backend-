@@ -156,56 +156,43 @@ let userEdit = async(params) =>{
     }
 };
 let UserSave = async(params) =>{
-    try{
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
-            docType: 1,
-            query: [
-                {
-                    $match:{_id:params}
-                },
-                {
-                    $project:{"id":"$_id","username":"$_id",_id:0,createdAt:1,exclude:1,group:1,labels:1,lang:1,locked:1,nickname:1,role:1,secure:1,similar:1}
-                }
-            ]
-        };
-        let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if(getData){
-            return getData;
-        }else{
-            return "Data Not Found";
-        }
-    }catch(error){
-        if(error && error.code=='ECONNREFUSED'){
-            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
-        }else{
-            return {success:false, message:error}
-        }
+    var getdata = {
+        url: process.env.MONGO_URI,
+        client: "users",
+        docType: 1,
+        query: [
+            { 
+                $addFields: {test: { $toString: "$_id" }} 
+            },
+            {
+                $match:{test:params}
+            },
+            {
+                $project:{_id:0,test:0}
+            }
+        ]
+    };
+    let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
+    if(getData){
+        return getData;
+    }else{
+        return "Data Not Found";
     }
 };
 let UserDelete = async(params) =>{
-    try{
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
-            docType: 1,
-            query:{
-                _id:params._id
-            }  
-        };
-        let responseData = await invoke.makeHttpCall("post", "removeData", getdata);
-        if(responseData){
-            return responseData;
-        }else{
-            return "Data Not Found";
-        }
-    }catch(error){
-        if(error && error.code=='ECONNREFUSED'){
-            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
-        }else{
-            return {success:false, message:error}
-        }
+    var getdata = {
+        url: process.env.MONGO_URI,
+        client: "users",
+        docType: 1,
+        query:{
+            _id:params._id
+        }  
+    };
+    let responseData = await invoke.makeHttpCall("post", "removeData", getdata);
+    if(responseData){
+        return responseData;
+    }else{
+        return "Data Not Found";
     }
 };
 let MessageSend = async(params) =>{
