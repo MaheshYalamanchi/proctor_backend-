@@ -8,29 +8,24 @@ module.exports = function (params) {
     app.get("/api/user",async (req, res) => {
         "use strict";
         try{
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                if(req && req.query && req.query.filter){
-                    let result = await scheduleSevice.UserSearchCall(req);
-                    if (result && result.success) {
-                        app.logger.info({ success: true, message: result.message });
-                        app.http.customResponse(res, result.message, 200);
-                    } else {
-                        app.logger.info({ success: false, message: result.message });
-                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                    }
-                }else if(req && req.query && req.query.start){
-                    let result = await scheduleSevice.UserLimitCall(req);
-                    if (result && result.success) {
-                        app.logger.info({ success: true, message: result.message });
-                        app.http.customResponse(res, result.message, 200);
-                    } else {
-                        app.logger.info({ success: false, message: result.message });
-                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                    }
+            if(req && req.query && req.query.filter){
+                let result = await scheduleSevice.UserSearchCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
+            }else if(req && req.query && req.query.start){
+                let result = await scheduleSevice.UserLimitCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
             }
         }catch(error){
             app.logger.error({ success: false, message: error });
@@ -44,23 +39,18 @@ module.exports = function (params) {
     app.put("/api/user/:userId", async (req,res) => {
         "use strict";
         try{
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                if(req && req.body){
-                    let result = await scheduleSevice.UserEdit(req.body);
-                    if (result && result.success) {
-                        app.logger.info({ success: true, message: result.message });
-                        app.http.customResponse(res, result.message, 200);
-                    } else {
-                        app.logger.info({ success: false, message: result.message });
-                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                    }
-                }else{
-                    app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+            if(req && req.body){
+                let result = await scheduleSevice.UserEdit(req.body);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
-            }  
+                app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+            } 
         }catch(error){
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -73,20 +63,15 @@ module.exports = function (params) {
     app.post("/api/user",async (req, res) => {
         "use strict";
         try {
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                let result = await scheduleSevice.proctorUserSaveCall(req.body)
-                if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
-                } else {
-                    app.logger.info({ success: false, message: result.message });
-                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                }
-            }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
+            let result = await scheduleSevice.proctorUserSaveCall(req.body)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+             } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
-        }catch{
+        }catch(error){
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
@@ -98,18 +83,13 @@ module.exports = function (params) {
     app.delete("/api/user/:UserId",async (req, res) => {
         "use strict";
         try {
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                let result = await scheduleSevice.proctorUserDeleteCall(req.params)
-                if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
-                } else {
-                    app.logger.info({ success: false, message: result.message });
-                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                }
-            }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
+            let result = await scheduleSevice.proctorUserDeleteCall(req.params)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         }catch(error){
             app.logger.error({ success: false, message: error });
@@ -123,22 +103,17 @@ module.exports = function (params) {
     app.get("/api/getCandidateMessageCount", async (req,res) => {
         "use strict";
         try{
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                if(req && req.query){
-                    let result = await scheduleSevice.getCandidateMessageCount(req.query);
-                    if (result && result.success) {
-                        app.logger.info({ success: true, message: result.message });
-                        app.http.customResponse(res, result.message, 200);
-                    } else {
-                        app.logger.info({ success: false, message: result.message });
-                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                    }
-                }else{
-                    app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+            if(req && req.query){
+                let result = await scheduleSevice.getCandidateMessageCount(req.query);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
+                app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
             } 
         }catch(error){
             app.logger.error({ success: false, message: error });
@@ -152,22 +127,17 @@ module.exports = function (params) {
     app.get("/api/chat/:userId", async (req,res) => {
         "use strict";
         try{
-            let tokenValidation = await auth.verifyToken(req.headers);
-            if (tokenValidation.success == true){
-                if(req && req.query){
-                    let result = await service.getCandidateMessages(req);
-                    if (result && result.success) {
-                        app.logger.info({ success: true, message: result.message });
-                        app.http.customResponse(res, result.message, 200);
-                    } else {
+            if(req && req.query){
+                let result = await service.getCandidateMessages(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
                         app.logger.info({ success: false, message: result.message });
-                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                    }
-                }else{
-                    app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else{
-                app.http.customResponse(res, { success: false, message:globalMsg[1].MSG001 }, 200);
+                app.http.customResponse(res,{success:false,message:'requset body error'}, 200);
             }
         }catch(error){
             app.logger.error({ success: false, message: error });
