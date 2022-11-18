@@ -57,8 +57,35 @@ let getMessageTemplates = async (params) => {
         }
     }
 };
+let roomUserDatails = async (params) => {
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: [
+                {$match:{_id:params}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage){
+            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0]._id;
+            return{success:true,message:responseData.data.statusMessage[0]}
+        }else{
+            return {success:false, message : 'Data Not Found'};
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
+    roomUserDatails
 }

@@ -3,16 +3,23 @@ const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 let proctorRoomUserEdit = async(params) =>{
     try{
+        var updatedAt = new Date();
+        params.updatedAt = updatedAt;
         var getdata = {
             url: process.env.MONGO_URI,
             client: "rooms",
-            docType: 0,
-            query: params
+            docType: 0, 
+            query:{
+                    filter: {"_id": params.id},
+                    update:{$set: params}
+            }
         };
-        let response = await invoke.makeHttpCall("post", "write", getdata);
-        if(response && response.data && response.data.iid){
-            let responseData = await schedule.roomUserEdit(response.data.iid);
+        let response = await invoke.makeHttpCall("post", "update", getdata);
+        if(response && response.data && response.data.statusMessage &&response.data.statusMessage.nModified ==1 ){
+            let responseData = await schedule.roomUserEdit(params);
             if(responseData && responseData.data && responseData.data.statusMessage){
+                responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+                delete responseData.data.statusMessage[0]._id;
                 return{success:true,message:responseData.data.statusMessage[0]};
             }else{
                 return {success:false, message : 'Data Not Found'};
