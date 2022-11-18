@@ -1,5 +1,6 @@
-let sharedSevices = require("../shared/sharedService");
-let scheduleSevice = require("../shared/scheduleService");
+const sharedSevices = require("../shared/sharedService");
+const scheduleSevice = require("../shared/scheduleService");
+const shared=require("../schedule/sharedService")
 const { Validator } = require('node-input-validator')
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
@@ -227,15 +228,26 @@ module.exports = function (params) {
     app.get("/api/room/:userId", async (req, res) => {
         "use strict";
         try {
-            const validateSchema = new Validator(req.params, {
-                userId: 'required'
-            });
-            var validateSchemaResponse = await validateSchema.check()
-            if (!validateSchemaResponse) {
-                app.logger.info({ success: false, message: validateSchema.errors });
-                app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
-            } else {
-                let result = await sharedSevices.proctorRoomDetails(req);
+            if(req.params.userId && req.query.populate && req.query.populate[0] && req.query.populate[1]){
+                const validateSchema = new Validator(req.params, {
+                    userId: 'required'
+                });
+                var validateSchemaResponse = await validateSchema.check()
+                if (!validateSchemaResponse) {
+                    app.logger.info({ success: false, message: validateSchema.errors });
+                    app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
+                } else {
+                    let result = await sharedSevices.proctorRoomDetails(req);
+                    if (result && result.success) {
+                        app.logger.info({ success: true, message: result.message });
+                        app.http.customResponse(res, result.message, 200);
+                    } else {
+                        app.logger.info({ success: false, message: result.message });
+                        app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                    }
+                }
+            }else if (req.params.userId){
+                let result = await shared.roomUserDatails(req.params.userId);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
