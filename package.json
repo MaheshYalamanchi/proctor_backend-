@@ -101,6 +101,7 @@
     "tree-flatten": "^1.0.0",
     "underscore": "^1.9.1",
     "util": "^0.12.1",
+    "uuid": "^9.0.0",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.4.2",
     "winston-elasticsearch": "^0.12.1"
