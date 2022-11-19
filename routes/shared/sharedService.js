@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const tokenService = require('../../routes/proctorToken/tokenService');
 const jwt_decode = require('jwt-decode');
 const schedule = require("../auth/sehedule");
+const { v4: uuidv4 } = require('uuid');
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
@@ -583,18 +584,31 @@ let proctorRoomDetails = async (params) => {
     }
 };
 let proctorSuggestSaveCall = async (params) => {
-    try {
+    try{
+        if(!params.id){
+            params._id  = uuidv4()
+        }else{
+            params._id = params.id
+        }     
+        params.createdAt = new Date()
+        params.scheduledAt = params.createdAt
+        params.timesheet={
+            xaxis: [],
+            yaxis: []
+        }
+        delete params.id; 
         var getdata = {
             url: process.env.MONGO_URI,
             client: "rooms",
             docType: 0,
             query: params
         };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
+        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        if(responseData && responseData.data&&responseData.data.iid){
             let getData = await schedule.roomUserSave(responseData.data.iid);
-            if (getData && getData.data && getData.data.statusMessage) {
-                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+            if(getData && getData.data && getData.data.statusMessage){
+                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
+                getData.data.statusMessage[0].subject=getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {

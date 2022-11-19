@@ -99,16 +99,10 @@ let roomUserSave = async(params) =>{
         client: "rooms",
         docType: 1,
         query: [
-            { 
-                $addFields: {test: { $toString: "$_id" }} 
-            },
-            {
-                $match:{test:params}
-            },
-            {
-                $project:{_id:0,test:0}
-            }
-        ]
+                {
+                    $match:{_id:params}
+                }
+            ]
     };
     let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
     if(getData){
