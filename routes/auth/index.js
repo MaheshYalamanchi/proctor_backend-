@@ -1,9 +1,10 @@
 const sharedSevices = require("../shared/sharedService");
 const scheduleSevice = require("../shared/scheduleService");
-const shared=require("../schedule/sharedService")
+const shared = require("../schedule/sharedService")
 const { Validator } = require('node-input-validator')
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
+const schedule = require("../schedule/sharedService")
 module.exports = function (params) {
     var app = params.app;
     app.post("/api/auth/login", async (req, res) => {
@@ -57,7 +58,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/room/fetch", async (req, res) => {
+    app.post("/api/room/fetch", async (req, res) => {
         "use strict";
         try {
             let result = await sharedSevices.proctorFetchCall(req.body)
@@ -228,7 +229,7 @@ module.exports = function (params) {
     app.get("/api/room/:userId", async (req, res) => {
         "use strict";
         try {
-            if(req.params.userId && req.query.populate && req.query.populate[0] && req.query.populate[1]){
+            if (req.params.userId && req.query.populate && req.query.populate[0] && req.query.populate[1]) {
                 const validateSchema = new Validator(req.params, {
                     userId: 'required'
                 });
@@ -246,7 +247,7 @@ module.exports = function (params) {
                         app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                     }
                 }
-            }else if (req.params.userId){
+            } else if (req.params.userId) {
                 let result = await shared.roomUserDatails(req.params.userId);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -276,7 +277,7 @@ module.exports = function (params) {
                 app.logger.info({ success: false, message: result.message });
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
-        }catch(error){
+        } catch (error) {
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)

@@ -11,11 +11,11 @@ let proctorLoginCall = async (params) => {
             url: process.env.MONGO_URI,
             client: "users",
             docType: 1,
-            query: {
-                username: params.username
-            }
+            query: [
+                { $match: { _id: params.username } }
+            ]
         };
-        let responseData = await invoke.makeHttpCall("post", "read", postdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
         if (responseData && responseData.data) {
             let salt = responseData.data.statusMessage[0].salt;
             let hashedPassword = responseData.data.statusMessage[0].hashedPassword;
@@ -25,7 +25,7 @@ let proctorLoginCall = async (params) => {
             if (validPassword) {
                 return {
                     success: true, message: {
-                        id: responseData.data.statusMessage[0].username,
+                        id: responseData.data.statusMessage[0]._id,
                         role: responseData.data.statusMessage[0].role, token: response
                     }
                 }
@@ -50,25 +50,23 @@ let proctorMeCall = async (params) => {
             url: process.env.MONGO_URI,
             client: "users",
             docType: 1,
-            query: {
-                username: decodeToken.id
-            }
-        };
-        let responseData = await invoke.makeHttpCall("post", "read", getdata);
-        if (responseData && responseData.data) {
-            return {
-                success: true, message: {
-                    browser: responseData.data.statusMessage[0].browser,
-                    os: responseData.data.statusMessage[0].os, platform: responseData.data.statusMessage[0].platform,
-                    role: responseData.data.statusMessage[0].role, labels: responseData.data.statusMessage[0].labels,
-                    exclude: responseData.data.statusMessage[0].exclude, username: responseData.data.statusMessage[0].username,
-                    createdAt: responseData.data.statusMessage[0].createdAt, similar: responseData.data.statusMessage[0].similar,
-                    nickname: responseData.data.statusMessage[0].nickname, ipaddress: responseData.data.statusMessage[0].ipaddress,
-                    loggedAt: responseData.data.statusMessage[0].loggedAt, group: responseData.data.statusMessage[0].group,
-                    lang: responseData.data.statusMessage[0].lang, locked: responseData.data.statusMessage[0].locked,
-                    secure: responseData.data.statusMessage[0].secure, useragent: responseData.data.statusMessage[0].useragent
+            query: [
+                {
+                    $match: { _id: decodeToken.id }
+                },
+                {
+                    $project: {
+                        id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
+                        ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
+                        nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
+                        useragent: "$useragent", username: "$_id"
+                    }
                 }
-            }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data) {
+            return { success: true, message: responseData.data.statusMessage[0] }
         } else {
             return { success: false, message: 'Data Not Found' }
         }
@@ -81,7 +79,7 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
-    var decodeToken = jwt_decode(params.authorization);
+    var decodeToken = jwt_decode(params.headers);
     try {
         var getdata = {
             url: process.env.MONGO_URI,
@@ -89,7 +87,7 @@ let proctorFetchCall = async (params) => {
             docType: 1,
             query: [
                 {
-                    "$match": { "student": "admin" }
+                    "$match": { "student": decodeToken.id }
                 },
                 {
                     "$lookup": {
@@ -100,26 +98,25 @@ let proctorFetchCall = async (params) => {
                     }
                 },
                 {
-                    "$unwind": "$student"
+                    "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
                 },
                 {
                     "$project": {
-                        "student.salt": 0,
-                        "student.hashedPassword": 0,
-                        "student.rep": 0
+                        id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                        concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                        locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                        scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", student: "$student", subject: "$subject",
+                        tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                        updatedAt: "$updatedAt", url: "$url", weights: "$weights"
                     }
                 }
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage) {
-            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-            responseData.data.statusMessage[0].student.id = responseData.data.statusMessage[0].student._id;
-            delete responseData.data.statusMessage[0].student._id;
-            delete responseData.data.statusMessage[0]._id
+        if (responseData && responseData.data && responseData.data.statusMessage.length) {
             return { success: true, message: responseData.data.statusMessage[0] }
         } else {
-            return { success: false, message: 'Data Not Found' }
+            return { success: true, message: {} }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -136,16 +133,16 @@ let proctorAuthCall = async (params) => {
             url: process.env.MONGO_URI,
             client: "users",
             docType: 1,
-            query: {
-                username: decodeToken.id
-            }
+            query: [
+                { $match: { _id: decodeToken.id } }
+            ]
         };
-        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data) {
             var splitToken = params.authorization.split(" ")
             return {
                 success: true, message: {
-                    exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage[0].username,
+                    exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage[0]._id,
                     role: responseData.data.statusMessage[0].role,
                     token: splitToken[1]
                 }
@@ -407,10 +404,10 @@ let proctorSearchCall = async (params) => {
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data) {
+            if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage[0].total_count.length) {
                 return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } };
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count.length } };
             }
         }
     } catch (error) {
@@ -584,19 +581,19 @@ let proctorRoomDetails = async (params) => {
     }
 };
 let proctorSuggestSaveCall = async (params) => {
-    try{
-        if(!params.id){
-            params._id  = uuidv4()
-        }else{
+    try {
+        if (!params.id) {
+            params._id = uuidv4()
+        } else {
             params._id = params.id
-        }     
+        }
         params.createdAt = new Date()
         params.scheduledAt = params.createdAt
-        params.timesheet={
+        params.timesheet = {
             xaxis: [],
             yaxis: []
         }
-        delete params.id; 
+        delete params.id;
         var getdata = {
             url: process.env.MONGO_URI,
             client: "rooms",
@@ -604,11 +601,11 @@ let proctorSuggestSaveCall = async (params) => {
             query: params
         };
         let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
-        if(responseData && responseData.data&&responseData.data.iid){
+        if (responseData && responseData.data && responseData.data.iid) {
             let getData = await schedule.roomUserSave(responseData.data.iid);
-            if(getData && getData.data && getData.data.statusMessage){
-                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
-                getData.data.statusMessage[0].subject=getData.data.statusMessage[0]._id;
+            if (getData && getData.data && getData.data.statusMessage) {
+                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+                getData.data.statusMessage[0].subject = getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {
