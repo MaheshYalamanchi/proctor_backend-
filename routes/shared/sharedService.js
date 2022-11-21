@@ -581,10 +581,10 @@ let proctorRoomDetails = async (params) => {
     }
 };
 let proctorSuggestSaveCall = async (params) => {
-    try {
-        if (!params.id) {
-            params._id = uuidv4()
-        } else {
+    try{
+        if(!params.id){
+            params._id  = uuidv4()
+        }else{
             params._id = params.id
         }
         params.createdAt = new Date()
@@ -593,7 +593,7 @@ let proctorSuggestSaveCall = async (params) => {
             xaxis: [],
             yaxis: []
         }
-        delete params.id;
+        delete params.id; 
         var getdata = {
             url: process.env.MONGO_URI,
             client: "rooms",
@@ -601,11 +601,11 @@ let proctorSuggestSaveCall = async (params) => {
             query: params
         };
         let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
+        if(responseData && responseData.data&&responseData.data.iid){
             let getData = await schedule.roomUserSave(responseData.data.iid);
-            if (getData && getData.data && getData.data.statusMessage) {
-                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
-                getData.data.statusMessage[0].subject = getData.data.statusMessage[0]._id;
+            if(getData && getData.data && getData.data.statusMessage){
+                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
+                getData.data.statusMessage[0].subject=getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {
