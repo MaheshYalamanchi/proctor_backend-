@@ -8,7 +8,16 @@ module.exports = function (params) {
     app.get("/api/user", async (req, res) => {
         "use strict";
         try {
-            if (req.query.limit && req.query.filter && req.query.start && req.query.count && req.query.continue && req.query.sort.nickname) {
+            if (req.query && req.query.limit && req.query.filter && req.query.start && req.query.count && req.query.continue && req.query.sort && req.query.sort.nickname) {
+                let result = await scheduleSevice.UserSearchCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else if(req.query && req.query.limit && req.query.filter && req.query.start && req.query.count && req.query.continue) {
                 let result = await scheduleSevice.UserSearchCall(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -26,8 +35,16 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            }
-            else if (req.query.limit && req.query.start && req.query.count && req.query.continue && req.query.sort.nickname) {
+            } else if (req.query && req.query.limit && req.query.start && req.query.count && req.query.continue && req.query.sort && req.query.sort.nickname) {
+                let result = await scheduleSevice.UserLimitCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else if (req.query && req.query.limit && req.query.start && req.query.count && req.query.continue) {
                 let result = await scheduleSevice.UserLimitCall(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });

@@ -69,7 +69,7 @@ let proctorDeleteSaveCall = async (params) => {
 let UserLimitCall = async (params) => {
     try {
         var sort;
-        if (params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort.nickname) {
+        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.nickname) {
             if (params.query.sort.nickname == 'desc') {
                 sort = -1;
             } else if (params.query.sort.nickname == 'asc') {
@@ -112,8 +112,13 @@ let UserLimitCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else if (params.query && params.query.limit) {
-            var start = 0;
+        } else if (params.query && params.query.limit ||params.query.limit && params.query.start && params.query.count && params.query.continue) {
+            var start;
+            if(params.query.start){
+                start = parseInt(params.query.start)
+            } else {
+                start = 0;
+            }
             var limit = parseInt(params.query.limit)
             var getdata = {
                 url: process.env.MONGO_URI,
@@ -161,7 +166,7 @@ let UserLimitCall = async (params) => {
 let UserSearchCall = async (params) => {
     try {
         var sort;
-        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort.nickname) {
+        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.nickname) {
             if (params.query.sort.nickname == 'desc') {
                 sort = -1;
             } else if (params.query.sort.nickname == 'asc') {
@@ -214,9 +219,14 @@ let UserSearchCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
-        } else if (params.query.limit && params.query.filter) {
+        } else if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count) {
+            var start;
+            if (params.query.start){
+                start = parseInt(params.query.start)
+            }else{
+                start = 0;
+            }
             var limit = parseInt(params.query.limit);
-            var start = 0;
             var getdata = {
                 url: process.env.MONGO_URI,
                 client: "users",
