@@ -78,38 +78,56 @@ let roomUserEdit = async (params) => {
     }
 };
 let roomUserDelete = async (params) => {
-    var getdata = {
-        url: process.env.MONGO_URI,
-        client: "rooms",
-        docType: 1,
-        query: {
-            _id: params._id
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: {
+                _id: params._id
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "removeData", getdata);
+        if (responseData) {
+            return responseData;
+        } else {
+            return "Data Not Found";
         }
-    };
-    let responseData = await invoke.makeHttpCall("post", "removeData", getdata);
-    if (responseData) {
-        return responseData;
-    } else {
-        return "Data Not Found";
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
     }
+
 };
 let roomUserSave = async (params) => {
-    var getdata = {
-        url: process.env.MONGO_URI,
-        client: "rooms",
-        docType: 1,
-        query: [
-            {
-                $match: { _id: params }
-            }
-        ]
-    };
-    let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
-    if (getData) {
-        return getData;
-    } else {
-        return "Data Not Found";
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: [
+                {
+                    $match: { _id: params }
+                }
+            ]
+        };
+        let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (getData) {
+            return getData;
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
     }
+
 };
 let userEdit = async (params) => {
     try {
