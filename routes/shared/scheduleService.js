@@ -2,6 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 const { query } = require("express");
+const crypto =require("crypto")
 let proctorRoomUserEdit = async (params) => {
     try {
         var updatedAt = new Date();
@@ -302,16 +303,38 @@ let UserEdit = async (params) => {
     }
 };
 let proctorUserSaveCall = async (params) => {
-    try {
-        params.createdAt = new Date()
+    var buffer = crypto.randomBytes(32);
+    const salt = buffer.toString('base64')
+    var password = params.password
+    const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
+    var locked = Boolean(params.locked);
+    var secure = Boolean(params.secure);
+    try{
+        var createdAt = new Date()
+        var jsonData = { 
+            "_id" : params.username,
+            "role" :params.role,
+            "labels" :params.labels,
+            "exclude" : [],
+            "rep" : [],
+            "salt" : salt,
+            "hashedPassword" : hasspassword,
+            "nickname" : params.username,
+            "group" : params.group,
+            "lang" : params.lang,
+            "locked" : locked,
+            "secure" : secure,
+            "createdAt" : createdAt,
+            "similar" : []
+        }
         var getdata = {
             url: process.env.MONGO_URI,
             client: "users",
             docType: 0,
-            query: params
+            query: jsonData
         };
 
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
         if (responseData && responseData.data && responseData.data.iid) {
             let getData = await schedule.UserSave(responseData.data.iid);
             if (getData && getData.data && getData.data.statusMessage) {
@@ -349,6 +372,8 @@ let proctorUserDeleteCall = async (params) => {
         if (responseData && responseData.data) {
             responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
             delete responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0].salt;
+            delete responseData.data.statusMessage[0].hashedPassword;
             return { success: true, message: responseData.data.statusMessage[0] }
         } else {
             return { success: false, message: 'Data Not Found' }
