@@ -608,7 +608,7 @@ let proctorSuggestSaveCall = async (params) => {
             let getData = await schedule.roomUserSave(responseData.data.iid);
             if(getData && getData.data && getData.data.statusMessage){
                 getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
-                getData.data.statusMessage[0].subject=getData.data.statusMessage[0]._id;
+                getData.data.statusMessage[0].subject=getData.data.statusMessage[0].id;
                 delete getData.data.statusMessage[0]._id;
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {
