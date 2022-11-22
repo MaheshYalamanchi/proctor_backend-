@@ -448,7 +448,7 @@ let proctorSuggestCall = async (params) => {
                     $limit: 100
                 },
                 {
-                    $project: { "_id": 1, "nickname": 1, "role": 1, username: "$_id" }
+                    $project: { "_id":0, id: "$_id", "nickname": 1, "role": 1, username: "$_id" }
                 },
 
                 {
