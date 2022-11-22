@@ -161,7 +161,7 @@ let proctorAuthCall = async (params) => {
 let proctorLimitCall = async (params) => {
     try {
         var sort;
-        if (params.query && params.query.sort && params.query.sort.subject) {
+        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.subject) {
             if (params.query.sort.subject == 'desc') {
                 sort = -1;
             } else if (params.query.sort.subject == 'asc') {
@@ -216,56 +216,62 @@ let proctorLimitCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else if (params.query && params.query.limit)
+        } else if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
             var sort = -1;
-        var start = 0;
-        var limit = parseInt(params.query.limit);
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
-            docType: 1,
-            query: [
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'student',
-                        foreignField: '_id',
-                        as: 'student',
+            var start;
+            if (params.query.start){
+                start = parseInt(params.query.start);
+            }else{
+                start = 0;
+            }
+            var limit = parseInt(params.query.limit);
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "rooms",
+                docType: 1,
+                query: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'student',
+                            foreignField: '_id',
+                            as: 'student',
+                        }
+                    },
+                    { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                    {
+                        $project: {
+                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                            members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                            subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                            updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
+                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
+                            startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                            "student.similar": "$student.similar", "student.username": "$student._id"
+                        }
+                    },
+                    {
+                        $facet: {
+                            "data": [
+                                { "$sort": { createdAt: sort } },
+                                { "$skip": start },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { $group: { _id: null, count: { $sum: 1 } } }
+                            ]
+                        }
                     }
-                },
-                { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
-                {
-                    $project: {
-                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                        members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
-                        subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
-                        updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                        stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
-                        duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                        startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
-                        os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                        "student.similar": "$student.similar", "student.username": "$student._id"
-                    }
-                },
-                {
-                    $facet: {
-                        "data": [
-                            { "$sort": { createdAt: sort } },
-                            { "$skip": start },
-                            { "$limit": limit }
-                        ],
-                        "total_count": [
-                            { $group: { _id: null, count: { $sum: 1 } } }
-                        ]
-                    }
-                }
-            ]
-        };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if (responseData && responseData.data) {
-            return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
-        } else {
-            return { success: false, message: 'Data Not Found' }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data) {
+                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -278,7 +284,7 @@ let proctorLimitCall = async (params) => {
 let proctorSearchCall = async (params) => {
     try {
         var sort;
-        if (params.query.sort && params.query.sort.subject) {
+        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.subject) {
             if (params.query.sort.subject == 'desc') {
                 sort = 1;
             } else if (params.query.sort.subject == 'asc') {
@@ -344,8 +350,13 @@ let proctorSearchCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
-        } else if (params.query.limit && params.query.filter) {
-            var start = 0;
+        } else if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue) {
+            var start ;
+            if (params.query.start) {
+                start = parseInt(params.query.start);
+            } else {
+                start = 0;
+            }
             var limit = parseInt(params.query.limit)
             var sort = -1;
             var getdata = {
