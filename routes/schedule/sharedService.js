@@ -108,10 +108,26 @@ let MessageTemplates = async (params) => {
         }
     }
 };
+let getNewChatMessagesV2 = async (params) => {
+    try {
+        if (params) {
+            return { success: true, message: { data: {} , success:true} }
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
     roomUserDatails,
-    MessageTemplates
+    MessageTemplates,
+    getNewChatMessagesV2
 }
