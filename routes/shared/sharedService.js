@@ -369,12 +369,13 @@ let proctorSearchCall = async (params) => {
                             $or: [
                                 { subject: { $regex: params.query.filter, $options: 'i' } },
                                 { student: { $regex: params.query.filter, $options: 'i' } },
+                                { status: { $regex: params.query.filter, $options: 'i' } },
                                 { startedAt: { $regex: params.query.filter, $options: 'i' } },
-                                { status: { $regex: params.query.filter, $options: 'i' } }
+                                { duration: { $regex: params.query.filter, $options: 'i' } },
+                                { score: { $regex: params.query.filter, $options: 'i' } }
                             ]
                         }
                     },
-
                     {
                         $lookup: {
                             from: 'users',
@@ -394,10 +395,9 @@ let proctorSearchCall = async (params) => {
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                             startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id","student.verified":"$student.verified"
                         }
                     },
-
                     {
                         $facet:
                         {
@@ -411,7 +411,6 @@ let proctorSearchCall = async (params) => {
                             ]
                         }
                     }
-
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
