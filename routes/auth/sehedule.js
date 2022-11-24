@@ -261,6 +261,57 @@ let MessageSend = async (params) => {
         }
     }
 };
+let roomSubmitSave = async (params) => {
+    try {
+        var postdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: [
+                {
+                    $match: { _id: params.query.id }
+                },
+                { $lookup: { from: "users",
+                    localField: "proctor",
+                    foreignField: "_id",
+                    as: "proctor" } 
+                },
+                { "$unwind": { "path": "$proctor", "preserveNullAndEmptyArrays": true } },
+                { $lookup: { from: "users",
+                    localField: "student",
+                    foreignField: "_id",
+                    as: "student" } 
+                },
+                { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
+                {$project:{"id":"$_id",_id:0,addons:"$addons","api":"$api","averages":"$averages","browser":"$browser",
+                "comment":"$comment","complete":"$complete","conclusion":"$conclusion","concurrent":"$concurrent",
+                "createdAt":"$createdAt","deadline":"$deadline","duration":"$duration","error":"$error","incidents":"$incidents",
+                "integrator":"$integrator","invites":"$invites","ipaddress":"$ipaddress","lifetime":"$lifetime","locale":"$locale","members":"$members",
+                "metrics":"$metrics","os":"$os","platform":"$platform","proctor.id":"$proctor._id","proctor.browser":"$proctor.browser","proctor.createdAt":"$proctor.createdAt",
+                "proctor.exclude":"$proctor.exclude","proctor.group":"$proctor.group","proctor.ipaddress":"$proctor.ipaddress","proctor.labels":"$proctor.labels","proctor.lang":"$proctor.lang",
+                "proctor.locked":"$proctor.locked","proctor.loggedAt":"$proctor.loggedAt","proctor.nickname":"$proctor.nickname","proctor.os":"$proctor.os","proctor.platform":"$proctor.platform",
+                "proctor.role":"$proctor.role","proctor.secure":"$proctor.secure","proctor.similar":"$proctor.similar","proctor.useragent":"$proctor.useragent","proctor.username":"$proctor.username",
+                "quota":"$quota","rules":"$rules","scheduledAt":"$scheduledAt","score":"$score","signedAt":"$signedAt","startedAt":"$startedAt","status":"$status","stoppedAt":"$stoppedAt","student.id":"$student._id",
+                "student.browser":"$student.browser","student.createdAt":"$student.createdAt","student.exclude":"$student.exclude","student.face":"$student.face","student.ipaddress":"$student.ipaddress",
+                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os","student.platform":"$student.platform","student.provider":"$student.provider",
+                "student.referer":"$student.referer","student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id","subject":"$subject",
+                "tags":"$tags","template":"$template","threshold":"$threshold","timeout":"$timeout","timesheet":"$timesheet","timezone":"$timezone","updatedAt":"$updatedAt","url":"$url","useragent":"$useragent","weights":"$weights"}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
+        if (responseData) {
+            return responseData;
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     roomUserDetails,
@@ -271,4 +322,5 @@ module.exports = {
     UserSave,
     UserDelete,
     MessageSend,
+    roomSubmitSave
 }

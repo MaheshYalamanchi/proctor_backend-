@@ -1,4 +1,5 @@
 const invoke = require("../../lib/http/invoke");
+const schedule = require("../auth/sehedule");
 let getCandidateMessages = async (params) => {
     try {
         if (params.query && params.query.filter && params.query.filter.type == 'message') {
@@ -191,6 +192,41 @@ let getCandidateMessages = async (params) => {
     }
 };
 
+let SubmitSaveCall = async (params) => {
+    try{ 
+        if(params.body.conclusion=="null"){
+            params.body.conclusion=null
+        }
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.query.id },
+                update: { $set: params.body }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
+            let getData = await schedule.roomSubmitSave(params);
+            if(getData && getData.data && getData.data.statusMessage){
+                return { success: true, message: getData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+
 module.exports = {
-    getCandidateMessages
+    getCandidateMessages,
+    SubmitSaveCall
 }
