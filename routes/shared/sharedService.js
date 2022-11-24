@@ -597,7 +597,10 @@ let proctorSuggestSaveCall = async (params) => {
         }else{
             params._id = params.id
         }
-        params.createdAt = new Date()
+        if(!params.createdAt){
+            params.createdAt = new Date()
+        }
+        params.updatedAt = new Date()
         params.scheduledAt = params.createdAt
         params.timesheet = {
             xaxis: [],
