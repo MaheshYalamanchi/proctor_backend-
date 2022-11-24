@@ -2,7 +2,53 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 let getCandidateMessages = async (params) => {
     try {
-        if (params.query && params.query.filter && params.query.filter.type == 'message') {
+        if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
+            var start;
+            if(params.query.skip){
+                start = parseInt(params.query.skip)
+            }else {
+                start = 0;
+            }
+            sort = -1;
+            var limit = parseInt(params.query.limit);
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "chats",
+                docType: 1,
+                query: [
+                    {
+                        "$match": {
+                            "room": params.params.userId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    
+                    {
+                        "$project": {
+                            "attach": "$attach", "createdAt": "$createdAt", "id": "$_id", "message": "$message", "room": "$room", "type": "$type", "_id": 0,"meatadata":"$metadata",
+                             "user.id":"$data._id","user.nickname":"$data.nickname","user.role":"$data.role","user.username":"$data._id"
+                        }
+                    },
+                    { "$skip": start },
+                    { "$limit": limit }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query.limit && params.query.filter && params.query.filter.type == 'message'){
             var limit = parseInt(params.query.limit);
             var getdata = {
                 url: process.env.MONGO_URI,
@@ -44,7 +90,7 @@ let getCandidateMessages = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else if (params.query && params.query.filter && params.query.filter.type == 'face') {
+        }else if (params.query && params.query.filter && params.query.filter.type == 'face') {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {

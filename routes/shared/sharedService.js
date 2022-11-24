@@ -193,7 +193,7 @@ let proctorLimitCall = async (params) => {
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                             startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                         }
                     },
                     {
@@ -229,7 +229,17 @@ let proctorLimitCall = async (params) => {
                 url: process.env.MONGO_URI,
                 client: "rooms",
                 docType: 1,
-                query: [
+                query: [{
+                    "$addFields": {
+                        "status": {
+                            "$cond": {
+                                "if": { "$eq": ["$status", null] },
+                                "then": "created",
+                                "else": "$status"
+                            }
+                        },
+                    }
+                },
                     {
                         $lookup: {
                             from: 'users',
@@ -249,7 +259,7 @@ let proctorLimitCall = async (params) => {
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                             startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                         }
                     },
                     {
@@ -326,7 +336,7 @@ let proctorSearchCall = async (params) => {
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                             startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                         }
                     },
                     {
