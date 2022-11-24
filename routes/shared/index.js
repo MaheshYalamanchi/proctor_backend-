@@ -163,7 +163,7 @@ module.exports = function (params) {
     app.get("/api/chat/:userId", async (req, res) => {
         "use strict";
         try {
-            if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type) {
+            if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
                 let result = await service.getCandidateMessages(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
