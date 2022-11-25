@@ -237,6 +237,42 @@ let getCandidateMessages = async (params) => {
         }
     }
 };
+let getCandidateMessagesDetails = async (params) => {
+    try{
+        if(params.query.sort.id){
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "chats",
+                docType: 1,
+                query: [
+                    {$match:{room:"ca21e77d-243e-4f72-b6d7-d8b5a106bea1"}},
+                    { $lookup: { from: "attaches",
+                    localField: "attach",
+                     foreignField: "_id",
+                    as: "attach" } },
+                    { $lookup: { from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user" } },
+                    { "$unwind": { "path": "$user", "preserveNullAndEmptyArrays": true } },
+                    {$sort:{id:1}}
+                ]
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 let SubmitSaveCall = async (params) => {
     try{ 
@@ -274,5 +310,6 @@ let SubmitSaveCall = async (params) => {
 
 module.exports = {
     getCandidateMessages,
-    SubmitSaveCall
+    SubmitSaveCall,
+    getCandidateMessagesDetails
 }

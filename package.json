@@ -46,7 +46,7 @@
     "handlebars": "^4.0.12",
     "helmet": "^4.2.0",
     "http": "0.0.0",
-    "http-errors": "^1.7.1",
+    "http-errors": "^1.8.1",
     "into-stream": "^5.1.1",
     "invoke": "^0.1.2",
     "is-valid-birthdate": "^0.1.0",
