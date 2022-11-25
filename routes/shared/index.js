@@ -174,6 +174,15 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
+            } else if (req.query.sort.id) {
+                let result = await service.getCandidateMessagesDetails(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200); 
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
             } else {
                 app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
             }
