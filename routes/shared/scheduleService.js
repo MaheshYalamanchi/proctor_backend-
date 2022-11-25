@@ -87,7 +87,8 @@ let UserLimitCall = async (params) => {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id"
+                            useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
+                            passport:"$passport",verified:"$verified"
                         }
                     },
                     {
@@ -130,7 +131,8 @@ let UserLimitCall = async (params) => {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id"
+                            useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
+                            passport:"$passport",verified:"$verified"
                         }
                     },
                     {
@@ -194,7 +196,8 @@ let UserSearchCall = async (params) => {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id"
+                            useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
+                            passport:"$passport",verified:"$verified"
                         }
                     },
                     {
@@ -247,7 +250,8 @@ let UserSearchCall = async (params) => {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id"
+                            useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
+                            passport:"$passport",verified:"$verified"
                         }
                     },
                     {
