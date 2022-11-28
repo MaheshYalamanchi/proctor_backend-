@@ -112,7 +112,6 @@ module.exports = function (params) {
 			})
 			objStream.on('end', function() {
 				res.writeHead(200, {'Content-Type': 'image/jpeg'});
-                console.log(data)
 				res.write(data);
 				res.end();
 			})
