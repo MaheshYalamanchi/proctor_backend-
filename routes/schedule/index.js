@@ -6,13 +6,14 @@ const multipleFileUpload = multer({ storage: inMemoryStorage });
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
 var Minio = require("minio");
-// var minioClient = new Minio.Client({
-//     endPoint: 'https://minioconsoledev.lntedutech.com/',
-//     port: 9000,
-//     secure: true,
-//     accessKey: 'CXVH0A9XJW906PGB4857',
-//     secretKey: 'ethcPXfCe8L4rkYhKoJDqwfimC1deCnWojzexl3C'
-// });
+var minioClient = new Minio.Client({
+    endPoint: 'proctorminiodev.lntedutech.com',
+    port: 443,
+    // secure: false,
+    useSSL : true,
+    accessKey: 'MNMB0FES7UD1UGTHFEZV',
+    secretKey: 'jls5UJu+HJVkMd1znBaPf2dUrVytWEj4SpksQhC7'
+});
 module.exports = function (params) {
     var app = params.app;
     app.post("/api/chat/:userId", async (req, res) => {
@@ -99,4 +100,27 @@ module.exports = function (params) {
     //     response.send(request.file);
     // });
     // });
+    app.get('/api/storage/:imageId', (req, res) => {
+
+        let data;
+		minioClient.getObject('storage', req.params.imageId, function(err, objStream) {
+			if (err) {
+				return console.log(err)
+			}
+			objStream.on('data', function(chunk) {
+				data = !data ? new Buffer(chunk) : Buffer.concat([data, chunk]);
+			})
+			objStream.on('end', function() {
+				res.writeHead(200, {'Content-Type': 'image/jpeg'});
+                console.log(data)
+				res.write(data);
+				res.end();
+			})
+			objStream.on('error', function(err) {
+				res.status(500);
+                console.log(err)
+				res.send(err);
+			})
+		});
+    });
 };
