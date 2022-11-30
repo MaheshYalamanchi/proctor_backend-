@@ -6,6 +6,8 @@ const multipleFileUpload = multer({ storage: inMemoryStorage });
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
 var Minio = require("minio");
+const formidable = require('formidable');
+var fs=require('fs');
 var minioClient = new Minio.Client({
     endPoint: 'proctorminiodev.lntedutech.com',
     port: 443,
@@ -101,7 +103,6 @@ module.exports = function (params) {
     // });
     // });
     app.get('/api/storage/:imageId', (req, res) => {
-
         let data;
 		minioClient.getObject('storage', req.params.imageId, function(err, objStream) {
 			if (err) {
@@ -121,5 +122,35 @@ module.exports = function (params) {
 				res.send(err);
 			})
 		});
+    });
+    app.post('/api/storage/face', async (req, res,next) => {
+        try {
+            const form = new formidable.IncomingForm();
+            form.parse(req, function (err, fields, files) {
+                const myfile = files.upload;
+                var fileStream = fs.createReadStream(myfile.path);
+                var fileStat = fs.stat(myfile.path, function(err2, stats) {
+                    if (err2) {
+                        return console.log(err)
+                    }
+                    minioClient.putObject("storage", myfile.name, fileStream, stats.size, async function(err3, etag) {
+                        if (err3) {
+                            return res.status(500).send(err3);
+                        }else if (etag){
+                            let result = await sharedService.getFaceResponse(req.headers);
+                            if (result && result.success) {
+                                app.logger.info({ success: true, message: result.message });
+                                app.http.customResponse(res, result.message, 200);
+                            } else {
+                                app.logger.info({ success: false, message: result.message });
+                                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                            }
+                        }
+                    })
+                });
+            });
+        } catch (error) {
+            console.log(error)
+        }
     });
 };

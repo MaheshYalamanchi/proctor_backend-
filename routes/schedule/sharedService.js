@@ -123,11 +123,49 @@ let getNewChatMessagesV2 = async (params) => {
         }
     }
 };
+let getFaceResponse = async (params) => {
+    decodeToken = jwt_decode(params.authorization)
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: [
+                {$match:{_id:decodeToken.id}},
+                {
+                    $lookup:{
+                                from: 'attaches',
+                                localField: 'face',
+                                foreignField: '_id',
+                                as: 'data',
+                            }
+                },
+                { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
+                {$project:{id:"$data._id",_id:0,createdAt:"$data.createdAt",filename:"$data.filename",metadata:"$data.metadata",
+                           mimetype:"$data.mimetype",size:"$data.size",user:"$_id"}
+                }
+                ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
     roomUserDatails,
     MessageTemplates,
-    getNewChatMessagesV2
+    getNewChatMessagesV2,
+    getFaceResponse
 }
