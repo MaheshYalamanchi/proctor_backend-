@@ -312,6 +312,39 @@ let roomSubmitSave = async (params) => {
         }
     }
 };
+let attachCall = async (params) => {
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "attaches",
+            docType: 1,
+            query:[
+                {
+                    "$addFields": { "id": { "$toString": "$_id" } }
+                },
+                {
+                    $match: { "id": params.iid }
+                },
+                {
+                    "$project":{"_id" : 0,"attached" : 0}
+                }
+
+            ] 
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
 
 module.exports = {
     roomUserDetails,
@@ -322,5 +355,6 @@ module.exports = {
     UserSave,
     UserDelete,
     MessageSend,
-    roomSubmitSave
+    roomSubmitSave,
+    attachCall
 }
