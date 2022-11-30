@@ -135,8 +135,8 @@ let getFaceResponse = async (params) => {
                 {
                     $lookup:{
                                 from: 'attaches',
-                                localField: 'face',
-                                foreignField: '_id',
+                                localField: '_id',
+                                foreignField: 'user',
                                 as: 'data',
                             }
                 },
