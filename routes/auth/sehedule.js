@@ -247,9 +247,15 @@ let MessageSend = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
-            responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
-            return responseData;
+            let attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
+            if(attachResponse){
+                responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
+                let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+                responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
+                return responseData;
+            } else{
+                return "Data Not Found";
+            }
         } else {
             return "Data Not Found";
         }
@@ -312,6 +318,39 @@ let roomSubmitSave = async (params) => {
         }
     }
 };
+let attachCall = async (params) => {
+    try{
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "attaches",
+            docType: 1,
+            query:[
+                {
+                    "$addFields": { "id": { "$toString": "$_id" } }
+                },
+                {
+                    $match: { "id": params.iid }
+                },
+                {
+                    "$project":{"_id" : 0,"attached" : 0}
+                }
+
+            ] 
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
 
 module.exports = {
     roomUserDetails,
@@ -322,5 +361,6 @@ module.exports = {
     UserSave,
     UserDelete,
     MessageSend,
-    roomSubmitSave
+    roomSubmitSave,
+    attachCall
 }

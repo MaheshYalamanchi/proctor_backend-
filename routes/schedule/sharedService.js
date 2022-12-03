@@ -4,7 +4,7 @@ const schedule = require("../auth/sehedule");
 const jwt_decode = require('jwt-decode');
 let getCandidateMessageSend = async (params) => {
     try {
-        var decodeToken = jwt_decode(params.body.headers);
+        var decodeToken = jwt_decode(params.headers.authorization);
         params.body.createdAt = new Date();
         params.body.room = params.params.userId;
         params.body.user = decodeToken.id;
@@ -160,6 +160,43 @@ let getFaceResponse = async (params) => {
         }
     }
 };
+let attachmentPostCall = async (params) => {
+    decodeToken = jwt_decode(params.headers)
+    var createdAt = new Date()
+    try {
+        var jsonData = {
+            "createdAt":createdAt,
+            "filename":params.myfile.originalFilename,
+            "mimetype":params.myfile.mimetype,
+            "size":params.myfile.size,
+            "user":decodeToken.id,
+            "attached" : true
+        }
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "attaches",
+            docType: 0,
+            query: jsonData
+        };
+        let response = await invoke.makeHttpCall("post", "write", getdata);
+        if (response && response.data && response.data.iid) {
+            let responseData = await schedule.attachCall(response.data);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -167,5 +204,6 @@ module.exports = {
     roomUserDatails,
     MessageTemplates,
     getNewChatMessagesV2,
-    getFaceResponse
+    getFaceResponse,
+    attachmentPostCall
 }
