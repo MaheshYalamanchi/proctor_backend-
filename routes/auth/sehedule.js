@@ -247,9 +247,15 @@ let MessageSend = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
-            responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
-            return responseData;
+            let attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
+            if(attachResponse){
+                responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
+                let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+                responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
+                return responseData;
+            } else{
+                return "Data Not Found";
+            }
         } else {
             return "Data Not Found";
         }
