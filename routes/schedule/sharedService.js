@@ -4,7 +4,7 @@ const schedule = require("../auth/sehedule");
 const jwt_decode = require('jwt-decode');
 let getCandidateMessageSend = async (params) => {
     try {
-        var decodeToken = jwt_decode(params.body.headers);
+        var decodeToken = jwt_decode(params.headers.authorization);
         params.body.createdAt = new Date();
         params.body.room = params.params.userId;
         params.body.user = decodeToken.id;
