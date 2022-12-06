@@ -1,7 +1,7 @@
 var jwt = require('jsonwebtoken');
 let generateProctorToken = async (req) => {
     try {
-        var secret = 'eime6Daeb2xanienojaefoh4';
+        var secret = 'secret';
         let user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id }
         let tokenArg = {
             id: user.username,
@@ -19,7 +19,7 @@ let generateProctorToken = async (req) => {
 };
 let ProctorTokenGeneration = async (req) => {
     try {
-        var secret = 'eime6Daeb2xanienojaefoh4';
+        var secret = 'secret';
         let user = { "id": req.statusMessage[0]._id, "provider": req.statusMessage[0].provider, "role": req.statusMessage[0].role };
         let tokenArg = {
             id: user.id,
