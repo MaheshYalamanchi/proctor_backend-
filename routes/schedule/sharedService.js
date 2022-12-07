@@ -2,6 +2,8 @@ const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const schedule = require("../auth/sehedule");
 const jwt_decode = require('jwt-decode');
+var jwt = require('jsonwebtoken');
+const TOKEN_KEY ="eime6Daeb2xanienojaefoh4"
 let getCandidateMessageSend = async (params) => {
     try {
         var decodeToken = jwt_decode(params.headers.authorization);
@@ -197,6 +199,28 @@ let attachmentPostCall = async (params) => {
         }
     }
 };
+let tokenValidation = async(req, res )=> {
+    const token = req.headers.authorization.split(" ");
+    try {
+        if (!token) {
+            return {success:false,message:"A token is required for authentication"};
+        }else{
+            const decoded = jwt.verify(token[1],TOKEN_KEY);
+            if(decoded){
+                return{success:true,message:{Token:token[1]}}
+            }else{
+                return {success:false, message : 'Data Not Found'};
+            }
+        }
+    }catch(error){
+        if(error){
+            return {success:false, message:"TokenExpiredError"}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+};
+
 
 module.exports = {
     getCandidateMessageSend,
@@ -205,5 +229,6 @@ module.exports = {
     MessageTemplates,
     getNewChatMessagesV2,
     getFaceResponse,
-    attachmentPostCall
+    attachmentPostCall,
+    tokenValidation
 }
