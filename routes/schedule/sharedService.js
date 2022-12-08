@@ -3,7 +3,9 @@ const globalMsg = require('../../configuration/messages/message');
 const schedule = require("../auth/sehedule");
 const jwt_decode = require('jwt-decode');
 var jwt = require('jsonwebtoken');
-const TOKEN_KEY ="eime6Daeb2xanienojaefoh4"
+const TOKEN_KEY ="eime6Daeb2xanienojaefoh4";
+const tokenService = require('../../routes/proctorToken/tokenService');
+
 let getCandidateMessageSend = async (params) => {
     try {
         var decodeToken = jwt_decode(params.headers.authorization);
@@ -207,7 +209,12 @@ let tokenValidation = async(req, res )=> {
         }else{
             const decoded = jwt.verify(token[1],TOKEN_KEY);
             if(decoded){
-                return{success:true,message:{Token:token[1]}}
+                let getToken = await tokenService.jwtToken(decoded);
+                if (getToken) {
+                    return{success:true,message:{Token:getToken}};
+                }else{
+                    return {success:false, message : 'Error While Generating Token!'};
+                }
             }else{
                 return {success:false, message : 'Data Not Found'};
             }
@@ -220,7 +227,30 @@ let tokenValidation = async(req, res )=> {
         }
     }
 };
-
+let getDatails = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "rooms",
+            docType: 1,
+            query: [
+                    {$match:{_id:params.query.id}},
+                ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -230,5 +260,6 @@ module.exports = {
     getNewChatMessagesV2,
     getFaceResponse,
     attachmentPostCall,
-    tokenValidation
+    tokenValidation,
+    getDatails
 }
