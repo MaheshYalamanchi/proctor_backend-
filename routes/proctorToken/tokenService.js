@@ -1,5 +1,8 @@
 var jwt = require('jsonwebtoken');
 var uuid = require('uuid-random');
+const scheduleService = require('../shared/scheduleService');
+const jwt_decode = require('jwt-decode');
+const sharedService = require('../shared/sharedService')
 let generateProctorToken = async (req) => {
     try {
         var secret = 'wie9iekohFingei5ieveith2';
@@ -53,7 +56,7 @@ let generateToken = async (req) => {
         user.requestType = req.requestType
         var secret = 'eime6Daeb2xanienojaefoh4';
         let tokenArg = {
-            // nickname : user.username,
+            nickname : user.username,
             id : user.id,
             tags : user.tags,
             username : user.nickname,
@@ -65,7 +68,7 @@ let generateToken = async (req) => {
         if (user.proctorToken){
             return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken };
         }else{
-            return 'Error While Generating Token!';
+            return {success: false, message:'Error While Generating Token!'};
         }
     } catch (err) {
         return err;
