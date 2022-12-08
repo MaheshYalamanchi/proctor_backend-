@@ -193,7 +193,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get('/api/auth/jwt', async (req, res,next) => {
+    app.post('/api/auth/jwt', async (req, res,next) => {
         try {
             if(req){
                 let result = await sharedService.tokenValidation(req);
