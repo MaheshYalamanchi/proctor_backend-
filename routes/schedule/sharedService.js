@@ -211,7 +211,7 @@ let tokenValidation = async(req, res )=> {
             if(decoded){
                 let getToken = await tokenService.jwtToken(decoded);
                 if (getToken) {
-                    return{success:true,message:{Token:getToken}};
+                    return{success:true,message:{token:getToken}};
                 }else{
                     return {success:false, message : 'Error While Generating Token!'};
                 }
