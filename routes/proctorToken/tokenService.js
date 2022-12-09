@@ -105,7 +105,8 @@ let jwtToken = async (req) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        return err;
+        console.log(err)
+        return {success:false,message:'Something went wrong!'};
     }
 };
 module.exports = {

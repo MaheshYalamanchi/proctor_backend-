@@ -220,6 +220,7 @@ let tokenValidation = async(req, res )=> {
             }
         }
     }catch(error){
+        console.log(error)
         if(error){
             return {success:false, message:"TokenExpiredError"}
         }else{
