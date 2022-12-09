@@ -2,10 +2,12 @@ var jwt = require('jsonwebtoken');
 var uuid = require('uuid-random');
 const scheduleService = require('../shared/scheduleService');
 const jwt_decode = require('jwt-decode');
-const sharedService = require('../shared/sharedService')
+const sharedService = require('../shared/sharedService');
+const secret = 'eime6Daeb2xanienojaefoh4';
+const invoke = require("../../lib/http/invoke");
+
 let generateProctorToken = async (req) => {
     try {
-        var secret = 'wie9iekohFingei5ieveith2';
         let user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id }
         let tokenArg = {
             id: user.username,
@@ -23,7 +25,6 @@ let generateProctorToken = async (req) => {
 };
 let ProctorTokenGeneration = async (req) => {
     try {
-        var secret = 'wie9iekohFingei5ieveith2';
         let user = { "id": req.statusMessage[0]._id, "provider": req.statusMessage[0].provider, "role": req.statusMessage[0].role };
         let tokenArg = {
             id: user.id,
@@ -53,8 +54,7 @@ let generateToken = async (req) => {
         user.tags = [req.nickname,req.assessmentId, req.taskId];
         user.taskId = req.taskId
         user.nickname = req.nickname.replace(/\s/g, "");
-        user.requestType = req.requestType
-        var secret = 'eime6Daeb2xanienojaefoh4';
+        user.requestType = req.requestType;
         let tokenArg = {
             nickname : user.username,
             id : user.id,
@@ -74,8 +74,43 @@ let generateToken = async (req) => {
         return err;
     }
 };
+let jwtToken = async (req) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query: [
+                {
+                    $match:{_id:req.username}
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            let user = { "provider": responseData.data.statusMessage[0].provider, "id": responseData.data.statusMessage[0]._id ,"role":responseData.data.statusMessage[0].role,"room":req.id}
+            let tokenArg = {
+                id: user.id,
+                provider: user.provider,
+                role : user.role,
+                room : user.room
+            };
+            user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
+            if (user.proctorToken) {
+                return user.proctorToken;
+            } else {
+                return {success: false, message:'Error While Generating Token!'};
+            }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return err;
+    }
+};
 module.exports = {
     generateProctorToken,
     ProctorTokenGeneration,
-    generateToken
+    generateToken,
+    jwtToken
 }
