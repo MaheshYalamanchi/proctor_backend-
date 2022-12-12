@@ -5,6 +5,7 @@ const jwt_decode = require('jwt-decode');
 var jwt = require('jsonwebtoken');
 const TOKEN_KEY ="eime6Daeb2xanienojaefoh4";
 const tokenService = require('../../routes/proctorToken/tokenService');
+const scheduleservice = require('../auth/schedule.service');
 
 let getCandidateMessageSend = async (params) => {
     try {
@@ -128,33 +129,40 @@ let getNewChatMessagesV2 = async (params) => {
     }
 };
 let getFaceResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization)
+    decodeToken = jwt_decode(params.headers)
     try {
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
-            docType: 1,
-            query: [
-                {$match:{_id:decodeToken.id}},
-                {
-                    $lookup:{
-                                from: 'attaches',
-                                localField: '_id',
-                                foreignField: 'user',
-                                as: 'data',
-                            }
-                },
-                { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
-                {$project:{id:"$data._id",_id:0,createdAt:"$data.createdAt",filename:"$data.filename",metadata:"$data.metadata",
-                           mimetype:"$data.mimetype",size:"$data.size",user:"$_id"}
+        if (params){
+            let response = await scheduleservice.faceResponse(params);
+            if (response.success){
+                var getdata = {
+                    url: process.env.MONGO_URI,
+                    client: "users",
+                    docType: 1,
+                    query: [
+                        {$match:{_id:decodeToken.id}},
+                        {
+                            $lookup:{
+                                        from: 'attaches',
+                                        localField: '_id',
+                                        foreignField: 'user',
+                                        as: 'data',
+                                    }
+                        },
+                        { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
+                        {$project:{id:"$data._id",_id:0,createdAt:"$data.createdAt",filename:"$data.filename",metadata:"$data.metadata",
+                                mimetype:"$data.mimetype",size:"$data.size",user:"$_id"}
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
                 }
-                ]
-        };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message: responseData.data.statusMessage[0] }
-        } else {
-            return { success: false, message: 'Data Not Found' };
+            } else {
+                return { success: false, message: 'faceDetails insertion error' }
+            }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {

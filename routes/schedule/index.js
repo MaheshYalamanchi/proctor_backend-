@@ -126,8 +126,8 @@ module.exports = function (params) {
     });
     app.post('/api/storage/face', async (req, res,next) => {
         try {
-            if(req.headers){
-                let result = await sharedService.getFaceResponse(req.headers);
+            if(req.body){
+                let result = await sharedService.getFaceResponse(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
