@@ -2,7 +2,6 @@ const sharedService = require("../schedule/sharedService");
 let socketService=require('../shared/socketService');
 var Minio = require("minio");
 const tokenService = require('../../routes/proctorToken/tokenService');
-const scheduleService = require('../schedule/scheduleService');
 var minioClient = new Minio.Client({
     endPoint: 'proctorminiodev.lntedutech.com',
     port: 443,
@@ -181,29 +180,11 @@ module.exports = function (params) {
     });
     app.post('/api/auth/jwt', async (req, res,next) => {
         try {
-            if(req){
+            if(req.body && req.body.headers && req.body.headers.authorization){
                 let result = await sharedService.tokenValidation(req);
                 if (result && result.success) {
-                    let userResponse = await scheduleService.userFetch(result.data);
-                    if (userResponse.message){
-                        let response = await scheduleService.userUpdate(result.data);
-                        if (response && response.success){
-                            let responseData = await scheduleService.roomUpdate()
-                            if (responseData){
-                            app.logger.info({ success: true, message: result.message });
-                            app.http.customResponse(res, result.message, 200);
-                            }
-                        }
-                    } else if ( userResponse.message = null){ 
-                        let response = await scheduleService.userInsertion(result.data);
-                        if (response && response.success){
-                            let responseData = await scheduleService.roomInsertion();
-                            if (responseData){
-                                app.logger.info({ success: true, message: result.message });
-                                app.http.customResponse(res, result.message, 200);
-                            }
-                        }
-                    }
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
