@@ -1,14 +1,8 @@
 const sharedService = require("../schedule/sharedService");
 let socketService=require('../shared/socketService');
-var multer = require("multer");
-const inMemoryStorage = multer.memoryStorage();
-const multipleFileUpload = multer({ storage: inMemoryStorage });
-const auth = require('../auth/auth');
-const globalMsg = require('../../configuration/messages/message');
 var Minio = require("minio");
-const formidable = require('formidable');
-var fs=require('fs');
 const tokenService = require('../../routes/proctorToken/tokenService');
+const scheduleService = require('../schedule/scheduleService');
 var minioClient = new Minio.Client({
     endPoint: 'proctorminiodev.lntedutech.com',
     port: 443,
@@ -95,14 +89,6 @@ module.exports = function (params) {
             }
         }
     });
-    // app.post("/api/storage", multipleFileUpload.single('upload'), function(request, response) {
-    // minioClient.fPutObject("testbucket", request.file.originalname, request.file.path, "application/octet-stream", function(error, etag) {
-    //     if(error) {
-    //         return console.log(error);
-    //     }
-    //     response.send(request.file);
-    // });
-    // });
     app.get('/api/storage/:imageId', (req, res) => {
         let data;
 		minioClient.getObject('storage', req.params.imageId, function(err, objStream) {
@@ -198,8 +184,26 @@ module.exports = function (params) {
             if(req){
                 let result = await sharedService.tokenValidation(req);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
+                    let userResponse = await scheduleService.userFetch(result.data);
+                    if (userResponse.message){
+                        let response = await scheduleService.userUpdate(result.data);
+                        if (response && response.success){
+                            let responseData = await scheduleService.roomUpdate()
+                            if (responseData){
+                            app.logger.info({ success: true, message: result.message });
+                            app.http.customResponse(res, result.message, 200);
+                            }
+                        }
+                    } else if ( userResponse.message = null){ 
+                        let response = await scheduleService.userInsertion(result.data);
+                        if (response && response.success){
+                            let responseData = await scheduleService.roomInsertion();
+                            if (responseData){
+                                app.logger.info({ success: true, message: result.message });
+                                app.http.customResponse(res, result.message, 200);
+                            }
+                        }
+                    }
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
@@ -244,6 +248,29 @@ module.exports = function (params) {
         try {
             if(req.body){
                 let result = await sharedService.getPassportPhotoResponse(req.body);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            }else{
+                app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+    app.post('/api/room/start', async (req, res,next) => {
+        try {
+            if(req.body){
+                let result = await sharedService.getCandidateDetails(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
