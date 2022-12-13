@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken');
 const TOKEN_KEY ="eime6Daeb2xanienojaefoh4";
 const tokenService = require('../../routes/proctorToken/tokenService');
 const scheduleservice = require('../auth/schedule.service');
+const scheduleService = require('../schedule/scheduleService');
 
 let getCandidateMessageSend = async (params) => {
     try {
@@ -212,14 +213,31 @@ let tokenValidation = async(req, res )=> {
         if (!token) {
             return {success:false,message:"A token is required for authentication"};
         }else{
-            const decoded = jwt.verify(token[1],TOKEN_KEY);
-            decoded.headers = req.body.headers;
-            if(decoded){
-                let getToken = await tokenService.jwtToken(decoded);
-                if (getToken) {
-                    return{success:true,message:{token:getToken},data:decoded};
-                }else{
-                    return {success:false, message : 'Error While Generating Token!'};
+            const decodedToken = jwt.verify(token[1],TOKEN_KEY);
+            decodedToken.headers = req.body.headers;
+            if(decodedToken){
+                let userResponse = await scheduleService.userFetch(decodedToken);
+                var responseData ;				
+                if (userResponse&&userResponse.message&&(userResponse.message.length>0) &&(userResponse.message[0]._id == decodedToken.username)){
+                        let response = await scheduleService.userUpdate(userResponse.message);
+                        if (response && response.success){
+                            responseData = await scheduleService.roomUpdate(response.message)
+                        }
+                } else { 
+                    let response = await scheduleService.userInsertion(decodedToken);
+                    if (response && response.success){
+                        responseData = await scheduleService.roomInsertion(decodedToken);
+                    } else {
+                        return {success:false,message:"user insertion failed..."}
+                    }
+                }
+                if (responseData.success){
+                    let getToken = await tokenService.jwtToken(decodedToken);
+                    if (getToken) {
+                        return{success:true,message:{token:getToken}};
+                    }else{
+                        return {success:false, message : 'Error While Generating Token!'};
+                    }
                 }
             }else{
                 return {success:false, message : 'Data Not Found'};
