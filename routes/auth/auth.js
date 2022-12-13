@@ -1,6 +1,6 @@
 const globalMsg = require('../../configuration/messages/message');
 var jwt = require('jsonwebtoken');
-const secret = "eime6Daeb2xanienojaefoh4"
+const secret = "wie9iekohFingei5ieveith2"
 
 let verifyToken = async (req, res) => {
     const token = req.authorization.split(" ")
