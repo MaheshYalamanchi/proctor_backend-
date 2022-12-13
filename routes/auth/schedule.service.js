@@ -76,16 +76,16 @@ let faceResponse = async (params) => {
             filename : params.myfile.originalFilename,
             mimetype : params.myfile.mimetype,
             size : params.myfile.size,
+            createdAt : new Date(),
+            attached : true,
             metadata : {
                 distance : 0,
                 threshold : 0.25,
                 verified : true,
                 objectnew : "",
                 similar : [],
-                rep : params.rep,
-                createdAt : new Date(),
-                attached : true
-            }
+                rep : params.rep
+            },
         }
         var getdata = {
             url: process.env.MONGO_URI,
@@ -95,7 +95,7 @@ let faceResponse = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if (responseData && responseData.data.iid) {
-            return ({success:true,message :responseData.iid}) ;
+            return ({success:true,message :responseData.data.iid}) ;
         } else {
             return "Data Not Found";
         }

@@ -136,21 +136,18 @@ let getFaceResponse = async (params) => {
             if (response.success){
                 var getdata = {
                     url: process.env.MONGO_URI,
-                    client: "users",
+                    client: "attaches",
                     docType: 1,
                     query: [
-                        {$match:{_id:decodeToken.id}},
                         {
-                            $lookup:{
-                                        from: 'attaches',
-                                        localField: '_id',
-                                        foreignField: 'user',
-                                        as: 'data',
-                                    }
+                            "$addFields": { "test": { "$toString": "$_id" } }
                         },
-                        { $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
-                        {$project:{id:"$data._id",_id:0,createdAt:"$data.createdAt",filename:"$data.filename",metadata:"$data.metadata",
-                                mimetype:"$data.mimetype",size:"$data.size",user:"$_id"}
+                        {
+                            "$match": { "test": response.message }
+                        },
+                        {
+                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                          metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
                         }
                     ]
                 };
@@ -260,6 +257,49 @@ let getDatails = async (params) => {
         }
     }
 };
+let getPassportPhotoResponse = async (params) => {
+    decodeToken = jwt_decode(params.headers)
+    try {
+        if (params){
+            let response = await scheduleservice.faceResponse(params);
+            if (response.success){
+                var getdata = {
+                    url: process.env.MONGO_URI,
+                    client: "attaches",
+                    docType: 1,
+                    query: [
+                        {
+                            "$addFields": { "test": { "$toString": "$_id" } }
+                        },
+                        {
+                            "$match": { "test": response.message }
+                        },
+                        {
+                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                          "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
+                                          "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
+                                          "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+            } else {
+                return { success: false, message: 'faceDetails insertion error' }
+            }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -270,5 +310,6 @@ module.exports = {
     getFaceResponse,
     attachmentPostCall,
     tokenValidation,
-    getDatails
+    getDatails,
+    getPassportPhotoResponse
 }
