@@ -250,7 +250,7 @@ module.exports = function (params) {
     });
     app.post('/api/room/start', async (req, res,next) => {
         try {
-            if(req){
+            if(req.body){
                 let result = await sharedService.getCandidateDetails(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });

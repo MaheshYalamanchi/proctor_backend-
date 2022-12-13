@@ -326,7 +326,7 @@ let getCandidateDetails = async (params) => {
             client: "rooms",
             docType: 1,
             query: [
-                {$match : { _id:params.query.id}},
+                {$match : { _id:params.id}},
                 {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
                             metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
                             threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
