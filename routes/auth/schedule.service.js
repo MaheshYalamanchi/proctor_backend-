@@ -1,6 +1,7 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const jwt_decode = require('jwt-decode');
+const { ObjectID } = require("mongodb");
 let getcount = async (params) => {
     try {
         var getdata = {
@@ -72,19 +73,20 @@ let faceResponse = async (params) => {
     decodeToken = jwt_decode(params.headers);
     try {
         jsonData = {
-            user : decodeToken.id,
-            filename : params.myfile.originalFilename,
-            mimetype : params.myfile.mimetype,
-            size : params.myfile.size,
-            createdAt : new Date(),
-            attached : true,
-            metadata : {
-                distance : 0,
-                threshold : 0.25,
-                verified : true,
-                objectnew : "",
-                similar : [],
-                rep : params.rep
+            "_id" :new ObjectID(params.message.face),
+            "user" : decodeToken.id,
+            "filename" : params.myfile.originalFilename,
+            "mimetype" : params.myfile.mimetype,
+            "size" : params.myfile.size,
+            "createdAt" : new Date(),
+            "attached" : true,
+            "metadata" : {
+                "distance" : 0,
+                "threshold" : 0.25,
+                "verified" : true,
+                "objectnew" : "",
+                "similar" : [],
+                "rep" : params.rep
             },
         }
         var getdata = {
@@ -93,7 +95,7 @@ let faceResponse = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
         if (responseData && responseData.data.iid) {
             return ({success:true,message :responseData.data.iid}) ;
         } else {
