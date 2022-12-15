@@ -132,35 +132,87 @@ let getNewChatMessagesV2 = async (params) => {
 let getFaceResponse = async (params) => {
     decodeToken = jwt_decode(params.headers)
     try {
-        if (params){
-            let response = await scheduleservice.faceResponse(params);
-            if (response.success){
-                var getdata = {
-                    url: process.env.MONGO_URI,
-                    client: "attaches",
-                    docType: 1,
-                    query: [
-                        {
-                            "$addFields": { "test": { "$toString": "$_id" } }
-                        },
-                        {
-                            "$match": { "test": response.message }
-                        },
-                        {
-                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                          metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+        let userResponse = await scheduleService.userDetails(decodeToken);
+        if (userResponse && userResponse.success){
+            var thresold = params.thresold || 0.25;
+            var distance = 0;
+            if (userResponse.message[0].rep.length === params.rep.length){
+                for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
+                            const B = userResponse[0].rep[A] - params.rep[A];
+                            distance += B * B;
                         }
-                    ]
-                };
-                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (responseData && responseData.data && responseData.data.statusMessage) {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                } else {
-                    return { success: false, message: 'Data Not Found' };
+                    }
+            var verified = distance <= thresold
+            var getData = {
+                url: process.env.MONGO_URI,
+                client: "users",
+                docType: 0,
+                query : {
+                    "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
+                    "scope":{
+                        "c":0,
+                        "e":[userResponse.message[0]._id],
+                        "n":10,
+                        "s":params.rep,
+                        "t":0.15
+                    },
+                    "out":"myCollections",
+                    "sort":{ "loggedAt": -1 },
+                    "limit":1000
                 }
-            } else {
-                return { success: false, message: 'faceDetails insertion error' }
             }
+            var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
+            if (similarfaces && similarfaces.data.success){
+                var jsonData = {
+                    thresold : thresold,
+                    distance : distance,
+                    verified : verified,
+                    similar : similarfaces.data.message,
+                    userId : decodeToken.id,
+                    rep : params.rep
+                }
+                let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
+                if (getDetails.success){
+                    let userData = await scheduleService.userFetch(decodeToken);
+                    if (userData && userData.success){
+                        params.message = userData.message[0];
+                        let response = await scheduleservice.faceResponse(params);
+                        if (response.success){
+                            var getdata = {
+                                url: process.env.MONGO_URI,
+                                client: "attaches",
+                                docType: 1,
+                                query: [
+                                        {
+                                            "$addFields": { "test": { "$toString": "$_id" } }
+                                        },
+                                        {
+                                            "$match": { "test": response.message }
+                                        },
+                                        {
+                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                                        }
+                                    ]
+                            };
+                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                            if (responseData && responseData.data && responseData.data.statusMessage) {
+                                return { success: true, message: responseData.data.statusMessage[0] }
+                            } else {
+                                return { success: false, message: 'Data Not Found' };
+                            }
+                        } else {
+                            return { success: false, message: 'Data not found' };
+                        } 
+                    } else {
+                        return { success: false, message: 'Data not found' };
+                    } 
+                } else {
+                    return { success: false, message: 'similarfaces error' };
+                }    
+        } else {
+            return { success: false, message: 'faceDetails insertion error' };
+        }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -207,21 +259,21 @@ let attachmentPostCall = async (params) => {
         }
     }
 };
-let tokenValidation = async(req, res )=> {
-    const token = req.body.headers.authorization.split(" ");
+let tokenValidation = async(params,req)=> {
+    const token =params.body.authorization.authorization.split(" ");
     try {
         if (!token) {
             return {success:false,message:"A token is required for authentication"};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
-            decodedToken.headers = req.body.headers;
+            decodedToken.headers = params.body.authorization;
             if(decodedToken){
                 let userResponse = await scheduleService.userFetch(decodedToken);
                 var responseData ;				
                 if (userResponse&&userResponse.message&&(userResponse.message.length>0) &&(userResponse.message[0]._id == decodedToken.username)){
-                        let response = await scheduleService.userUpdate(userResponse.message);
+                        let response = await scheduleService.userUpdate(userResponse.message[0]);
                         if (response && response.success){
-                            responseData = await scheduleService.roomUpdate(response.message)
+                            responseData = await scheduleService.roomUpdate(decodedToken)
                         }
                 } else { 
                     let response = await scheduleService.userInsertion(decodedToken);
