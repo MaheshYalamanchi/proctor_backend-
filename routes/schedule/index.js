@@ -20,7 +20,7 @@ module.exports = function (params) {
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
-                    await socketService.messageTrigger(result.message)
+                    //await socketService.messageTrigger(result.message)
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);

@@ -247,15 +247,28 @@ let MessageSend = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
-            if(attachResponse){
-                responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
-                let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
-                responseData.data.statusMessage[0].metadata.incidents = response.data.statusMessage[0].incidents;
-                return responseData;
-            } else{
-                return "Data Not Found";
+            let attachResponse,getMessage;
+            if(responseData.data.statusMessage[0].attach){
+                attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
+                if(attachResponse){
+                    responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
+                    let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+                    if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
+                        if(!responseData.data.statusMessage[0].metadata){
+                            responseData.data.statusMessage[0].metadata={}
+                        }
+                        responseData.data.statusMessage[0].metadata.incidents= response.data.statusMessage[0].incidents
+                    }else{
+                        response.data.statusMessage[0].incidents=0
+                    }
+                    
+                    return responseData;
+                } 
+            }else{
+                return responseData
             }
+            
+           
         } else {
             return "Data Not Found";
         }
