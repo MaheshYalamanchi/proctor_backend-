@@ -130,7 +130,7 @@ let getNewChatMessagesV2 = async (params) => {
     }
 };
 let getFaceResponse = async (params) => {
-    decodeToken = jwt_decode(params.headers)
+    decodeToken = jwt_decode(params.authorization)
     try {
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
@@ -173,7 +173,7 @@ let getFaceResponse = async (params) => {
                 }
                 let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
                 if (getDetails.success){
-                    let userData = await scheduleService.userFetch(decodeToken);
+                    let userData = await scheduleService.userDetails(decodeToken);
                     if (userData && userData.success){
                         params.message = userData.message[0];
                         let response = await scheduleservice.faceResponse(params);

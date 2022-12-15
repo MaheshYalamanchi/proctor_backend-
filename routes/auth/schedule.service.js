@@ -70,7 +70,7 @@ let getAttach = async (params) => {
     }
 };
 let faceResponse = async (params) => {
-    decodeToken = jwt_decode(params.headers);
+    decodeToken = jwt_decode(params.authorization);
     try {
         jsonData = {
             "_id" :new ObjectID(params.message.face),
