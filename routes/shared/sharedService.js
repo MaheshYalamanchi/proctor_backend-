@@ -79,44 +79,89 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
-    var decodeToken = jwt_decode(params.headers);
+    var decodeToken = jwt_decode(params.authorization);
     try {
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
-            docType: 1,
-            query: [
-                {
-                    "$match": { "student": decodeToken.id }
-                },
-                {
-                    "$lookup": {
-                        from: 'users',
-                        localField: 'student',
-                        foreignField: '_id',
-                        as: 'student',
+        if (decodeToken && decodeToken.room){
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "rooms",
+                docType: 1,
+                query: [
+                    {
+                        "$match": { 
+                            "student": decodeToken.id ,
+                            "_id" : decodeToken.room
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            from: 'users',
+                            localField: 'student',
+                            foreignField: '_id',
+                            as: 'student',
+                        }
+                    },
+                    {
+                        "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
+                    },
+                    {
+                        "$project": {
+                            id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                            concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                            locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                            scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", student: "$student", subject: "$subject",
+                            tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                            updatedAt: "$updatedAt", url: "$url", weights: "$weights"
+                        }
                     }
-                },
-                {
-                    "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
-                },
-                {
-                    "$project": {
-                        id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                        concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                        locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                        scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", student: "$student", subject: "$subject",
-                        tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                        updatedAt: "$updatedAt", url: "$url", weights: "$weights"
-                    }
-                }
-            ]
-        };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.length) {
-            return { success: true, message: responseData.data.statusMessage[0] }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage.length) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: true, message: {} }
+            }
         } else {
-            return { success: true, message: {} }
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "rooms",
+                docType: 1,
+                query: [
+                    {
+                        "$match": { 
+                            "student": decodeToken.id 
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            from: 'users',
+                            localField: 'student',
+                            foreignField: '_id',
+                            as: 'student',
+                        }
+                    },
+                    {
+                        "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
+                    },
+                    {
+                        "$project": {
+                            id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                            concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                            locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                            scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", student: "$student", subject: "$subject",
+                            tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                            updatedAt: "$updatedAt", url: "$url", weights: "$weights"
+                        }
+                    }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage.length) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: true, message: {} }
+            }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
