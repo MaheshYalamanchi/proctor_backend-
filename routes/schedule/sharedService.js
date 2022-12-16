@@ -373,25 +373,30 @@ let getPassportPhotoResponse = async (params) => {
 };
 let getCandidateDetails = async (params) => {
     try {
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
-            docType: 1,
-            query: [
-                {$match : { _id:params.id}},
-                {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
-                            metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
-                            threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
-                            deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
-                            duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
-                            useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
-                ]
-        };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message: responseData.data.statusMessage[0] }
+        let response = await scheduleService.getCandidateDetailsUpdate(params);
+        if(response && response.success){
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "rooms",
+                docType: 1,
+                query: [
+                    {$match : { _id:params.id}},
+                    {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
+                                metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
+                                threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
+                                deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
+                                duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
+                                useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
+                    ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: false, message: 'rooms updation error' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {

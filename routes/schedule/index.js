@@ -3,12 +3,12 @@ let socketService=require('../shared/socketService');
 var Minio = require("minio");
 const tokenService = require('../../routes/proctorToken/tokenService');
 var minioClient = new Minio.Client({
-    endPoint: 'proctorminiodev.lntedutech.com',
+    endPoint: process.env.MINIO_ENDPOINT,
     port: 443,
     // secure: false,
     useSSL : true,
-    accessKey: 'MNMB0FES7UD1UGTHFEZV',
-    secretKey: 'jls5UJu+HJVkMd1znBaPf2dUrVytWEj4SpksQhC7'
+    accessKey: process.env.MINIO_ACCESSKEY,
+    secretKey: process.env.MINIO_SECRETKEY
 });
 module.exports = function (params) {
     var app = params.app;
