@@ -349,6 +349,32 @@ let getCandidateDetailsUpdate = async (params) => {
         }
     }
 };
+let chatDetails = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "chats",
+            docType: 1,
+            query: [
+                {
+                    $match :{ _id : params.chatId}
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message:responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     userInsertion,
@@ -358,5 +384,6 @@ module.exports = {
     roomUpdate,
     usersDetailsUpdate,
     userDetails,
-    getCandidateDetailsUpdate
+    getCandidateDetailsUpdate,
+    chatDetails
 }
