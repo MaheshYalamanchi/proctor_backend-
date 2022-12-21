@@ -18,7 +18,7 @@ let getCandidateMessages = async (params) => {
                 query: [
                     {
                         "$match": {
-                            "room": params.params.userId,
+                            "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
@@ -57,7 +57,7 @@ let getCandidateMessages = async (params) => {
                 query: [
                     {
                         "$match": {
-                            "room": params.params.userId,
+                            "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
@@ -100,7 +100,7 @@ let getCandidateMessages = async (params) => {
                 query: [
                     {
                         "$match": {
-                            "room": params.params.userId,
+                            "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
@@ -146,7 +146,7 @@ let getCandidateMessages = async (params) => {
                 query: [
                     {
                         "$match": {
-                            "room": params.params.userId,
+                            "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
@@ -192,7 +192,7 @@ let getCandidateMessages = async (params) => {
                 query: [
                     {
                         "$match": {
-                            "room": params.params.userId,
+                            "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
@@ -245,7 +245,7 @@ let getCandidateMessagesDetails = async (params) => {
                 client: "chats",
                 docType: 1,
                 query: [
-                    {$match:{room:"ca21e77d-243e-4f72-b6d7-d8b5a106bea1"}},
+                    {$match:{room:params.params.roomId}},
                     { $lookup: { from: "attaches",
                     localField: "attach",
                      foreignField: "_id",

@@ -12,7 +12,7 @@ let getCandidateMessageSend = async (params) => {
     try {
         var decodeToken = jwt_decode(params.headers.authorization);
         params.body.createdAt = new Date();
-        params.body.room = params.params.userId;
+        params.body.room = params.params.roomId;
         params.body.user = decodeToken.id;
         delete params.body.headers;
         var getdata = {

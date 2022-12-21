@@ -161,7 +161,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/chat/:userId", async (req, res) => {
+    app.get("/api/chat/:roomId", async (req, res) => {
         "use strict";
         try {
             if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {

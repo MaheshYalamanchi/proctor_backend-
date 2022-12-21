@@ -85,7 +85,9 @@ let faceResponse = async (params) => {
                 "threshold" : 0.25,
                 "verified" : true,
                 "objectnew" : "",
-                "similar" : [],
+                "similar" : [
+                    params.message.similar
+                ] ||[],
                 "rep" : params.rep
             },
         }

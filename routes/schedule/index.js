@@ -2,6 +2,7 @@ const sharedService = require("../schedule/sharedService");
 let socketService=require('../shared/socketService');
 var Minio = require("minio");
 const tokenService = require('../../routes/proctorToken/tokenService');
+const schedule_Service = require('../schedule/schedule.Service');
 var minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ENDPOINT,
     port: 443,
@@ -12,10 +13,10 @@ var minioClient = new Minio.Client({
 });
 module.exports = function (params) {
     var app = params.app;
-    app.post("/api/chat/:userId", async (req, res) => {
+    app.post("/api/chat/:roomId", async (req, res) => {
         "use strict";
         try {
-            if (req && req.body) {
+            if (req && req.body && req.body.type && req.body.type== 'message') {
                 let result = await sharedService.getCandidateMessageSend(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -25,7 +26,28 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            } else {
+            } else if(req && req.body && req.body.type && req.body.type == 'face') {
+                let result = await schedule_Service.getCandidateFcaeSend(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                    //await socketService.messageTrigger(result.message)
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            }else if(req && req.body && req.body.type && req.body.type == 'event') {
+                let result = await schedule_Service.getCandidateEventSend(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                    //await socketService.messageTrigger(result.message)
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            }
+            else {
                 app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
             }
         } catch (error) {
@@ -261,6 +283,25 @@ module.exports = function (params) {
                 }
             }else{
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+    app.post('/api/chat/:roomId/:chatId', async (req, res,next) => {
+        try {
+            let result = await schedule_Service.getChatDetails(req);
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
             app.logger.error({ success: false, message: error });
