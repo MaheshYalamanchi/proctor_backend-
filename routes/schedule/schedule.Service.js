@@ -8,35 +8,25 @@ var ObjectID = require('mongodb').ObjectID;
 let getChatDetails = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
-        jsonData = {
-            // "type": "event",
-            "attach": [
-                params.body.body.attach[0]
-            ],
-            // "room": params.params.roomId,
-            // "user": decodeToken.id,
-            "createdAt": new Date(),
-            // "metadata": {
-                
-            // },
-        }
-        var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
-            docType: 0,
-            query: {
-                filter: { "_id": params.params.chatId },
-                update: { $set: jsonData }
+        let userResponse = await scheduleService.chatDetails(params.params);
+        if (userResponse && userResponse.success){
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "chats",
+                docType: 0,
+                query:{
+                    filter: { "_id": userResponse.message[0]._id },
+                    update: { $push:{attach: params.body.body.attach[0] }}
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "updateRecord", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+                    userResponse.message[0].attach = params.body.body.attach
+                    userResponse.message[0].id =userResponse.message[0]._id
+                    return { success: true, message:userResponse.message[0]}
+            } else {
+                return { success: false, message: 'Data Not Found' };
             }
-        };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.ok) {
-            let userResponse = await scheduleService.chatDetails(params.params);
-            if (userResponse && userResponse.success){
-                return { success: true, message:userResponse[0]}
-            }
-        } else {
-            return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
