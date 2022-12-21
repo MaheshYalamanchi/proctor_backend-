@@ -647,6 +647,7 @@ let proctorRoomDetails = async (params) => {
 };
 let proctorSuggestSaveCall = async (params) => {
     try{
+        params.status = "created"; 
         if(!params.id){
             params._id  = uuidv4()
         }else{
