@@ -356,8 +356,16 @@ let chatDetails = async (params) => {
             client: "chats",
             docType: 1,
             query: [
+                { 
+                    "$addFields": {"test": { "$toString": "$_id" }} 
+                },
                 {
-                    $match :{ _id : params.chatId}
+                    "$match":{"test":params.chatId}
+                },
+                {
+                    "$project":{
+                        "_id":1,"type":"$type","room":"$room","user":"$user","createdAt":"$createdAt","metadata":"$metadata","attach":"$attach"
+                    }
                 }
             ]
         };
