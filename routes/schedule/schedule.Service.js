@@ -124,10 +124,51 @@ let getCandidateFcaeSend = async (params) => {
         }
     }
 };
+let userInfo = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query:[
+                {
+                    $match: { _id: "maheshTest14"}
+                },
+                { $unwind: { path: "$similar", preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'similar.user',
+                        foreignField: '_id',
+                        as: 'student',
+                    }
+                },
+                { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                {
+                    $project:{"user.id":"$student._id",_id:0,"distance":"$similar.distance","user.face":"$student.face",
+                        "user.nickname":"$student.nickname","user.username":"$student._id"}
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message:responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 
 module.exports = {
     getChatDetails,
     getCandidateEventSend,
-    getCandidateFcaeSend
+    getCandidateFcaeSend,
+    userInfo
 }

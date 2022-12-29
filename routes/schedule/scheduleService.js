@@ -264,13 +264,17 @@ let roomUpdate = async (params) => {
 let usersDetailsUpdate = async (params) => {
     try {
         var objectId = new ObjectID();
-        var jsonData = {
-            thresold : params.thresold,
-            distance : params.distance,
-            verified : params.verified,
-            similar : params.similar,
-            rep : params.rep,
-            face : objectId
+        if (params && !params.verified){
+            var jsonData = {
+                similar : params.similar,
+                rep : params.rep,
+                face : objectId
+            }
+        } else if(params && params.verified) {
+            var jsonData = {
+                verified : params.verified,
+                passport : objectId
+            }
         }
         var getdata = {
             url: process.env.MONGO_URI,

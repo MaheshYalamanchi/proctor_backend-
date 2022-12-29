@@ -166,7 +166,7 @@ let getFaceResponse = async (params) => {
                 var jsonData = {
                     thresold : thresold,
                     distance : distance,
-                    verified : verified,
+                    // verified : verified,
                     similar : similarfaces.data.message,
                     userId : decodeToken.id,
                     rep : params.rep
@@ -329,38 +329,84 @@ let getDatails = async (params) => {
     }
 };
 let getPassportPhotoResponse = async (params) => {
-    decodeToken = jwt_decode(params.headers)
+    decodeToken = jwt_decode(params.authorization)
     try {
-        if (params){
-            let response = await scheduleservice.faceResponse(params);
-            if (response.success){
-                var getdata = {
-                    url: process.env.MONGO_URI,
-                    client: "attaches",
-                    docType: 1,
-                    query: [
-                        {
-                            "$addFields": { "test": { "$toString": "$_id" } }
-                        },
-                        {
-                            "$match": { "test": response.message }
-                        },
-                        {
-                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                          "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                          "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                          "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+        if (decodeToken){
+            let userResponse = await scheduleService.userDetails(decodeToken);
+            if (userResponse && userResponse.success){
+                var thresold = params.thresold || 0.25;
+                var distance = 0;
+                if (userResponse.message[0].rep.length === params.rep.length){
+                    for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
+                                const B = userResponse[0].rep[A] - params.rep[A];
+                                distance += B * B;
+                            }
                         }
-                    ]
-                };
-                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (responseData && responseData.data && responseData.data.statusMessage) {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                } else {
-                    return { success: false, message: 'Data Not Found' };
+                var verified = distance <= thresold
+                var getData = {
+                    url: process.env.MONGO_URI,
+                    client: "users",
+                    docType: 0,
+                    query : {
+                        "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
+                        "scope":{
+                            "c":0,
+                            "e":[userResponse.message[0]._id],
+                            "n":10,
+                            "s":params.rep,
+                            "t":0.15
+                        },
+                        "out":"myCollections",
+                        "sort":{ "loggedAt": -1 },
+                        "limit":1000
+                    }
                 }
-            } else {
-                return { success: false, message: 'faceDetails insertion error' }
+                var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
+                if (similarfaces && similarfaces.data.success){
+                    var jsonData = {
+                        verified : verified,
+                        similar : similarfaces.data.message,
+                        userId : decodeToken.id,
+                        rep : params.rep
+                    }
+                    let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
+                    if (getDetails.success){
+                        let userData = await scheduleService.userDetails(decodeToken);
+                        if (userData && userData.success){
+                            params.message = userData.message[0];
+                            let response = await scheduleservice.passportResponse(params);
+                            if (response.success){
+                                var getdata = {
+                                    url: process.env.MONGO_URI,
+                                    client: "attaches",
+                                    docType: 1,
+                                    query: [
+                                        {
+                                            "$addFields": { "test": { "$toString": "$_id" } }
+                                        },
+                                        {
+                                            "$match": { "test": response.message }
+                                        },
+                                        {
+                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
+                                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
+                                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+                                        }
+                                    ]
+                                };
+                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                                if (responseData && responseData.data && responseData.data.statusMessage) {
+                                    return { success: true, message: responseData.data.statusMessage[0] }
+                                } else {
+                                    return { success: false, message: 'Data Not Found' };
+                                }
+                            } else {
+                                return { success: false, message: 'faceDetails insertion error' }
+                            }
+                        }
+                    }
+                }
             }
         }
     } catch (error) {
