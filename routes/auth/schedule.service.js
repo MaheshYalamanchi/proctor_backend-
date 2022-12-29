@@ -85,9 +85,44 @@ let faceResponse = async (params) => {
                 "threshold" : 0.25,
                 "verified" : true,
                 "objectnew" : "",
-                "similar" : [
-                    params.message.similar
-                ] ||[],
+                "similar" :params.message.similar||[],
+                "rep" : params.rep
+            },
+        }
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "attaches",
+            docType: 0,
+            query: jsonData
+        };
+        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        if (responseData && responseData.data.iid) {
+            return ({success:true,message :responseData.data.iid}) ;
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let passportResponse = async (params) => {
+    decodeToken = jwt_decode(params.authorization);
+    try {
+        jsonData = {
+            "_id" :new ObjectID(params.message.passport),
+            "user" : decodeToken.id,
+            "filename" : params.myfile.originalFilename,
+            "mimetype" : params.myfile.mimetype,
+            "size" : params.myfile.size,
+            "createdAt" : new Date(),
+            "attached" : true,
+            "metadata" : {
+                "distance" : 0,
+                "objectnew" : "",
                 "rep" : params.rep
             },
         }
@@ -115,5 +150,6 @@ let faceResponse = async (params) => {
 module.exports = {
     getcount,
     getAttach,
-    faceResponse
+    faceResponse,
+    passportResponse
 }
