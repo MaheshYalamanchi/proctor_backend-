@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: proctorbackend
+        app: proctorbackend1
     spec:
       containers:
         - name: proctorbackend
