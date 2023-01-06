@@ -6,7 +6,7 @@ metadata:
     service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:
   selector:
-    app: proctorbackend
+    app: proctorbackend1
   ports:
     - port: 3002
       targetPort: 3002
