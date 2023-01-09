@@ -132,7 +132,7 @@ let userInfo = async (params) => {
             docType: 1,
             query:[
                 {
-                    $match: { _id: "maheshTest14"}
+                    $match: { _id:params.id}
                 },
                 { $unwind: { path: "$similar", preserveNullAndEmptyArrays: true } },
                 {
