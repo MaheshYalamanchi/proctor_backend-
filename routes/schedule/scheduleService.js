@@ -328,7 +328,8 @@ let userDetails = async (params) => {
 let getCandidateDetailsUpdate = async (params) => {
     try {
         jsonData = {
-            status : 'started'
+            status : 'started',
+            startedAt : new Date()
         }
         var getdata = {
             url: process.env.MONGO_URI,

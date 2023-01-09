@@ -272,7 +272,7 @@ module.exports = function (params) {
     });
     app.post('/api/room/start', async (req, res,next) => {
         try {
-            if(req.query.id){
+            if(req && req.query){
                 let result = await sharedService.getCandidateDetails(req.query);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
