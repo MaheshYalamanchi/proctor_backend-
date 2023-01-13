@@ -4,6 +4,7 @@ let service = require("../shared/schedule.service");
 const { Validator } = require('node-input-validator');
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
+const _ = require("lodash");
 module.exports = function (params) {
     var app = params.app;
     app.get("/api/user", async (req, res) => {
@@ -212,6 +213,35 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
             } else {
                 app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.get("/api/jobs", async (A, B) => {
+        "use strict";
+        try {
+            if (A && A.headers) {
+                let result = await scheduleSevice.fetchjobs(A);
+                if (result && result.success) {
+                    B.json(
+                        result.message.map(function (A) {
+                            let B = A.attrs;
+                            return (B.id = B._id), delete B._id, B;
+                        }))
+                   // app.logger.info({ success: true, message: result.message });
+                   // app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(A, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                app.http.customResponse(A, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(A, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(A, { success: false, message: error }, 400);
             }
         }
     });
