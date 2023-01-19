@@ -29,6 +29,7 @@ let proctorLoginCall = async (params) => {
                         role: responseData.data.statusMessage[0].role, token: response
                     }
                 }
+                
             } else {
                 return { success: false, message: 'Please check password.' }
             }
@@ -432,7 +433,7 @@ let proctorSearchCall = async (params) => {
                         }
                     },
                     {
-                        $lookup: {
+                        $lookup: {  
                             from: 'users',
                             localField: 'student',
                             foreignField: '_id',
@@ -469,6 +470,7 @@ let proctorSearchCall = async (params) => {
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            
             if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage[0].total_count.length) {
                 return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } };
             } else {
@@ -691,6 +693,28 @@ let proctorSuggestSaveCall = async (params) => {
         }
     }
 };
+let proctorusagestatistics = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "stats",
+            docType: 1,
+            query:  { timestamp: { $mod: [1, 0], $gt: 27902018, $lte: 27902061 } }
+        };
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        if (responseData && responseData.data) {
+            return { success: true, message: responseData.data.statusMessage }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -704,4 +728,5 @@ module.exports = {
     proctorUserInfoCall,
     proctorRoomDetails,
     proctorSuggestSaveCall,
+    proctorusagestatistics,
 }
