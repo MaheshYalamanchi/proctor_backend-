@@ -30,7 +30,7 @@ new CronJob('*/2 * * * *', function() {
     
     request(process.env.ENDPOINT, function(error, response, body) {
         if (!error && response.statusCode == 200) {
-          console.log('You will see this message every minute');
+          console.log('You will see this message every 2 minute');
             // console.log(body) // Show the HTML for the Google homepage.
         }
     })
