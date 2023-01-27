@@ -22,7 +22,8 @@ let getChatDetails = async (params) => {
             let responseData = await invoke.makeHttpCall("post", "updateRecord", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
                     userResponse.message[0].attach = params.body.body.attach
-                    userResponse.message[0].id =userResponse.message[0]._id
+                    userResponse.message[0].id = userResponse.message[0]._id
+                    delete userResponse.message[0]._id
                     return { success: true, message:userResponse.message[0]}
             } else {
                 return { success: false, message: 'Data Not Found' };
