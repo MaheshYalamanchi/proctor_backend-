@@ -7,6 +7,7 @@ const TOKEN_KEY ="eime6Daeb2xanienojaefoh4";
 const tokenService = require('../../routes/proctorToken/tokenService');
 const scheduleservice = require('../auth/schedule.service');
 const scheduleService = require('../schedule/scheduleService');
+const shared = require("../../routes/shared/shared")
 
 let getCandidateMessageSend = async (params) => {
     try {
@@ -173,40 +174,41 @@ let getFaceResponse = async (params) => {
                 }
                 let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
                 if (getDetails.success){
-                    let userData = await scheduleService.userDetails(decodeToken);
-                    if (userData && userData.success){
-                        params.message = userData.message[0];
-                        let response = await scheduleservice.faceResponse(params);
-                        if (response.success){
-                            var getdata = {
-                                url: process.env.MONGO_URI,
-                                client: "attaches",
-                                docType: 1,
-                                query: [
-                                        {
-                                            "$addFields": { "test": { "$toString": "$_id" } }
-                                        },
-                                        {
-                                            "$match": { "test": response.message }
-                                        },
-                                        {
-                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
-                                        }
-                                    ]
-                            };
-                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                            if (responseData && responseData.data && responseData.data.statusMessage) {
-                                return { success: true, message: responseData.data.statusMessage[0] }
+                        let userData = await scheduleService.userDetails(decodeToken);
+                        if (userData && userData.success){
+                            params.message = userData.message[0];
+                            let response = await scheduleservice.faceResponse(params);
+                            if (response.success){
+                                var getdata = {
+                                    url: process.env.MONGO_URI,
+                                    client: "attaches",
+                                    docType: 1,
+                                    query: [
+                                            {
+                                                "$addFields": { "test": { "$toString": "$_id" } }
+                                            },
+                                            {
+                                                "$match": { "test": response.message }
+                                            },
+                                            {
+                                                "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                            metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                                            }
+                                        ]
+                                };
+                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                                if (responseData && responseData.data && responseData.data.statusMessage) {
+                                    return { success: true, message: responseData.data.statusMessage[0] }
+                                } else {
+                                    return { success: false, message: 'Data Not Found' };
+                                }
                             } else {
-                                return { success: false, message: 'Data Not Found' };
-                            }
+                                return { success: false, message: 'Data not found' };
+                            } 
                         } else {
                             return { success: false, message: 'Data not found' };
-                        } 
-                    } else {
-                        return { success: false, message: 'Data not found' };
-                    } 
+                        }
+                    
                 } else {
                     return { success: false, message: 'similarfaces error' };
                 }    
@@ -242,11 +244,21 @@ let attachmentPostCall = async (params) => {
         };
         let response = await invoke.makeHttpCall("post", "write", getdata);
         if (response && response.data && response.data.iid) {
-            let responseData = await schedule.attachCall(response.data);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
+            let getRecord = await shared.getRecord(decodeToken)
+            if (getRecord && getRecord.success){
+                let updatedRecord= await shared.updateRecord(getRecord.message);
+                if(updatedRecord && updatedRecord.success){
+                    let responseData = await schedule.attachCall(response.data);
+                    if (responseData && responseData.data && responseData.data.statusMessage) {
+                        return { success: true, message: responseData.data.statusMessage[0] }
+                    } else {
+                        return { success: false, message: 'Data Not Found' };
+                    }
+                } else {
+                    return { success: false, message: updatedRecord.message }
+                }
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: getRecord.message }
             }
         } else {
             return { success: false, message: 'Data Not Found' };

@@ -1,9 +1,10 @@
 let scheduleSevice = require("../shared/scheduleService");
 let service = require("../shared/schedule.service");
-
+let schedule = require("../shared/shared");
 const { Validator } = require('node-input-validator');
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
+const invoke = require("../../lib/http/invoke");
 module.exports = function (params) {
     var app = params.app;
     app.get("/api/user", async (req, res) => {
@@ -215,5 +216,24 @@ module.exports = function (params) {
             }
         }
     });
-
+    app.get("/api/sessions", async (req, res) => {
+        "use strict";
+        try {
+            let result = await schedule.getSessions(req)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: result.message }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
 }
