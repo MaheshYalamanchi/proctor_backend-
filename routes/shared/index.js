@@ -1,6 +1,6 @@
 let scheduleSevice = require("../shared/scheduleService");
 let service = require("../shared/schedule.service");
-
+let schedule = require("../shared/shared");
 const { Validator } = require('node-input-validator');
 const auth = require('../auth/auth');
 const globalMsg = require('../../configuration/messages/message');
