@@ -1,5 +1,7 @@
+const { off } = require("npm");
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
+const shared = require('../shared/shared')
 let getCandidateMessages = async (params) => {
     try {
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
@@ -210,14 +212,28 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     {
-                        $sort: { createdAt: sort }
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
                     },
-                    { "$limit": limit }
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage }
+                for (const data of responseData.data.statusMessage[0].data) {
+                    let response = await shared.getEventDetails(data)
+                    data.attach = response.message
+                }
+                return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
