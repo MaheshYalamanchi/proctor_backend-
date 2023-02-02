@@ -247,11 +247,11 @@ let MessageSend = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let attachResponse,getMessage;
-            if(responseData.data.statusMessage[0].attach){
-                attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
-                if(attachResponse){
-                    responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
+            // let attachResponse,getMessage;
+            // if(responseData.data.statusMessage[0].attach){
+                // attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
+                // if(attachResponse){
+                //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
                     let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
@@ -263,10 +263,10 @@ let MessageSend = async (params) => {
                     }
                     
                     return responseData;
-                } 
-            }else{
-                return responseData
-            }
+            //     } 
+            // }else{
+            //     return responseData
+            // }
             
            
         } else {
