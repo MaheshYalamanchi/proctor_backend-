@@ -342,23 +342,42 @@ let getCandidateMessagesDetails = async (params) => {
                 url: process.env.MONGO_URI,
                 client: "chats",
                 docType: 1,
-                query: [
-                    {$match:{room:params.params.roomId}},
-                    { $lookup: { from: "attaches",
-                    localField: "attach",
-                     foreignField: "_id",
-                    as: "attach" } },
-                    { $lookup: { from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "user" } },
-                    { "$unwind": { "path": "$user", "preserveNullAndEmptyArrays": true } },
-                    {$sort:{id:1}}
+                query:[
+                    {
+                        "$match": {
+                            "room": params.params.roomId
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {"$sort":{id:1}}
                 ]
             }
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                for (const data of responseData.data.statusMessage) {
+                    let response = await shared.getChatDetails(data)
+                    data.attach = response.message
+                }
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }

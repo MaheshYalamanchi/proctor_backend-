@@ -175,7 +175,7 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            } else if (req.query.sort.id) {
+            } else if (req.query && req.query.sort && req.query.sort.id) {
                 let result = await service.getCandidateMessagesDetails(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
