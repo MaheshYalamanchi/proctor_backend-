@@ -1,5 +1,7 @@
+const { off } = require("npm");
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
+const shared = require('../shared/shared')
 let getCandidateMessages = async (params) => {
     try {
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
@@ -50,6 +52,7 @@ let getCandidateMessages = async (params) => {
             }
         } else if (params.query.limit && params.query.filter && params.query.filter.type == 'message'){
             var limit = parseInt(params.query.limit);
+            let sort = -1;
             var getdata = {
                 url: process.env.MONGO_URI,
                 client: "chats",
@@ -72,21 +75,63 @@ let getCandidateMessages = async (params) => {
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0,
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
                                 "role": "$data.role",
                                 "username": "$data._id"
                             }
+                            
                         }
                     },
-                    { "$limit": limit }
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attaches',
+                        }
+                    },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
+                            "user": {
+                                        "id": "$user.id",
+                                        "nickname": "$user.nickname",
+                                        "role": "$user.role",
+                                        "username": "$user.id"
+                                    },
+                            "attach":[
+                                        {
+                                            "filename":"$attaches.filename",
+                                            "mimetype":"$attaches.mimetype",
+                                            "id":"$attaches._id"
+                                        }
+                                     ]
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage }
+                return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -97,42 +142,81 @@ let getCandidateMessages = async (params) => {
                 url: process.env.MONGO_URI,
                 client: "chats",
                 docType: 1,
-                query: [
-                    {
-                        "$match": {
-                            "room": params.params.roomId,
-                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'users',
-                            "localField": 'user',
-                            "foreignField": '_id',
-                            "as": 'data',
-                        }
-                    },
-                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
-                    {
-                        "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
-                            "user": {
-                                "id": "$data._id",
-                                "nickname": "$data.nickname",
-                                "role": "$data.role",
-                                "username": "$data._id"
+                query:[
+                        {
+                            "$match": {
+                                "room": params.params.roomId,
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' }
                             }
-                        }
-                    },
-                    {
-                        $sort: { createdAt: sort }
-                    },
-                    { "$limit": limit }
-                ]
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'users',
+                                "localField": 'user',
+                                "foreignField": '_id',
+                                "as": 'data',
+                            }
+                        },
+                        { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "user": {
+                                    "id": "$data._id",
+                                    "nickname": "$data.nickname",
+                                    "role": "$data.role",
+                                    "username": "$data._id"
+                                }
+                                
+                            }
+                        },
+                        { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$lookup": {
+                                "from": 'attaches',
+                                "localField": 'attach',
+                                "foreignField": '_id',
+                                "as": 'attaches',
+                            }
+                        },
+                        { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id",
+                                "user": {
+                                            "id": "$user.id",
+                                            "nickname": "$user.nickname",
+                                            "role": "$user.role",
+                                            "username": "$user.id"
+                                        },
+                                "attach":[
+                                            {
+                                                "filename":"$attaches.filename",
+                                                "mimetype":"$attaches.mimetype",
+                                                "id":"$attaches._id"
+                                            }
+                                         ]
+                            }
+                        },
+                        {
+                            "$facet": {
+                                "data": [
+                                    { "$sort": { "createdAt": sort } },
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                    { "$project" : {_id:0 }}
+                                ]
+                            }
+                        },
+                        { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                        {"$project":{"data":"$data","total":"$total_count.count"}}
+                        ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage }
+                return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -171,14 +255,28 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     {
-                        $sort: { createdAt: sort }
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
                     },
-                    { "$limit": limit }
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage }
+                for (const data of responseData.data.statusMessage[0].data) {
+                    let response = await shared.getEventDetails(data)
+                    data.attach = response.message
+                }
+                return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -244,23 +342,42 @@ let getCandidateMessagesDetails = async (params) => {
                 url: process.env.MONGO_URI,
                 client: "chats",
                 docType: 1,
-                query: [
-                    {$match:{room:params.params.roomId}},
-                    { $lookup: { from: "attaches",
-                    localField: "attach",
-                     foreignField: "_id",
-                    as: "attach" } },
-                    { $lookup: { from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "user" } },
-                    { "$unwind": { "path": "$user", "preserveNullAndEmptyArrays": true } },
-                    {$sort:{id:1}}
+                query:[
+                    {
+                        "$match": {
+                            "room": params.params.roomId
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {"$sort":{id:1}}
                 ]
             }
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                for (const data of responseData.data.statusMessage) {
+                    let response = await shared.getChatDetails(data)
+                    data.attach = response.message
+                }
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }
