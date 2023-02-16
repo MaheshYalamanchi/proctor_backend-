@@ -230,6 +230,7 @@ let attachmentPostCall = async (params) => {
     try {
         var jsonData = {
             "createdAt":createdAt,
+            "storagefilename":params.myfile.newFilename,
             "filename":params.myfile.originalFilename,
             "mimetype":params.myfile.mimetype,
             "size":params.myfile.size,
