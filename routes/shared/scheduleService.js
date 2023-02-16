@@ -424,6 +424,33 @@ let getCandidateMessageCount = async (params) => {
         }
     }
 };
+let fetchjobs = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "jobs",
+            docType: 1,
+            query: [
+                 {$addFields: { "attrs": {_id:"$_id",name:"$name",type:"$type",data:"$data",lastModifiedBy:"$lastModifiedBy",nextRunAt:"$nextRunAt",priority:"$priority",
+                repeatInterval:"$repeatInterval",lockedAt:"$lockedAt",lastRunAt:"$lastRunAt",failCount:"$failCount",failReason:"$failReason",failedAt:"$failedAt",
+                lastFinishedAt:"$lastFinishedAt",repeatTimezone:"$repeatTimezone"} } },
+                {$project:{"attrs":1,"_id":0}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data) {
+            return { success: true, message: responseData.data.statusMessage }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     proctorRoomUserEdit,
@@ -433,5 +460,6 @@ module.exports = {
     UserEdit,
     proctorUserSaveCall,
     proctorUserDeleteCall,
-    getCandidateMessageCount
+    getCandidateMessageCount,
+    fetchjobs
 }
