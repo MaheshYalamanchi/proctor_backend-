@@ -102,6 +102,31 @@ let proctorMeCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
+        } else if (decodeToken && decodeToken.role == "proctor") {
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "users",
+                docType: 1,
+                query: [
+                    {
+                        $match: { _id: decodeToken.id }
+                    },
+                    {
+                        $project: {
+                            id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
+                            ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
+                            nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
+                            useragent: "$useragent", username: "$_id"
+                        }
+                    }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
