@@ -48,7 +48,7 @@ let proctorLoginCall = async (params) => {
 let proctorMeCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
-        if(decodeToken && decodeToken.provider && decodeToken.room){
+        if(decodeToken && decodeToken.role == "student"){
             var getdata = {
                 url: process.env.MONGO_URI,
                 client: "users",
@@ -78,7 +78,7 @@ let proctorMeCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else {
+        } else if (decodeToken && decodeToken.role == "administrator") {
             var getdata = {
                 url: process.env.MONGO_URI,
                 client: "users",
