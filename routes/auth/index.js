@@ -339,12 +339,12 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/stat", async (req, res) => {
-
+    app.post("/api/stat", async (req, res,) => {
         "use strict";
         try {
-            let result = await sharedSevices.proctorusagestatistics(req)
+            let result = await sharedSevices.proctorusagestatistics(req.body)
             if (result && result.success) {
+
                 app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
             } else {
