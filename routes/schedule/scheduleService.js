@@ -251,7 +251,7 @@ let roomUpdate = async (params) => {
         if (responseData && responseData.data && responseData.data.statusMessage.nModified ) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: true, message: 'Data Not Found' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
