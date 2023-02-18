@@ -767,13 +767,34 @@ let proctorSuggestSaveCall = async (params) => {
 };
 let proctorusagestatistics = async (params) => {
     try {
+        let E=params.size
+        let A=params.fd
+        let B=params.td
+        //(E = parseInt(E) || 100) > 100 && (E = 100);
+        const Q = Date.now();
+        A = new Date(A || Q - 60 * E * 1e3).getTime();
+        const s = (B = ~~((B = new Date(B || Q).getTime()) / 6e4)) - (A = ~~(A / 6e4))
+              //{ value: l, index: g } = this.getTimeFrames(s / E);
         var getdata = {
             url: process.env.MONGO_URI,
             client: "stats",
             docType: 1,
-            query:  { timestamp: { $mod: [1, 0], $gt: 27902018, $lte: 27902061 } }
+            query: ([
+                {$match:{ timestamp: { $mod: [1, 0], $gt: A, $lte: B } }},
+                                {$project:
+                                    {
+                                        rooms: { $arrayElemAt: [ "$rooms", 0 ] },
+                                        cpu: { $arrayElemAt: [ "$cpu", 0 ] },
+                                        ram: { $arrayElemAt: [ "$ram", 0 ] },
+                                        users: { $arrayElemAt: [ "$users", 0 ] },
+                                        timestamp:"$timestamp",
+                                        _id:0
+                                    },
+
+                                }
+                    ])
         };
-        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data) {
             return { success: true, message: responseData.data.statusMessage }
         } else {
