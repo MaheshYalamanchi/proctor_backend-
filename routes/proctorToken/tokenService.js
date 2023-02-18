@@ -76,13 +76,14 @@ let generateToken = async (req) => {
 };
 let jwtToken = async (req) => {
     try {
+        let username = req.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
         var getdata = {
             url: process.env.MONGO_URI,
             client: "users",
             docType: 1,
             query: [
                 {
-                    $match:{_id:req.username}
+                    $match:{_id:username}
                 }
             ]
         };

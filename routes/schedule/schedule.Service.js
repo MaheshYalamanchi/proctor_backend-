@@ -165,11 +165,80 @@ let userInfo = async (params) => {
         }
     }
 };
-
+let getface = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query:[
+                {
+                    $match: { _id:params.id}
+                },
+                {
+                    $project :{
+                        id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                        exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                        useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                        username:"$_id",
+                    }
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message:responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getPassport = async (params) => {
+    try {
+        var getdata = {
+            url: process.env.MONGO_URI,
+            client: "users",
+            docType: 1,
+            query:[
+                {
+                    $match: { _id:params.id}
+                },
+                {
+                    $project :{
+                        id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                        exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                        useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                        username:"$_id",passport:"$passport",verified:"$verified"
+                    }
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message:responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getChatDetails,
     getCandidateEventSend,
     getCandidateFcaeSend,
-    userInfo
+    userInfo,
+    getface,
+    getPassport
 }

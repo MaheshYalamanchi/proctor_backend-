@@ -360,4 +360,25 @@ module.exports = function (params) {
             }
         }
     });
+    app.put("/api/user/me", async (req, res) => {
+        "use strict";
+        try {
+            // req.body.authorization = req.headers.authorization;
+            let result = await sharedSevices.getfacePassport(req.body)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
 };
