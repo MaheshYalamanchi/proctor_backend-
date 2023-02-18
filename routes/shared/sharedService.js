@@ -808,6 +808,62 @@ let proctorusagestatistics = async (params) => {
         }
     }
 };
+let getfacePassport = async (params) => {
+    var decodeToken = jwt_decode(params.authorization);
+    try {
+        if(params && params.face){
+            let jsonData =  {
+                "face" : params.face
+            };
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "users",
+                docType: 0,
+                query: {
+                    filter: { "_id": decodeToken.id },
+                    update: { $set: jsonData }
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                let response = await schedule_Service.getface(decodeToken)
+                if (response.success){
+                    return { success: true, message: response.message[0] }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params && params.passport){
+            let jsonData =  {
+                "passport" : params.passport
+            };
+            var getdata = {
+                url: process.env.MONGO_URI,
+                client: "users",
+                docType: 0,
+                query: {
+                    filter: { "_id": decodeToken.id },
+                    update: { $set: jsonData }
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                let response = await schedule_Service.getPassport(decodeToken)
+                if (response.success){
+                    return { success: true, message: response.message[0] }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -822,4 +878,5 @@ module.exports = {
     proctorRoomDetails,
     proctorSuggestSaveCall,
     proctorusagestatistics,
+    getfacePassport
 }

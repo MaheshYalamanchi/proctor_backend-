@@ -4,9 +4,10 @@ var ObjectID = require('mongodb').ObjectID;
 
 let userInsertion = async (params) => {
     try {
-        var browser = params.headers["user-agent"]; 
+        var browser = params.headers["user-agent"];
+        let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
         jsonData = {
-            "_id" : params.username,
+            "_id" : username,
             "browser" : {
                 "name" : browser,
                 "version" : browser
@@ -53,6 +54,7 @@ let userInsertion = async (params) => {
     }
 };
 let userFetch = async (params) => {
+    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     try {
         var getdata = {
             url: process.env.MONGO_URI,
@@ -60,7 +62,7 @@ let userFetch = async (params) => {
             docType: 1,
             query: [
                 {
-                    $match :{ _id : params.username}
+                    $match :{ _id : username}
                 }
             ]
         };
@@ -108,6 +110,7 @@ let userUpdate = async (params) => {
 };
 let roomInsertion = async (params) => {
     try {
+        let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
         jsonData = {
             "_id" : params.id,
             "timesheet" : {
@@ -196,7 +199,7 @@ let roomInsertion = async (params) => {
             "startedAt" : null,
             "useragent" : null,
             "proctor" : null,
-            "student" : params.username,
+            "student" : username,
             "template" : "default"
         }
         var getdata = {
@@ -268,12 +271,12 @@ let usersDetailsUpdate = async (params) => {
             var jsonData = {
                 similar : params.similar,
                 rep : params.rep,
-                face : objectId
+                // face : objectId   it should get insert after me api
             }
         } else if(params && params.verified) {
             var jsonData = {
                 verified : params.verified,
-                passport : objectId
+                // passport : objectId it should get insert after me api
             }
         }
         var getdata = {

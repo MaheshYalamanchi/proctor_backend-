@@ -280,10 +280,11 @@ let tokenValidation = async(params,req)=> {
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
             decodedToken.headers = params.body.authorization;
+            let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
             if(decodedToken){
                 let userResponse = await scheduleService.userFetch(decodedToken);
                 var responseData ;				
-                if (userResponse&&userResponse.message&&(userResponse.message.length>0) &&(userResponse.message[0]._id == decodedToken.username)){
+                if (userResponse&&userResponse.message&&(userResponse.message.length>0) &&(userResponse.message[0]._id == username)){
                         let response = await scheduleService.userUpdate(userResponse.message[0]);
                         if (response && response.success){
                             responseData = await scheduleService.roomUpdate(decodedToken)
