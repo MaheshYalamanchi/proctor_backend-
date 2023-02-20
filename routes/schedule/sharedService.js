@@ -288,7 +288,13 @@ let tokenValidation = async(params,req)=> {
                 if (userResponse&&userResponse.message&&(userResponse.message.length>0) &&(userResponse.message[0]._id == username)){
                         let response = await scheduleService.userUpdate(userResponse.message[0]);
                         if (response && response.success){
-                            responseData = await scheduleService.roomUpdate(decodedToken)
+                            let roomsResponse = await scheduleService.roomFetch(decodedToken);
+                            if (roomsResponse && roomsResponse.success && (roomsResponse.message.length>0) && (roomsResponse.message[0]._id == decodedToken.id)){
+                                responseData = await scheduleService.roomUpdate(decodedToken)
+                            } else{
+                                responseData = await scheduleService.roomInsertion(decodedToken);
+                            }
+                            
                         }
                 } else { 
                     let response = await scheduleService.userInsertion(decodedToken);
