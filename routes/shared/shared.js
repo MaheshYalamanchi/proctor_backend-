@@ -13,7 +13,7 @@ let getSessions = async (params) => {
             }   
         };
         let responseData = await invoke.makeHttpCall("post", "updatemany", getdata);
-        if(responseData && responseData.data && responseData.data.statusMessage.nModified) {
+        if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
             return { success: true, message: 'Status updated successfully...' };
         } else {
             return { success: false, message: 'Status not updated...' };
