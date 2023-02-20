@@ -325,7 +325,20 @@ let getDatails = async (params) => {
             client: "rooms",
             docType: 1,
             query: [
-                    {$match:{_id:params.query.id}},
+                    {
+                        $match:{_id:params.query.id}
+                    },
+                    {
+                        $project:{
+                            addons:"$addons",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",concurrent:"$concurrent",
+                            createdAt:"$createdAt",deadline:"$deadline",duration:"$duration",error:"$error",incidents:"$incidents",integrator:"$integrator",
+                            invites:"$invites",ipaddress:"$ipaddress",lifetime:"$lifetime",locale:"$locale",members:"$members",metrics:"$metrics",
+                            proctor:"$proctor",quota:"$quota",rules:"$rules",scheduledAt:"$scheduledAt",score:"$score",signedAt:"$signedAt",
+                            startedAt:"$startedAt",status:"$status",stoppedAt:"$stoppedAt",student:"$student",subject:"$subject",tags:"$tags",
+                            template:"$template",threshold:"$threshold",timeout:"$timeout",timesheet:"$timesheet",timezone:"$timezone",updatedAt:"$updatedAt",
+                            url:"$url",useragent:"$useragent",weights:"$weights",id:"$_id",_id:0
+                        }
+                    }
                 ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
