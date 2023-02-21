@@ -90,7 +90,7 @@ let videoassData = async (params) => {
     
 };
 let roomsData =  async (params) => {
-    let addons = ["auto","preview"]//["track","record","finish","auto","screen","chat","preview","check","face","passport","content","upload"]
+    let addons = ["track","record","finish","auto","screen","chat","preview","check","face","passport","content","upload"]
     let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
     let getrooms = {
         "_id" : params.id,
