@@ -4,7 +4,7 @@ let videoassData = async (params) => {
     if (params.videoass == "VA"){
         addons = ["check","track","record","preview","finish","auto"];
     } else if (params.videoass == "QUE"){
-        addons = ["preview","auto"]
+        addons = ["record","preview","auto"]
     }
     
     let videoassData = {
