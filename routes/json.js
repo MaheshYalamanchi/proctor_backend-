@@ -170,6 +170,7 @@ let roomsData =  async (params) => {
         "student" : username,
         "template" : params.template
     }
+    return getrooms;
     
 }
 
