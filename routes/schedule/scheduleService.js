@@ -114,7 +114,10 @@ let roomInsertion = async (params) => {
         let jsonData;
         if (params && params.videoass == "VA"){
             jsonData = await json.videoassData(params);
-        }else {
+        }else if (params && params.videoass == "QUE"){
+            jsonData = await json.videoassData(params); 
+        }
+        else {
             jsonData = await json.roomsData(params);
         }
         var getdata = {
