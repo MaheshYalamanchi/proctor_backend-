@@ -55,6 +55,7 @@ let generateToken = async (req) => {
         user.taskId = req.taskId
         user.nickname = req.nickname.replace(/\s/g, "");
         user.requestType = req.requestType;
+        user.videoass=req.videoass
         let tokenArg = {
             nickname : user.username,
             id : user.id,
@@ -62,7 +63,8 @@ let generateToken = async (req) => {
             username : user.nickname,
             template : user.template,
             subject : user.subject,
-            timeout : user.timeout
+            timeout : user.timeout,
+            videoass : user.videoass
         };
         user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
         if (user.proctorToken){
