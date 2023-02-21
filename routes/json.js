@@ -1,6 +1,12 @@
 let videoassData = async (params) => {
-    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
-    let addons = ["check","track","record","preview","finish","auto"]
+    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
+    let addons;
+    if (params.videoass == "VA"){
+        addons = ["check","track","record","preview","finish","auto"];
+    } else if (params.videoass == "QUE"){
+        addons = ["preview","auto"]
+    }
+    
     let videoassData = {
         "_id" : params.id,
         "timesheet" : {
@@ -84,7 +90,7 @@ let videoassData = async (params) => {
     
 };
 let roomsData =  async (params) => {
-    let addons = ["track","record","finish","auto","screen","chat","preview","check","face","passport","content","upload"]
+    let addons = ["auto","preview"]//["track","record","finish","auto","screen","chat","preview","check","face","passport","content","upload"]
     let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
     let getrooms = {
         "_id" : params.id,
