@@ -227,7 +227,7 @@ module.exports = function (params) {
     });
     app.post('/api/room/next', async (req, res,next) => {
         try {
-            if(req){
+            if(req.body){
                 let result = await sharedService.getDatails(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });

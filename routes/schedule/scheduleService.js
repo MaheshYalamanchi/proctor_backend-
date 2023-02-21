@@ -1,6 +1,7 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 var ObjectID = require('mongodb').ObjectID;
+const json = require('../json');
 
 let userInsertion = async (params) => {
     try {
@@ -110,97 +111,11 @@ let userUpdate = async (params) => {
 };
 let roomInsertion = async (params) => {
     try {
-        let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
-        jsonData = {
-            "_id" : params.id,
-            "timesheet" : {
-                "xaxis" : [],
-                "yaxis" : []
-            },
-            "invites" : [],
-            "quota" : 0,
-            "concurrent" : 0,
-            "members" : [ 
-                "Proctortest", 
-                "afserp", 
-                "balajiproctor", 
-                "defaultproctor"
-            ],
-            "addons" : [ 
-                "track", 
-                "record", 
-                "finish", 
-                "auto", 
-                "screen", 
-                "chat", 
-                "preview", 
-                "check", 
-                "face", 
-                "passport", 
-                "content", 
-                "upload"
-            ],
-            "metrics" : [ 
-                "b1", 
-                "b2", 
-                "b3", 
-                "c1", 
-                "c2", 
-                "c3", 
-                "k1", 
-                "m1", 
-                "n2", 
-                "s1", 
-                "s2", 
-                "c4"
-            ],
-            "weights" : [ 
-                1, 
-                3, 
-                1, 
-                2, 
-                1, 
-                100, 
-                1, 
-                2, 
-                1, 
-                1, 
-                1, 
-                100
-            ],
-            "status" : "created",
-            "tags" : [ 
-                params.nickname
-            ],
-            "subject" : params.subject,
-            "locale" : null,
-            "timeout" : 90,
-            "rules" : "https://info.lntiggnite.com/Video/clip_en.html",
-            "threshold" : 0,
-            "createdAt" : new Date(),
-            "updatedAt" : new Date(),
-            "api" : null,
-            "comment" : "",
-            "complete" : false,
-            "conclusion" : null,
-            "deadline" : null,
-            "stoppedAt" : null,
-            "timezone" : null,
-            "url" : null,
-            "lifetime" : null,
-            "error" : null,
-            "scheduledAt" : new Date(),
-            "duration" : null,
-            "incidents" : null,
-            "integrator" : "sdk",
-            "ipaddress" : null,
-            "score" : null,
-            "signedAt" : null,
-            "startedAt" : null,
-            "useragent" : null,
-            "proctor" : null,
-            "student" : username,
-            "template" : "default"
+        let jsonData;
+        if (params && params.videoass == "VA"){
+            jsonData = await json.videoassData(params);
+        }else {
+            jsonData = await json.roomsData(params);
         }
         var getdata = {
             url: process.env.MONGO_URI,

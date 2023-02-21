@@ -70,11 +70,16 @@ let proctorMeCall = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data) {
-                let response = await schedule_Service.userInfo(decodeToken)
-                if (response.success){
-                    responseData.data.statusMessage[0].similar = response.message
+                if (responseData && responseData.data && responseData.data.statusMessage[0] && (responseData.data.statusMessage[0].similar>0)){
+                    let response = await schedule_Service.userInfo(decodeToken)
+                    if (response.success){
+                        responseData.data.statusMessage[0].similar = response.message
+                        return { success: true, message: responseData.data.statusMessage[0] }
+                    }
+                } else {
                     return { success: true, message: responseData.data.statusMessage[0] }
                 }
+                
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -141,48 +146,92 @@ let proctorFetchCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
         if (decodeToken && decodeToken.room){
-            var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
-                docType: 1,
-                query: [
-                    {
-                        "$match": { 
-                            "student": decodeToken.id ,
-                            "_id" : decodeToken.room
+            let getdata;
+            if(decodeToken && decodeToken.videoass == "VA"){
+                getdata = {
+                    url: process.env.MONGO_URI,
+                    client: "rooms",
+                    docType: 1,
+                    query: [
+                        {
+                            "$match": { 
+                                "student": decodeToken.id ,
+                                "_id" : decodeToken.room
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                from: 'users',
+                                localField: 'student',
+                                foreignField: '_id',
+                                as: 'student',
+                            }
+                        },
+                        {
+                            "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
+                        },
+                        {
+                            "$project": {
+                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
+                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",
+                                error:"$error",integrator:"$integrator",os:"$os",platform:"$platform",template:"$template","student.createdAt":"$student.createdAt",
+                                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
+                                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
+                                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
+                                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
+                                "student.verified":"$student.verified"
+                            }
                         }
-                    },
-                    {
-                        "$lookup": {
-                            from: 'users',
-                            localField: 'student',
-                            foreignField: '_id',
-                            as: 'student',
+                    ]
+                }; 
+            } else {
+                getdata = {
+                    url: process.env.MONGO_URI,
+                    client: "rooms",
+                    docType: 1,
+                    query: [
+                        {
+                            "$match": { 
+                                "student": decodeToken.id ,
+                                "_id" : decodeToken.room
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                from: 'users',
+                                localField: 'student',
+                                foreignField: '_id',
+                                as: 'student',
+                            }
+                        },
+                        {
+                            "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
+                        },
+                        {
+                            "$project": {
+                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
+                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",duration:"$duration",
+                                error:"$error",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",os:"$os",platform:"$platform",
+                                score:"$score",signedAt:"$signedAt",template:"$template",useragent:"$useragent",startedAt:"$startedAt","student.createdAt":"$student.createdAt",
+                                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
+                                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
+                                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
+                                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
+                                "student.verified":"$student.verified"
+    
+                            }
                         }
-                    },
-                    {
-                        "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
-                    },
-                    {
-                        "$project": {
-                            id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                            concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                            locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                            scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
-                            tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                            updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",duration:"$duration",
-                            error:"$error",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",os:"$os",platform:"$platform",
-                            score:"$score",signedAt:"$signedAt",template:"$template",useragent:"$useragent",startedAt:"$startedAt","student.createdAt":"$student.createdAt",
-                            "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
-                            "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
-                            "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
-                            "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
-                            "student.verified":"$student.verified"
-
-                        }
-                    }
-                ]
-            };
+                    ]
+                };
+            }
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.length) {
                 return { success: true, message: responseData.data.statusMessage[0] }
