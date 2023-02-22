@@ -322,7 +322,7 @@ let getDatails = async (params) => {
             client: "rooms",
             docType: 1,
             query: [
-                    {$match:{_id:params.id}},
+                    {$match:{_id:params.query.id}},
                 ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
