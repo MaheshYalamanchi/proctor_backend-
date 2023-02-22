@@ -249,7 +249,6 @@ module.exports = function (params) {
         "use strict";
         try {
             let result = await schedule.getSessions(req)
-            console.log(JSON.stringify(result));
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
@@ -258,7 +257,6 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: result.message }, 200);
             }
         } catch (error) {
-            console.log(error);
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
