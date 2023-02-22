@@ -167,7 +167,6 @@ let getFaceResponse = async (params) => {
                 var jsonData = {
                     thresold : thresold,
                     distance : distance,
-                    // verified : verified,
                     similar : similarfaces.data.message,
                     userId : decodeToken.id,
                     rep : params.rep
@@ -323,7 +322,7 @@ let getDatails = async (params) => {
             client: "rooms",
             docType: 1,
             query: [
-                    {$match:{_id:params.query.id}},
+                    {$match:{_id:params.id}},
                 ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
