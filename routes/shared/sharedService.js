@@ -477,6 +477,7 @@ let proctorSearchCall = async (params) => {
                     {
                         $match: {
                             $or: [
+                                { _id: { $regex: params.query.filter, $options: 'i' } },
                                 { subject: { $regex: params.query.filter, $options: 'i' } },
                                 { student: { $regex: params.query.filter, $options: 'i' } },
                                 { startedAt: { $regex: params.query.filter, $options: 'i' } },
@@ -544,6 +545,7 @@ let proctorSearchCall = async (params) => {
                     {
                         $match: {
                             $or: [
+                                { _id: { $regex: params.query.filter, $options: 'i' } },
                                 { subject: { $regex: params.query.filter, $options: 'i' } },
                                 { student: { $regex: params.query.filter, $options: 'i' } },
                                 { status: { $regex: params.query.filter, $options: 'i' } },
