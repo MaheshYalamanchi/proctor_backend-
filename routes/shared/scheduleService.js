@@ -78,8 +78,8 @@ let UserLimitCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -122,8 +122,8 @@ let UserLimitCall = async (params) => {
             }
             var limit = parseInt(params.query.limit)
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -177,8 +177,8 @@ let UserSearchCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -231,8 +231,8 @@ let UserSearchCall = async (params) => {
             }
             var limit = parseInt(params.query.limit);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -342,15 +342,15 @@ let proctorUserSaveCall = async (params) => {
             "similar" : []
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 0,
             query: jsonData
         };
 
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
-            let getData = await schedule.UserSave(responseData.data.iid);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
+            let getData = await schedule.UserSave(responseData.data.statusMessage._id);
             if (getData && getData.data && getData.data.statusMessage) {
                 getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;

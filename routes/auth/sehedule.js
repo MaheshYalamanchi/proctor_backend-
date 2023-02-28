@@ -4,8 +4,8 @@ const globalMsg = require('../../configuration/messages/message');
 let roomUserDetails = async (params) => {
     try {
         var userdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -158,8 +158,8 @@ let userEdit = async (params) => {
 let UserSave = async (params) => {
     try{
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {

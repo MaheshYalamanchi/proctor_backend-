@@ -113,7 +113,7 @@ let passportResponse = async (params) => {
     decodeToken = jwt_decode(params.authorization);
     try {
         jsonData = {
-            "_id" :new ObjectID(params.message.passport),
+            // "_id" :new ObjectID(params.message.passport),
             "user" : decodeToken.id,
             "filename" : params.myfile.originalFilename,
             "mimetype" : params.myfile.mimetype,
@@ -132,7 +132,7 @@ let passportResponse = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if (responseData && responseData.data.iid) {
             return ({success:true,message :responseData.data.iid}) ;
         } else {

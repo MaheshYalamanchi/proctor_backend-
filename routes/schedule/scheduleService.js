@@ -35,12 +35,12 @@ let userInsertion = async (params) => {
             "similar" : []
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage.insertedId}
         } else {
@@ -58,8 +58,8 @@ let userFetch = async (params) => {
     let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -87,8 +87,8 @@ let userUpdate = async (params) => {
             loggedAt : new Date()
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 0,
             query:{
                 filter: { "_id": params._id },
@@ -121,12 +121,12 @@ let roomInsertion = async (params) => {
             jsonData = await json.roomsData(params);
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage.insertedId}
         } else {
@@ -160,8 +160,8 @@ let roomUpdate = async (params) => {
             "updatedAt" : new Date()
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query:{
                 filter: { "_id": params.id },
@@ -312,8 +312,8 @@ let chatDetails = async (params) => {
 let roomFetch = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {
