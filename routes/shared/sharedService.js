@@ -830,7 +830,7 @@ let proctorusagestatistics = async (params) => {
             url: process.env.MONGO_URI,
             client: "stats",
             docType: 1,
-            query: ([
+            query: [
                 {$match:{ timestamp: { $mod: [1, 0], $gt: A, $lte: B } }},
                                 {$project:
                                     {
@@ -843,7 +843,7 @@ let proctorusagestatistics = async (params) => {
                                     },
 
                                 }
-                    ])
+                    ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data) {
