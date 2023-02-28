@@ -128,8 +128,8 @@ let getCandidateFcaeSend = async (params) => {
 let userInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query:[
                 {

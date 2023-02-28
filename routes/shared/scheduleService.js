@@ -78,8 +78,8 @@ let UserLimitCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -122,8 +122,8 @@ let UserLimitCall = async (params) => {
             }
             var limit = parseInt(params.query.limit)
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -177,8 +177,8 @@ let UserSearchCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -231,8 +231,8 @@ let UserSearchCall = async (params) => {
             }
             var limit = parseInt(params.query.limit);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {

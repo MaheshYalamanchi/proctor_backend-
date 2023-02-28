@@ -9,8 +9,8 @@ const schedule_Service = require('../schedule/schedule.Service');
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 { $match: { _id: params.username } }
@@ -50,8 +50,8 @@ let proctorMeCall = async (params) => {
     try {
         if(decodeToken && decodeToken.role == "student"){
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -85,8 +85,8 @@ let proctorMeCall = async (params) => {
             }
         } else if (decodeToken && decodeToken.role == "administrator") {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -110,8 +110,8 @@ let proctorMeCall = async (params) => {
             }
         } else if (decodeToken && decodeToken.role == "proctor") {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 1,
                 query: [
                     {
@@ -149,8 +149,8 @@ let proctorFetchCall = async (params) => {
             let getdata;
             if(decodeToken && decodeToken.videoass == "VA"){
                 getdata = {
-                    url: process.env.MONGO_URI,
-                    client: "rooms",
+                    database:"proctor",
+                    model: "rooms",
                     docType: 1,
                     query: [
                         {
@@ -190,8 +190,8 @@ let proctorFetchCall = async (params) => {
                 }; 
             } else {
                 getdata = {
-                    url: process.env.MONGO_URI,
-                    client: "rooms",
+                    database:"proctor",
+                    model: "rooms",
                     docType: 1,
                     query: [
                         {
@@ -240,8 +240,8 @@ let proctorFetchCall = async (params) => {
             }
         } else {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                     {
@@ -291,8 +291,8 @@ let proctorAuthCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 { $match: { _id: decodeToken.id } }
@@ -337,8 +337,8 @@ let proctorLimitCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                     {
@@ -393,8 +393,8 @@ let proctorLimitCall = async (params) => {
             }
             var limit = parseInt(params.query.limit);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [{
                     "$addFields": {
@@ -470,8 +470,8 @@ let proctorSearchCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                     {
@@ -538,8 +538,8 @@ let proctorSearchCall = async (params) => {
             var limit = parseInt(params.query.limit)
             var sort = -1;
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                     {
