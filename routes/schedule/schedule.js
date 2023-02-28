@@ -5,8 +5,8 @@ const shared_Service = require("./shared.service");
 let eventInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {
@@ -56,8 +56,8 @@ let eventInfo = async (params) => {
 let updateScore = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {$match :{_id:params.room}}
@@ -105,8 +105,8 @@ let updateScore = async (params) => {
 let faceInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {

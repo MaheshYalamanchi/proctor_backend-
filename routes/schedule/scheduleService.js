@@ -42,7 +42,7 @@ let userInsertion = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message:responseData.data.statusMessage.insertedId}
+            return { success: true, message:responseData.data.statusMessage}
         } else {
             return { success: false, message: 'Data Not Found' };
         }
@@ -128,7 +128,7 @@ let roomInsertion = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message:responseData.data.statusMessage.insertedId}
+            return { success: true, message:responseData.data.statusMessage}
         } else {
             return { success: false, message: 'Data Not Found' };
         }
@@ -198,8 +198,8 @@ let usersDetailsUpdate = async (params) => {
             }
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 0,
             query:{
                 filter: { "_id": params.userId },
@@ -223,8 +223,8 @@ let usersDetailsUpdate = async (params) => {
 let userDetails = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -253,8 +253,8 @@ let getCandidateDetailsUpdate = async (params) => {
             startedAt : new Date()
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query:{
                 filter: { "_id": params.id },

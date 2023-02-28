@@ -735,8 +735,8 @@ let proctorRoomDetails = async (params) => {
     try {
         var userid = params.params.userId;
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {
@@ -789,12 +789,12 @@ let proctorSuggestSaveCall = async (params) => {
         }
         delete params.id; 
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: params
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if(responseData && responseData.data&&responseData.data.iid){
             let getData = await schedule.roomUserSave(responseData.data.iid);
             if(getData && getData.data && getData.data.statusMessage){
@@ -867,8 +867,8 @@ let getfacePassport = async (params) => {
                 "face" : params.face
             };
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 0,
                 query: {
                     filter: { "_id": decodeToken.id },
@@ -889,8 +889,8 @@ let getfacePassport = async (params) => {
                 "passport" : params.passport
             };
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "users",
+                database:"proctor",
+                model: "users",
                 docType: 0,
                 query: {
                     filter: { "_id": decodeToken.id },

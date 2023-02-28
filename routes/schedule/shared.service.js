@@ -4,8 +4,8 @@ const globalMsg = require('../../configuration/messages/message');
 let roomsUpdate = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query:{
                 filter: { "_id": params.room },
@@ -29,8 +29,8 @@ let roomsUpdate = async (params) => {
 let roomsInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query:[{
                 $match :{_id:params.room}

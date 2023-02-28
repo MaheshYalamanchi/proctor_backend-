@@ -11,15 +11,15 @@ let getChatDetails = async (params) => {
         let userResponse = await scheduleService.chatDetails(params.params);
         if (userResponse && userResponse.success){
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 0,
                 query:{
                     filter: { "_id": userResponse.message[0]._id },
                     update: { $push:{attach: params.body.body.attach[0] }}
                 }
             };
-            let responseData = await invoke.makeHttpCall("post", "updateRecord", getdata);
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
                     userResponse.message[0].attach = params.body.body.attach
                     userResponse.message[0].id = userResponse.message[0]._id
@@ -50,8 +50,8 @@ let getCandidateEventSend = async (params) => {
             "metadata" : params.body.metadata
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 0,
             query: jsonData
         };
@@ -97,8 +97,8 @@ let getCandidateFcaeSend = async (params) => {
             "metadata" : params.body.metadata
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 0,
             query: jsonData
         };
@@ -168,8 +168,8 @@ let userInfo = async (params) => {
 let getface = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query:[
                 {
@@ -202,8 +202,8 @@ let getface = async (params) => {
 let getPassport = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query:[
                 {
