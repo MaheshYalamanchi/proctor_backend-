@@ -339,8 +339,8 @@ let getCandidateMessagesDetails = async (params) => {
     try{
         if(params.query.sort.id){
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query:[
                     {

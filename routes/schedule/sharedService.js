@@ -23,8 +23,8 @@ let getCandidateMessageSend = async (params) => {
             query: params.body
         };
         let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.iid) {
-            let responseData = await schedule.MessageSend(response.data.iid);
+        if (response && response.data && response.data.statusMessage._id) {
+            let responseData = await schedule.MessageSend(response.data.statusMessage._id);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -279,7 +279,6 @@ let tokenValidation = async(params,req)=> {
             return {success:false,message:"A token is required for authentication"};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
-            console.log(decodedToken)
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
             if(decodedToken){
@@ -317,7 +316,6 @@ let tokenValidation = async(params,req)=> {
             }
         }
     }catch(error){
-        console.log(error)
         if(error){
             return {success:false, message:"TokenExpiredError"}
         }else{

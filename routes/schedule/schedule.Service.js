@@ -56,8 +56,8 @@ let getCandidateEventSend = async (params) => {
             query: jsonData
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
-            let userResponse = await schedule.eventInfo(responseData.data.iid);
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
+            let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
             if (userResponse && userResponse.success){
                 json = {
                     timestamp:new Date(),
@@ -103,8 +103,8 @@ let getCandidateFcaeSend = async (params) => {
             query: jsonData
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
-            let chatResponse = await schedule.faceInfo(responseData.data.iid);
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
+            let chatResponse = await schedule.faceInfo(responseData.data.statusMessage._id);
             if (chatResponse && chatResponse.success){
                 let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
                 if (attatchResponse.success){

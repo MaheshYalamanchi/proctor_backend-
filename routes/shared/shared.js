@@ -121,8 +121,8 @@ let getChatDetails = async (params) => {
         let Data = [] 
         for (const data of params.attach) {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "attaches",
+                database:"proctor",
+                model: "attaches",
                 docType: 1,
                 query: [
                     {

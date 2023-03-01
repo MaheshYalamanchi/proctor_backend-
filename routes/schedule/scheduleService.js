@@ -278,8 +278,8 @@ let getCandidateDetailsUpdate = async (params) => {
 let chatDetails = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 { 

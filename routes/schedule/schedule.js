@@ -168,9 +168,9 @@ let attachInsertion = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
-            let response = await shared_Service.attachInfo(responseData.data.iid);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
+            let response = await shared_Service.attachInfo(responseData.data.statusMessage._id);
             if (response && response.success){
                 return { success: true, message:response.message}
             } else {
