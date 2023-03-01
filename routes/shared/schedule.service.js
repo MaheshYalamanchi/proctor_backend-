@@ -14,8 +14,8 @@ let getCandidateMessages = async (params) => {
             sort = -1;
             var limit = parseInt(params.query.limit);
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query: [
                     {
@@ -54,8 +54,8 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             let sort = -1;
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query: [
                     {
@@ -139,8 +139,8 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query:[
                         {
@@ -224,8 +224,8 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query: [
                     {
@@ -284,8 +284,8 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query: [
                     {
@@ -339,8 +339,8 @@ let getCandidateMessagesDetails = async (params) => {
     try{
         if(params.query.sort.id){
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "chats",
+                database:"proctor",
+                model: "chats",
                 docType: 1,
                 query:[
                     {
@@ -397,8 +397,8 @@ let SubmitSaveCall = async (params) => {
             params.body.conclusion=null
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: {
                 filter: { "_id": params.query.id },

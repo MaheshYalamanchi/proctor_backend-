@@ -8,8 +8,8 @@ let proctorRoomUserEdit = async (params) => {
         var updatedAt = new Date();
         params.updatedAt = updatedAt;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: {
                 filter: { "_id": params.id },
@@ -40,14 +40,15 @@ let proctorRoomUserEdit = async (params) => {
 let proctorDeleteSaveCall = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
-            query: {
-                _id: params.UserId
-            }
+            query:[
+                {$match:{_id: params.UserId}}
+            ] 
+            
         };
-        let responseData = await invoke.makeHttpCall("post", "readData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let response = await schedule.roomUserDelete(responseData.data.statusMessage[0]);
         }
@@ -56,7 +57,7 @@ let proctorDeleteSaveCall = async (params) => {
             delete responseData.data.statusMessage[0]._id;
             return { success: true, message: responseData.data.statusMessage[0] }
         } else {
-            return { success: false, message: 'Data Not Found' }
+            return { success: false, message: 'delete feature not at integrated...' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {

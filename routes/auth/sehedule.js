@@ -54,8 +54,8 @@ let roomUserDetails = async (params) => {
 let roomUserEdit = async (params) => {
     try {
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {
@@ -80,8 +80,8 @@ let roomUserEdit = async (params) => {
 let roomUserDelete = async (params) => {
     try{
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: {
                 _id: params._id
@@ -105,8 +105,8 @@ let roomUserDelete = async (params) => {
 let roomUserSave = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {
@@ -211,8 +211,8 @@ let UserDelete = async (params) => {
 let MessageSend = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {
@@ -283,8 +283,8 @@ let MessageSend = async (params) => {
 let roomSubmitSave = async (params) => {
     try {
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {
@@ -334,15 +334,15 @@ let roomSubmitSave = async (params) => {
 let attachCall = async (params) => {
     try{
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 1,
             query:[
                 {
                     "$addFields": { "id": { "$toString": "$_id" } }
                 },
                 {
-                    $match: { "id": params.iid }
+                    $match: { "id": params._id }
                 },
                 {
                     "$project":{"_id" : 0,"attached" : 0}

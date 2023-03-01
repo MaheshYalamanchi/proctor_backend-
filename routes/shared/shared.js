@@ -4,15 +4,15 @@ const globalMsg = require('../../configuration/messages/message');
 let getSessions = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: {
                 filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
                 update:{$set:{ status: "paused"}}
             }   
         };
-        let responseData = await invoke.makeHttpCall("post", "updatemany", getdata);
+        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
             return { success: true, message: 'Status updated successfully...' };
         } else {
@@ -30,15 +30,15 @@ let updateRecord = async (params) => {
     try {
         let updatedAt = new Date().toISOString()    
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 0,
             query: {
                 filter:{_id:params._id},
                 update:{$set:{ updatedAt: updatedAt}}
             }   
         };
-        let responseData = await invoke.makeHttpCall("post", "updateRecord", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified) {
             return { success: true, message: 'Status updated successfully...' };
         } else {
@@ -55,8 +55,8 @@ let updateRecord = async (params) => {
 let getRecord = async (params) => {
     try {  
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {$match:{_id:params.room}}
@@ -81,8 +81,8 @@ let getEventDetails = async (params) => {
         let Data = [] 
         for (const data of params.attach) {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "attaches",
+                database:"proctor",
+                model: "attaches",
                 docType: 1,
                 query: [
                     {
@@ -121,8 +121,8 @@ let getChatDetails = async (params) => {
         let Data = [] 
         for (const data of params.attach) {
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "attaches",
+                database:"proctor",
+                model: "attaches",
                 docType: 1,
                 query: [
                     {

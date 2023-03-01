@@ -5,8 +5,8 @@ const shared_Service = require("./shared.service");
 let eventInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {
@@ -56,8 +56,8 @@ let eventInfo = async (params) => {
 let updateScore = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 {$match :{_id:params.room}}
@@ -105,8 +105,8 @@ let updateScore = async (params) => {
 let faceInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {
@@ -168,9 +168,9 @@ let attachInsertion = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "writeData", getdata);
-        if (responseData && responseData.data && responseData.data.iid) {
-            let response = await shared_Service.attachInfo(responseData.data.iid);
+        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
+            let response = await shared_Service.attachInfo(responseData.data.statusMessage._id);
             if (response && response.success){
                 return { success: true, message:response.message}
             } else {

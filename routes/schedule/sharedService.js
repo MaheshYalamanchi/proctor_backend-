@@ -17,14 +17,14 @@ let getCandidateMessageSend = async (params) => {
         params.body.user = decodeToken.id;
         delete params.body.headers;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 0,
             query: params.body
         };
         let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.iid) {
-            let responseData = await schedule.MessageSend(response.data.iid);
+        if (response && response.data && response.data.statusMessage._id) {
+            let responseData = await schedule.MessageSend(response.data.statusMessage._id);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -68,8 +68,8 @@ let getMessageTemplates = async (params) => {
 let roomUserDatails = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            database:"proctor",
+            model: "rooms",
             docType: 1,
             query: [
                 { $match: { _id: params } }
@@ -180,8 +180,8 @@ let getFaceResponse = async (params) => {
                             let response = await scheduleservice.faceResponse(params);
                             if (response.success){
                                 var getdata = {
-                                    url: process.env.MONGO_URI,
-                                    client: "attaches",
+                                    database:"proctor",
+                                    model: "attaches",
                                     docType: 1,
                                     query: [
                                             {
@@ -238,18 +238,18 @@ let attachmentPostCall = async (params) => {
             "attached" : true
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 0,
             query: jsonData
         };
         let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.iid) {
+        if (response && response.data && response.data.statusMessage._id) {
             let getRecord = await shared.getRecord(decodeToken)
             if (getRecord && getRecord.success){
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 if(updatedRecord && updatedRecord.success){
-                    let responseData = await schedule.attachCall(response.data);
+                    let responseData = await schedule.attachCall(response.data.statusMessage);
                     if (responseData && responseData.data && responseData.data.statusMessage) {
                         return { success: true, message: responseData.data.statusMessage[0] }
                     } else {
@@ -279,7 +279,6 @@ let tokenValidation = async(params,req)=> {
             return {success:false,message:"A token is required for authentication"};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
-            console.log(decodedToken)
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
             if(decodedToken){
@@ -317,7 +316,6 @@ let tokenValidation = async(params,req)=> {
             }
         }
     }catch(error){
-        console.log(error)
         if(error){
             return {success:false, message:"TokenExpiredError"}
         }else{
@@ -331,8 +329,8 @@ let getDatails = async (params) => {
         let getdata;
         if (decodeToken && decodeToken.videoass == "VA"){
             getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                         {
@@ -353,8 +351,8 @@ let getDatails = async (params) => {
             };
         } else {
             getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                         {
@@ -438,8 +436,8 @@ let getPassportPhotoResponse = async (params) => {
                             let response = await scheduleservice.passportResponse(params);
                             if (response.success){
                                 var getdata = {
-                                    url: process.env.MONGO_URI,
-                                    client: "attaches",
+                                    database:"proctor",
+                                    model: "attaches",
                                     docType: 1,
                                     query: [
                                         {
@@ -483,8 +481,8 @@ let getCandidateDetails = async (params) => {
         let response = await scheduleService.getCandidateDetailsUpdate(params);
         if(response && response.success){
             var getdata = {
-                url: process.env.MONGO_URI,
-                client: "rooms",
+                database:"proctor",
+                model: "rooms",
                 docType: 1,
                 query: [
                     {$match : { _id:params.id}},

@@ -5,8 +5,8 @@ const { ObjectID } = require("mongodb");
 let getcount = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "chats",
+            database:"proctor",
+            model: "chats",
             docType: 1,
             query: [
                 {
@@ -90,14 +90,14 @@ let faceResponse = async (params) => {
             },
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 0,
             query: jsonData
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data.iid) {
-            return ({success:true,message :responseData.data.iid}) ;
+        if (responseData && responseData.data.statusMessage._id) {
+            return ({success:true,message :responseData.data.statusMessage._id}) ;
         } else {
             return "Data Not Found";
         }
@@ -127,14 +127,14 @@ let passportResponse = async (params) => {
             },
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 0,
             query: jsonData
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data.iid) {
-            return ({success:true,message :responseData.data.iid}) ;
+        if (responseData && responseData.data.statusMessage._id) {
+            return ({success:true,message :responseData.data.statusMessage._id}) ;
         } else {
             return "Data Not Found";
         }
