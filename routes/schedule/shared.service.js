@@ -53,8 +53,8 @@ let roomsInfo = async (params) => {
 let attachInfo = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 1,
             query:[
                 {

@@ -163,8 +163,8 @@ let attachInsertion = async (params) => {
             "metadata" : params.metadata
         }
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            database:"proctor",
+            model: "attaches",
             docType: 0,
             query: jsonData
         };

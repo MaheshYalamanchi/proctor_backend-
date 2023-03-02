@@ -84,7 +84,8 @@ let videoassData = async (params) => {
         "useragent" : null,
         "proctor" : null,
         "student" : username,
-        "template" : params.template
+        "template" : params.template,
+        "averages" : {}
     }
     return videoassData;
     
@@ -174,7 +175,8 @@ let roomsData =  async (params) => {
         "useragent" : null,
         "proctor" : null,
         "student" : username,
-        "template" : params.template
+        "template" : params.template,
+        "averages" : {}
     }
     return getrooms;
     

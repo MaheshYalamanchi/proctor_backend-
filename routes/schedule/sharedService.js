@@ -46,8 +46,8 @@ let getMessageTemplates = async (params) => {
         start = 0;
         count = 0;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "Blank",
+            database:"proctor",
+            model: "Blank",
             docType: 1,
             query: params
         };
@@ -96,8 +96,8 @@ let MessageTemplates = async (params) => {
         start = 0;
         count = 0;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "Blank",
+            database:"proctor",
+            model: "Blank",
             docType: 1,
             query: params
         };

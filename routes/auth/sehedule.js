@@ -132,8 +132,8 @@ let roomUserSave = async (params) => {
 let userEdit = async (params) => {
     try {
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -187,8 +187,8 @@ let UserSave = async (params) => {
 let UserDelete = async (params) => {
     try{
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query:{
                 _id:params._id

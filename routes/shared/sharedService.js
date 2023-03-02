@@ -611,8 +611,8 @@ let proctorSearchCall = async (params) => {
 let proctorSuggestCall = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -653,8 +653,8 @@ let proctorUserDetailsCall = async (params) => {
     var getusername = params.username;
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -693,8 +693,8 @@ let proctorUserDetailsCall = async (params) => {
 let proctorUserInfoCall = async (params) => {
     try {
         var postdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                 {
@@ -827,8 +827,8 @@ let proctorusagestatistics = async (params) => {
         const s = (B = ~~((B = new Date(B || Q).getTime()) / 6e4)) - (A = ~~(A / 6e4))
               //{ value: l, index: g } = this.getTimeFrames(s / E);
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "stats",
+            database:"proctor",
+            model: "stats",
             docType: 1,
             query: [
                 {$match:{ timestamp: { $mod: [1, 0], $gt: A, $lte: B } }},
