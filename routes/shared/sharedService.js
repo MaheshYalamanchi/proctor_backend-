@@ -6,6 +6,7 @@ const jwt_decode = require('jwt-decode');
 const schedule = require("../auth/sehedule");
 const { v4: uuidv4 } = require('uuid');
 const schedule_Service = require('../schedule/schedule.Service');
+const search = require('../../routes/search')
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
@@ -529,75 +530,104 @@ let proctorSearchCall = async (params) => {
                 return { success: false, message: 'Data Not Found' };
             }
         } else if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue) {
+            let filterData = await search.searchData(params.query.filter);
             var start ;
             if (params.query.start) {
                 start = parseInt(params.query.start);
             } else {
                 start = 0;
             }
-            var limit = parseInt(params.query.limit)
-            var sort = -1;
-            var getdata = {
-                database:"proctor",
-                model: "rooms",
-                docType: 1,
-                query: [
-                    {
-                        $match: {
-                            $or: [
-                                { _id: { $regex: params.query.filter, $options: 'i' } },
-                                { subject: { $regex: params.query.filter, $options: 'i' } },
-                                { student: { $regex: params.query.filter, $options: 'i' } },
-                                { status: { $regex: params.query.filter, $options: 'i' } },
-                                { startedAt: { $regex: params.query.filter, $options: 'i' } },
-                                { duration: { $regex: params.query.filter, $options: 'i' } },
-                                { score: { $regex: params.query.filter, $options: 'i' } }
-                            ]
-                        }
-                    },
-                    {
-                        $lookup: {  
-                            from: 'users',
-                            localField: 'student',
-                            foreignField: '_id',
-                            as: 'student',
-                        }
-                    },
-                    { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
-                    {
-                        $project: {
-                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                            members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
-                            subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
-                            updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
-                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                            startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
-                            os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id","student.verified":"$student.verified"
-                        }
-                    },
-                    {
-                        $facet:
+            var limit = parseInt(params.query.count) || parseInt(params.query.limit);
+            let sort;
+            if (!params.query.sort){
+                sort = -1
+            }
+            if ("string" == typeof filterData){
+                var getdata = {
+                    database:"proctor",
+                    model: "rooms",
+                    docType: 1,
+                    query: [
                         {
-                            "data": [
-                                { "$sort": { createdAt: sort } },
-                                { "$skip": start },
-                                { "$limit": limit }
-                            ],
-                            "total_count": [
-                                { $group: { _id: null, count: { $sum: 1 } } }
-                            ]
+                            $match: {
+                                $or: [
+                                    { _id: { $regex: filterData, $options: 'i' } },
+                                    { subject: { $regex: filterData, $options: 'i' } },
+                                    { student: { $regex: filterData, $options: 'i' } },
+                                    { status: { $regex: filterData, $options: 'i' } },
+                                    { startedAt: { $regex: filterData, $options: 'i' } },
+                                    { duration: { $regex: filterData, $options: 'i' } },
+                                    { score: { $regex: filterData, $options: 'i' } },
+                                    { tags: { $regex: filterData, $options: 'i' } },
+                                    { proctor: { $regex: filterData, $options: 'i' } },
+                                    { members: { $regex: filterData, $options: 'i' } }
+                                ]
+                            }
+                        },
+                        {
+                            $lookup: {  
+                                from: 'users',
+                                localField: 'student',
+                                foreignField: '_id',
+                                as: 'student',
+                            }
+                        },
+                        { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                        {
+                            $project: {
+                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                                subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                                updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
+                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
+                                startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                                "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id","student.verified":"$student.verified"
+                            }
+                        },
+                        {
+                            $facet:
+                            {
+                                "data": [
+                                    { "$sort": { createdAt: sort } },
+                                    { "$skip": start },
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { $group: { _id: null, count: { $sum: 1 } } }
+                                ]
+                            }
                         }
-                    }
-                ]
-            };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            
-            if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage[0].total_count.length) {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } };
-            } else {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count.length } };
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                
+                if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage[0].total_count.length) {
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } };
+                } else {
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count.length } };
+                }
+            } else if ("object"== typeof filterData){
+                let jsonData = {
+                    filter : filterData,
+                    skip :start,
+                    limit:limit,
+                    sort:sort
+                }
+                var getdata = {
+                    database:"proctor",
+                    model: "rooms",
+                    docType: 0,
+                    query:jsonData
+                }
+                let responseData = await invoke.makeHttpCall("post", "exec", getdata);
+                
+                if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.total) {
+                    return { success: true, message: { data: Array.isArray(responseData.data.statusMessage)?responseData.data.statusMessage:responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
+                } else {
+                    return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total} };
+                }
             }
         }
     } catch (error) {
