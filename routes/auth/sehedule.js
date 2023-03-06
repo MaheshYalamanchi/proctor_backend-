@@ -4,6 +4,7 @@ const globalMsg = require('../../configuration/messages/message');
 let roomUserDetails = async (params) => {
     try {
         var userdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -54,6 +55,7 @@ let roomUserDetails = async (params) => {
 let roomUserEdit = async (params) => {
     try {
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -80,6 +82,7 @@ let roomUserEdit = async (params) => {
 let roomUserDelete = async (params) => {
     try{
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -105,6 +108,7 @@ let roomUserDelete = async (params) => {
 let roomUserSave = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -132,6 +136,7 @@ let roomUserSave = async (params) => {
 let userEdit = async (params) => {
     try {
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -158,6 +163,7 @@ let userEdit = async (params) => {
 let UserSave = async (params) => {
     try{
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -187,6 +193,7 @@ let UserSave = async (params) => {
 let UserDelete = async (params) => {
     try{
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -211,6 +218,7 @@ let UserDelete = async (params) => {
 let MessageSend = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 1,
@@ -283,6 +291,7 @@ let MessageSend = async (params) => {
 let roomSubmitSave = async (params) => {
     try {
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -334,6 +343,7 @@ let roomSubmitSave = async (params) => {
 let attachCall = async (params) => {
     try{
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 1,

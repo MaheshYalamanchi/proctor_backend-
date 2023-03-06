@@ -11,6 +11,7 @@ let getChatDetails = async (params) => {
         let userResponse = await scheduleService.chatDetails(params.params);
         if (userResponse && userResponse.success){
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 0,
@@ -50,6 +51,7 @@ let getCandidateEventSend = async (params) => {
             "metadata" : params.body.metadata
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 0,
@@ -92,11 +94,12 @@ let getCandidateFcaeSend = async (params) => {
                 params.body.attach[0]
             ],
             "room" : params.params.roomId,
-            "user" : decodeToken.username,
+            "user" : decodeToken.id,
             "createdAt" : new Date(),
             "metadata" : params.body.metadata
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 0,
@@ -108,7 +111,7 @@ let getCandidateFcaeSend = async (params) => {
             if (chatResponse && chatResponse.success){
                 let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
                 if (attatchResponse.success){
-                    chatResponse.message[0].attach[0] = attatchResponse.message[0];
+                    chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
                     return { success: true, message:chatResponse.message[0]}
                 } else  {
                     return { success: true, message:"data not found"}
@@ -128,6 +131,7 @@ let getCandidateFcaeSend = async (params) => {
 let userInfo = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -168,6 +172,7 @@ let userInfo = async (params) => {
 let getface = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -202,6 +207,7 @@ let getface = async (params) => {
 let getPassport = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,

@@ -6,6 +6,7 @@ const { SageMakerMetrics } = require("aws-sdk");
 let eventInfo = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 1,
@@ -57,6 +58,7 @@ let eventInfo = async (params) => {
 let updateScore = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -163,6 +165,7 @@ let updateScore = async (params) => {
 let faceInfo = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 1,
@@ -221,6 +224,7 @@ let attachInsertion = async (params) => {
             "metadata" : params.metadata
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 0,

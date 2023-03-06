@@ -10,6 +10,7 @@ const search = require('../../routes/search')
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -51,6 +52,7 @@ let proctorMeCall = async (params) => {
     try {
         if(decodeToken && decodeToken.role == "student"){
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -86,6 +88,7 @@ let proctorMeCall = async (params) => {
             }
         } else if (decodeToken && decodeToken.role == "administrator") {
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -111,6 +114,7 @@ let proctorMeCall = async (params) => {
             }
         } else if (decodeToken && decodeToken.role == "proctor") {
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -150,6 +154,7 @@ let proctorFetchCall = async (params) => {
             let getdata;
             if(decodeToken && decodeToken.videoass == "VA"){
                 getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 1,
@@ -191,6 +196,7 @@ let proctorFetchCall = async (params) => {
                 }; 
             } else {
                 getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 1,
@@ -241,6 +247,7 @@ let proctorFetchCall = async (params) => {
             }
         } else {
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
@@ -292,6 +299,7 @@ let proctorAuthCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -338,6 +346,7 @@ let proctorLimitCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
@@ -394,6 +403,7 @@ let proctorLimitCall = async (params) => {
             }
             var limit = parseInt(params.query.limit);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
@@ -473,6 +483,7 @@ let proctorSearchCall = async (params) => {
             var start = parseInt(params.query.start);
             if ("string" == typeof filterData){
                 var getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 1,
@@ -544,6 +555,7 @@ let proctorSearchCall = async (params) => {
                     ],
                 }
                 var getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 0,
@@ -580,6 +592,7 @@ let proctorSearchCall = async (params) => {
             }
             if ("string" == typeof filterData){
                 var getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 1,
@@ -657,6 +670,7 @@ let proctorSearchCall = async (params) => {
                     ],
                 }
                 var getdata = {
+                    url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "rooms",
                     docType: 0,
@@ -689,6 +703,7 @@ let proctorSearchCall = async (params) => {
 let proctorSuggestCall = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -731,6 +746,7 @@ let proctorUserDetailsCall = async (params) => {
     var getusername = params.username;
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -771,6 +787,7 @@ let proctorUserDetailsCall = async (params) => {
 let proctorUserInfoCall = async (params) => {
     try {
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -813,6 +830,7 @@ let proctorRoomDetails = async (params) => {
     try {
         var userid = params.params.userId;
         var postdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -867,6 +885,7 @@ let proctorSuggestSaveCall = async (params) => {
         }
         delete params.id; 
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -905,6 +924,7 @@ let proctorusagestatistics = async (params) => {
         const s = (B = ~~((B = new Date(B || Q).getTime()) / 6e4)) - (A = ~~(A / 6e4))
               //{ value: l, index: g } = this.getTimeFrames(s / E);
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "stats",
             docType: 1,
@@ -945,6 +965,7 @@ let getfacePassport = async (params) => {
                 "face" : params.face
             };
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 0,
@@ -967,6 +988,7 @@ let getfacePassport = async (params) => {
                 "passport" : params.passport
             };
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 0,

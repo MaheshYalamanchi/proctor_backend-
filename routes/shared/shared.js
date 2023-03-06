@@ -4,9 +4,10 @@ const globalMsg = require('../../configuration/messages/message');
 let getSessions = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
-            docType: 0,
+            docType: 1,
             query: {
                 filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
                 update:{$set:{ status: "paused"}}
@@ -14,8 +15,10 @@ let getSessions = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
             return { success: true, message: 'Status updated successfully...' };
         } else {
+            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
             return { success: false, message: 'Status not updated...' };
         }
     } catch (error) {
@@ -30,6 +33,7 @@ let updateRecord = async (params) => {
     try {
         let updatedAt = new Date().toISOString()    
         var getdata = {
+            url:process.env.MONGO_URI, 
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -55,6 +59,7 @@ let updateRecord = async (params) => {
 let getRecord = async (params) => {
     try {  
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -81,6 +86,7 @@ let getEventDetails = async (params) => {
         let Data = [] 
         for (const data of params.attach) {
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "attaches",
                 docType: 1,
@@ -121,6 +127,7 @@ let getChatDetails = async (params) => {
         let Data = [] 
         for (const data of params.attach) {
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "attaches",
                 docType: 1,

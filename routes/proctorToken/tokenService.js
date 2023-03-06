@@ -80,6 +80,7 @@ let jwtToken = async (req) => {
     try {
         let username = req.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,

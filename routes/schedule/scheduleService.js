@@ -35,6 +35,7 @@ let userInsertion = async (params) => {
             "similar" : []
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
@@ -58,6 +59,7 @@ let userFetch = async (params) => {
     let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -87,6 +89,7 @@ let userUpdate = async (params) => {
             loggedAt : new Date()
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
@@ -121,6 +124,7 @@ let roomInsertion = async (params) => {
             jsonData = await json.roomsData(params);
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -160,6 +164,7 @@ let roomUpdate = async (params) => {
             "updatedAt" : new Date()
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -198,6 +203,7 @@ let usersDetailsUpdate = async (params) => {
             }
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
@@ -223,6 +229,7 @@ let usersDetailsUpdate = async (params) => {
 let userDetails = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 1,
@@ -253,6 +260,7 @@ let getCandidateDetailsUpdate = async (params) => {
             startedAt : new Date()
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -278,6 +286,7 @@ let getCandidateDetailsUpdate = async (params) => {
 let chatDetails = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 1,
@@ -312,6 +321,7 @@ let chatDetails = async (params) => {
 let roomFetch = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,

@@ -4,6 +4,7 @@ const globalMsg = require('../../configuration/messages/message');
 let roomsUpdate = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -29,6 +30,7 @@ let roomsUpdate = async (params) => {
 let roomsInfo = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -53,6 +55,7 @@ let roomsInfo = async (params) => {
 let attachInfo = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 1,
