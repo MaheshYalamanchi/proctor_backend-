@@ -8,6 +8,7 @@ let proctorRoomUserEdit = async (params) => {
         var updatedAt = new Date();
         params.updatedAt = updatedAt;
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
@@ -40,6 +41,7 @@ let proctorRoomUserEdit = async (params) => {
 let proctorDeleteSaveCall = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -79,6 +81,7 @@ let UserLimitCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -123,6 +126,7 @@ let UserLimitCall = async (params) => {
             }
             var limit = parseInt(params.query.limit)
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -178,6 +182,7 @@ let UserSearchCall = async (params) => {
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -232,6 +237,7 @@ let UserSearchCall = async (params) => {
             }
             var limit = parseInt(params.query.limit);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
                 docType: 1,
@@ -289,8 +295,9 @@ let UserEdit = async (params) => {
     try {
         delete params.id;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
             docType: 0,
             query: {
                 filter: { "_id": params.username },
@@ -343,6 +350,7 @@ let proctorUserSaveCall = async (params) => {
             "similar" : []
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
@@ -373,8 +381,9 @@ let proctorUserSaveCall = async (params) => {
 let proctorUserDeleteCall = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "users",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: {
                 _id: params.UserId
@@ -404,8 +413,9 @@ let proctorUserDeleteCall = async (params) => {
 let getCandidateMessageCount = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "rooms",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: {
                 _id: params.room
@@ -428,8 +438,9 @@ let getCandidateMessageCount = async (params) => {
 let fetchjobs = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "jobs",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
             docType: 1,
             query: [
                  {$addFields: { "attrs": {_id:"$_id",name:"$name",type:"$type",data:"$data",lastModifiedBy:"$lastModifiedBy",nextRunAt:"$nextRunAt",priority:"$priority",

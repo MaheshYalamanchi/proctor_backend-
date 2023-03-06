@@ -5,6 +5,7 @@ const { ObjectID } = require("mongodb");
 let getcount = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 1,
@@ -40,8 +41,9 @@ let getcount = async (params) => {
 let getAttach = async (params) => {
     try {
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "attaches",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "attaches",
             docType: 1,
             query: [
                 {
@@ -90,6 +92,7 @@ let faceResponse = async (params) => {
             },
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 0,
@@ -127,6 +130,7 @@ let passportResponse = async (params) => {
             },
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 0,

@@ -17,6 +17,7 @@ let getCandidateMessageSend = async (params) => {
         params.body.user = decodeToken.id;
         delete params.body.headers;
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "chats",
             docType: 0,
@@ -46,8 +47,9 @@ let getMessageTemplates = async (params) => {
         start = 0;
         count = 0;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "Blank",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "Blank",
             docType: 1,
             query: params
         };
@@ -68,6 +70,7 @@ let getMessageTemplates = async (params) => {
 let roomUserDatails = async (params) => {
     try {
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
@@ -96,8 +99,9 @@ let MessageTemplates = async (params) => {
         start = 0;
         count = 0;
         var getdata = {
-            url: process.env.MONGO_URI,
-            client: "Blank",
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "Blank",
             docType: 1,
             query: params
         };
@@ -180,6 +184,7 @@ let getFaceResponse = async (params) => {
                             let response = await scheduleservice.faceResponse(params);
                             if (response.success){
                                 var getdata = {
+                                    url:process.env.MONGO_URI,
                                     database:"proctor",
                                     model: "attaches",
                                     docType: 1,
@@ -238,6 +243,7 @@ let attachmentPostCall = async (params) => {
             "attached" : true
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "attaches",
             docType: 0,
@@ -329,6 +335,7 @@ let getDatails = async (params) => {
         let getdata;
         if (decodeToken && decodeToken.videoass == "VA"){
             getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
@@ -351,6 +358,7 @@ let getDatails = async (params) => {
             };
         } else {
             getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
@@ -436,6 +444,7 @@ let getPassportPhotoResponse = async (params) => {
                             let response = await scheduleservice.passportResponse(params);
                             if (response.success){
                                 var getdata = {
+                                    url:process.env.MONGO_URI,
                                     database:"proctor",
                                     model: "attaches",
                                     docType: 1,
@@ -464,6 +473,8 @@ let getPassportPhotoResponse = async (params) => {
                                 return { success: false, message: 'faceDetails insertion error' }
                             }
                         }
+                    }else {
+                        return { success: false, message: 'verified key already updated...' }
                     }
                 }
             }
@@ -481,6 +492,7 @@ let getCandidateDetails = async (params) => {
         let response = await scheduleService.getCandidateDetailsUpdate(params);
         if(response && response.success){
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "rooms",
                 docType: 1,

@@ -14,6 +14,7 @@ let getCandidateMessages = async (params) => {
             sort = -1;
             var limit = parseInt(params.query.limit);
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -54,6 +55,7 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             let sort = -1;
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -139,6 +141,7 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -224,6 +227,7 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -284,6 +288,7 @@ let getCandidateMessages = async (params) => {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -339,6 +344,7 @@ let getCandidateMessagesDetails = async (params) => {
     try{
         if(params.query.sort.id){
             var getdata = {
+                url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 1,
@@ -397,6 +403,7 @@ let SubmitSaveCall = async (params) => {
             params.body.conclusion=null
         }
         var getdata = {
+            url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
