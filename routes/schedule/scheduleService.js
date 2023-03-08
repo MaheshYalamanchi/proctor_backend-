@@ -283,6 +283,36 @@ let getCandidateDetailsUpdate = async (params) => {
         }
     }
 };
+let getCandidateDetailsUpdateStop = async (params) => {
+    try {
+        jsonData = {
+            status : 'stopped',
+            stoppedAt : new Date()
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query:{
+                filter: { "_id": params.id },
+                update: { $set: jsonData }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+            return { success: true, message: responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 let chatDetails = async (params) => {
     try {
         var getdata = {
@@ -356,5 +386,6 @@ module.exports = {
     userDetails,
     getCandidateDetailsUpdate,
     chatDetails,
-    roomFetch
+    roomFetch,
+    getCandidateDetailsUpdateStop
 }
