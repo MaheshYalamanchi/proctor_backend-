@@ -6,7 +6,6 @@ const schedule_Service = require('../schedule/schedule.Service');
 var minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ENDPOINT,
     port: 443,
-    // secure: false,
     useSSL : true,
     accessKey: process.env.MINIO_ACCESSKEY,
     secretKey: process.env.MINIO_SECRETKEY
@@ -21,7 +20,6 @@ module.exports = function (params) {
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
-                    //await socketService.messageTrigger(result.message)
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
@@ -31,7 +29,6 @@ module.exports = function (params) {
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
-                    //await socketService.messageTrigger(result.message)
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
@@ -41,7 +38,6 @@ module.exports = function (params) {
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
-                    //await socketService.messageTrigger(result.message)
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
@@ -226,7 +222,7 @@ module.exports = function (params) {
     });
     app.post('/api/room/next', async (req, res,next) => {
         try {
-            if(req){
+            if(req.query){
                 let result = await sharedService.getDatails(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
