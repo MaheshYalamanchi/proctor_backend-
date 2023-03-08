@@ -246,8 +246,8 @@ let MessageSend = async (params) => {
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
+                            "username": "$data._id",
                             "role": "$data.role",
-                            "username": "$data._id"
                         }
                     }
                 }
