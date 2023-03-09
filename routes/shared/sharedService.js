@@ -6,7 +6,7 @@ const jwt_decode = require('jwt-decode');
 const schedule = require("../auth/sehedule");
 const { v4: uuidv4 } = require('uuid');
 const schedule_Service = require('../schedule/schedule.Service');
-const search = require('../../routes/search')
+const search = require('../../routes/search');
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
@@ -336,13 +336,14 @@ let proctorAuthCall = async (params) => {
 };
 let proctorLimitCall = async (params) => {
     try {
-        var sort;
-        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.subject) {
-            if (params.query.sort.subject == 'desc') {
-                sort = -1;
-            } else if (params.query.sort.subject == 'asc') {
-                sort = 1;
+        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
+            let Y = params.query.sort;
+            for (let A in Y) {
+                const B = Y[A];
+                ("1" !== B && "asc" !== B) || (Y[A] = 1), 
+                ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
+            let sort = Y
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
@@ -376,7 +377,7 @@ let proctorLimitCall = async (params) => {
                     {
                         $facet: {
                             "data": [
-                                { "$sort": { subject: sort } },
+                                { "$sort": sort},
                                 { "$skip": start },
                                 { "$limit": limit }
                             ],
@@ -471,14 +472,15 @@ let proctorLimitCall = async (params) => {
 };
 let proctorSearchCall = async (params) => {
     try {
-        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.subject) {
+        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
             let filterData = await search.searchData(params.query.filter);
-            let sort;
-            if (params.query.sort.subject == 'desc') {
-                sort = {subject:-1};
-            } else if (params.query.sort.subject == 'asc') {
-                sort = {subject:1};
+            let Y = params.query.sort;
+            for (let A in Y) {
+                const B = Y[A];
+                ("1" !== B && "asc" !== B) || (Y[A] = 1), 
+                ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
+            let sort = Y;
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             if ("string" == typeof filterData){

@@ -1,8 +1,7 @@
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
-const { query } = require("express");
-const crypto =require("crypto")
+const crypto =require("crypto");
 let proctorRoomUserEdit = async (params) => {
     try {
         var updatedAt = new Date();
@@ -71,13 +70,14 @@ let proctorDeleteSaveCall = async (params) => {
 };
 let UserLimitCall = async (params) => {
     try {
-        var sort;
-        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.nickname) {
-            if (params.query.sort.nickname == 'desc') {
-                sort = -1;
-            } else if (params.query.sort.nickname == 'asc') {
-                sort = 1;
+        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort) {
+            let Y = params.query.sort;
+            for (let A in Y) {
+                const B = Y[A];
+                ("1" !== B && "asc" !== B) || (Y[A] = 1), 
+                ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
+            let sort = Y
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
@@ -99,7 +99,7 @@ let UserLimitCall = async (params) => {
                         $facet:
                         {
                             "data": [
-                                { $sort: { nickname: sort } },
+                                { "$sort": sort },
                                 { "$skip": start },
                                 { "$limit": limit }
                             ],
@@ -172,13 +172,14 @@ let UserLimitCall = async (params) => {
 };
 let UserSearchCall = async (params) => {
     try {
-        var sort;
-        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort && params.query.sort.nickname) {
-            if (params.query.sort.nickname == 'desc') {
-                sort = -1;
-            } else if (params.query.sort.nickname == 'asc') {
-                sort = 1;
+        if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort) {
+            let Y = params.query.sort;
+            for (let A in Y) {
+                const B = Y[A];
+                ("1" !== B && "asc" !== B) || (Y[A] = 1), 
+                ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
+            let sort = Y;
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
@@ -210,7 +211,7 @@ let UserSearchCall = async (params) => {
                         $facet:
                         {
                             "data": [
-                                { "$sort": { nickname: sort } },
+                                { "$sort": sort },
                                 { "$skip": start },
                                 { "$limit": limit }
                             ],
