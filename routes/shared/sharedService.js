@@ -364,12 +364,12 @@ let proctorLimitCall = async (params) => {
                     {
                         $project: {
                             id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                            members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                            members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
                             stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                            startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
                             "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                         }
@@ -431,12 +431,12 @@ let proctorLimitCall = async (params) => {
                     {
                         $project: {
                             id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                            members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                            members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
                             stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
                             duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                            startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
                             "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                         }
@@ -444,7 +444,7 @@ let proctorLimitCall = async (params) => {
                     {
                         $facet: {
                             "data": [
-                                { "$sort": { createdAt: sort } },
+                                { "$sort": { startedAt: sort } },
                                 { "$skip": start },
                                 { "$limit": limit }
                             ],
@@ -518,7 +518,7 @@ let proctorSearchCall = async (params) => {
                                 updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
                                 stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
                                 duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                                startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                startedAt:"$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                                 os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
                                 "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
                             }

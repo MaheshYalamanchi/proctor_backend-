@@ -79,8 +79,7 @@ let videoassData = async (params) => {
         "integrator" : "sdk",
         "ipaddress" : null,
         "score" : null,
-        "signedAt" : null,
-        "startedAt" : null,
+        "signedAt" : new Date(),
         "useragent" : null,
         "proctor" : null,
         "student" : username,
@@ -102,12 +101,7 @@ let roomsData =  async (params) => {
         "invites" : [],
         "quota" : 0,
         "concurrent" : 0,
-        "members" : [ 
-            "Proctortest", 
-            "afserp", 
-            "balajiproctor", 
-            "defaultproctor"
-        ],
+        "members" : [],
         "addons" : addons,
         "metrics" : [
             "b1",
@@ -170,8 +164,7 @@ let roomsData =  async (params) => {
         "integrator" : "sdk",
         "ipaddress" : null,
         "score" : null,
-        "signedAt" : null,
-        "startedAt" : null,
+        "signedAt" : new Date(),
         "useragent" : null,
         "proctor" : null,
         "student" : username,
