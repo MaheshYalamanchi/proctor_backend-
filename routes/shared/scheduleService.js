@@ -2,6 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 const crypto =require("crypto");
+const logger =require('../../logger/logger')
 let proctorRoomUserEdit = async (params) => {
     try {
         var updatedAt = new Date();
@@ -17,9 +18,26 @@ let proctorRoomUserEdit = async (params) => {
             }
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
-        if (response && response.data && response.data.statusMessage && response.data.statusMessage.nModified == 1) {
+        if (response && response.data && response.data.statusMessage && response.data.statusMessage.nModified>0) {
             let responseData = await schedule.roomUserEdit(params);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                if (responseData.data.statusMessage[0].status == "template"){
+                    let templateResponse = await schedule.getTemplate(responseData.data.statusMessage[0]);
+                    if (templateResponse && templateResponse.data && templateResponse.data.statusMessage.length >0){
+                        let jsonData = {
+                            members : params.members,
+                            array : templateResponse.data.statusMessage[0].array
+                        }
+                        let updateTemplate = await schedule.updateTemplate(jsonData);
+                        if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
+                            logger.info({ success: true, message: updateTemplate.data.statusMessage });
+                        } else {
+                            logger.info({ success: false, message: "records updated not successfully..." });
+                        }
+                    } else {
+                        return { success: false, message: templateResponse };
+                    }
+                }
                 responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
                 delete responseData.data.statusMessage[0]._id;
                 return { success: true, message: responseData.data.statusMessage[0] };
