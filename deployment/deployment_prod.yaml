@@ -20,37 +20,37 @@ spec:
           - name: DATA_SERVICE_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: DATA_SERVICE_ENDPOINT  
           - name: MONGO_URI
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: MONGO_URI   
           - name: SOCKET_IO
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: SOCKET_IO
           - name: MAPREDUCE_URL
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: MAPREDUCE_URL
           - name: MINIO_ACCESSKEY
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: MINIO_ACCESSKEY
           - name: MINIO_SECRETKEY
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: MINIO_SECRETKEY
           - name: MINIO_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-prod-env
                 key: MINIO_ENDPOINT
                                                                         
           ports:
