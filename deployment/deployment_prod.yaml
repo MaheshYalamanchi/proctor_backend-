@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: proctorbackend
-          image: proctordev.azurecr.io/proctorbackend:$tag
+          image: proctorprod.azurecr.io/proctorbackend:$tag
           imagePullPolicy: Always
           env:
           - name: DATA_SERVICE_ENDPOINT
