@@ -374,6 +374,68 @@ let attachCall = async (params) => {
         }
     }
 };
+let getTemplate = async(params) => {
+    try{
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query:[
+                {
+                    $match: { "template": params._id }
+                },
+                {
+                    $project :{_id:"$_id"}
+                },
+                {
+                    $group:{_id:null, array:{$push:"$_id"}}
+                },
+                {
+                    $project:{array:true,_id:false}
+                }
+            ] 
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+}
+let updateTemplate = async(params) => {
+    try{
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query:{
+                filter :{_id:{$in:params.array}},
+                update :{$set:{members:params.members}}
+            } 
+        };
+        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+}
 
 module.exports = {
     roomUserDetails,
@@ -385,5 +447,7 @@ module.exports = {
     UserDelete,
     MessageSend,
     roomSubmitSave,
-    attachCall
+    attachCall,
+    getTemplate,
+    updateTemplate
 }

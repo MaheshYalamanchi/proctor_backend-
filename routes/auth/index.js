@@ -98,7 +98,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/room", async (req, res) => {
+    app.post("/api/room", async (req, res) => {
         "use strict";
         try {
             if (req.query.limit && req.query.filter && req.query.start && req.query.count && req.query.continue && req.query.sort ) {
