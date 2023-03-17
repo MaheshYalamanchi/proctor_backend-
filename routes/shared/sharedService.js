@@ -337,7 +337,75 @@ let proctorAuthCall = async (params) => {
 };
 let proctorLimitCall = async (params) => {
     try {
-        if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
+        var newparams = params.headers.authorization
+        var decodeToken = jwt_decode(newparams);
+        if (decodeToken.role == "proctor"){
+            if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
+                var sort = -1;
+                var start;
+                if (params.query.start){
+                    start = parseInt(params.query.start);
+                }else{
+                    start = 0;
+                }
+                var limit = parseInt(params.query.limit);
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "rooms",
+                    docType: 1,
+                    query: [ 
+                        {$match: {
+                        
+                        members:decodeToken.id 
+                        
+                    }
+                    },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'student',
+                                foreignField: '_id',
+                                as: 'student',
+                            }
+                        },
+                        { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                        {
+                            $project: {
+                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                                subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                                updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
+                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
+                                startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                                "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                            }
+                        },
+                        {
+                            $facet: {
+                                "data": [
+                                    { "$sort": { startedAt: sort } },
+                                    { "$skip": start },
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { $group: { _id: null, count: { $sum: 1 } } }
+                                ]
+                            }
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data) {
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
+            }
+        }    
+        else if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
             let Y = params.query.sort;
             for (let A in Y) {
                 const B = Y[A];
@@ -570,6 +638,8 @@ let proctorSearchCall = async (params) => {
                         return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count.length } };
                     }
                 } else if ("object"== typeof filterData){
+                    filterData.members={$in:[decodeToken.id]},
+                    filterData.student= {$ne: null}   
                     let jsonData = {
                         filter : filterData,
                         skip :start,
