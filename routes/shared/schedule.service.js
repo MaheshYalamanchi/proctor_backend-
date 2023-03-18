@@ -231,13 +231,16 @@ let getCandidateMessages = async (params) => {
                 database:"proctor",
                 model: "chats",
                 docType: 1,
-                query: [
+                query: 
+                [
                     {
                         "$match": {
                             "room": params.params.roomId,
                             "type": { "$regex": params.query.filter.type, "$options": 'i' }
                         }
                     },
+                    /*{ "$sort": { "createdAt": -1 } },
+                    { "$limit": 20 },*/
                     {
                         "$lookup": {
                             "from": 'users',
@@ -250,6 +253,28 @@ let getCandidateMessages = async (params) => {
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attachesData',
+                        }
+                    },
+                    {
+                        "$project": {
+                            "attach.id": { $arrayElemAt: ["$attachesData._id", 0] },
+                            "attach.filename": { $arrayElemAt: ["$attachesData.filename", 0] },
+                            "attach.mimetype": { $arrayElemAt: ["$attachesData.mimetype", 0] },
+                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
@@ -276,10 +301,6 @@ let getCandidateMessages = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                for (const data of responseData.data.statusMessage[0].data) {
-                    let response = await shared.getEventDetails(data)
-                    data.attach = response.message
-                }
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }

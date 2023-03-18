@@ -104,6 +104,9 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { "$sort": sort },
+                    { "$skip": start },
+                    { "$limit": limit },
                     {
                         $project: {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
@@ -112,26 +115,22 @@ let UserLimitCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    },
-                    {
-                        $facet:
-                        {
-                            "data": [
-                                { "$sort": sort },
-                                { "$skip": start },
-                                { "$limit": limit }
-                            ],
-                            "total_count": [
-                                { $group: { _id: null, count: { $sum: 1 } } },
-                                { $project: { _id: 0 } }
-                            ]
-                        }
-                    },
+                    }
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.length > 0) {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
+            if (responseData && responseData.data) {
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 1,
+                    query:[{ $group: { _id: null, count: { $sum: 1 } } }]
+                }
+                let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (getCount && getCount.data){
+                    return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
+                }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -149,6 +148,8 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $skip: start },
+                    { "$limit": limit },
                     {
                         $project: {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
@@ -157,25 +158,22 @@ let UserLimitCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    },
-                    {
-                        $facet:
-                        {
-                            "data": [
-                                { $skip: start },
-                                { "$limit": limit }
-                            ],
-                            "total_count": [
-                                { $group: { _id: null, count: { $sum: 1 } } },
-                                { $project: { _id: 0 } }
-                            ]
-                        }
                     }
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.length > 0) {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
+            if (responseData && responseData.data) {
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 1,
+                    query:[{ $group: { _id: null, count: { $sum: 1 } } }]
+                }
+                let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (getCount && getCount.data){
+                    return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
+                }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -206,6 +204,9 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { "$sort": sort },
+                    { "$skip": start },
+                    { "$limit": limit },
                     {
                         $match: {
                             $or: [
@@ -224,28 +225,36 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    },
-                    {
-                        $facet:
-                        {
-                            "data": [
-                                { "$sort": sort },
-                                { "$skip": start },
-                                { "$limit": limit }
-                            ],
-                            "poc": [
-                                { $group: { _id: null, count: { $sum: 1 } } },
-                                { $project: { _id: 0 } }
-                            ]
-                        }
-                    },
+                    }
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data) {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].poc[0].count } };
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 1,
+                    query:[
+                        {
+                            $match: {
+                                $or: [
+                                    { nickname: { $regex: params.query.filter, $options: 'i' } },
+                                    { role: { $regex: params.query.filter, $options: 'i' } },
+                                    { _id: { $regex: params.query.filter, $options: 'i' } },
+                                    { loggedAt: { $regex: params.query.filter, $options: 'i' } }
+                                ]
+                            }
+                        },
+                        { $group: { _id: null, count: { $sum: 1 } } }
+                    ]
+                }
+                let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (getCount && getCount.data){
+                    return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
+                }
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: 'Data Not Found' }
             }
         } else if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count) {
             var start;
@@ -261,6 +270,8 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { "$skip": start },
+                    { "$limit": limit },
                     {
                         $match: {
                             $or: [
@@ -279,27 +290,36 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    },
-                    {
-                        $facet:
-                        {
-                            "data": [
-                                { "$skip": start },
-                                { "$limit": limit }
-                            ],
-                            "poc": [
-                                { $group: { _id: null, count: { $sum: 1 } } },
-                                { $project: { _id: 0 } }
-                            ]
-                        }
-                    },
+                    }
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data) {
-                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].poc[0].count } };
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 1,
+                    query:[
+                        {
+                            $match: {
+                                $or: [
+                                    { nickname: { $regex: params.query.filter, $options: 'i' } },
+                                    { role: { $regex: params.query.filter, $options: 'i' } },
+                                    { _id: { $regex: params.query.filter, $options: 'i' } },
+                                    { loggedAt: { $regex: params.query.filter, $options: 'i' } }
+                                ]
+                            }
+                        },
+                        { $group: { _id: null, count: { $sum: 1 } } }
+                    ]
+                }
+                let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (getCount && getCount.data){
+                    return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
+                }
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: 'Data Not Found' }
             }
         }
     } catch (error) {
