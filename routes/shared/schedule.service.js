@@ -270,10 +270,18 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     {
-                        "$project": {
-                            "attach.id": { $arrayElemAt: ["$attachesData._id", 0] },
-                            "attach.filename": { $arrayElemAt: ["$attachesData.filename", 0] },
-                            "attach.mimetype": { $arrayElemAt: ["$attachesData.mimetype", 0] },
+                        $project:{
+                            attach:{
+                                $map:{
+                                    "input":"$attachesData",
+                                    as:"sec",
+                                    in:{
+                                        "id":"$$sec._id",
+                                        "filename":"$$sec.filename",
+                                        "mimetype":"$$sec.mimetype",
+                                    }
+                                }
+                            },
                             "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
                             "user": {
                                 "id": "$data._id",
