@@ -611,7 +611,7 @@ let SubmitSaveCall = async (params) => {
         } else if (params.body.conclusion=="negative"){
             params.body.status='rejected';
         } else if (params.body.conclusion=="positive"){
-            params.body.status='stopped';
+            params.body.status='accepted';
         }
         var getdata = {
             url:process.env.MONGO_URI,
