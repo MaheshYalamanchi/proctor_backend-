@@ -204,9 +204,6 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
-                    { "$sort": sort },
-                    { "$skip": start },
-                    { "$limit": limit },
                     {
                         $match: {
                             $or: [
@@ -225,7 +222,10 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    }
+                    },
+                    { "$sort": sort },
+                    { "$skip": start },
+                    { "$limit": limit },
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
@@ -270,8 +270,6 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
-                    { "$skip": start },
-                    { "$limit": limit },
                     {
                         $match: {
                             $or: [
@@ -290,7 +288,9 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    }
+                    },
+                    { "$limit": limit },
+                    { "$skip": start },
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
