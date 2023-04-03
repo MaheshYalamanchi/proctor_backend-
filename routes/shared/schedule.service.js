@@ -529,7 +529,6 @@ let getCandidateMessages = async (params) => {
                     {
                         $sort: { createdAt: sort }
                     },
-                    { "$limit": limit }
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
@@ -607,7 +606,12 @@ let getCandidateMessagesDetails = async (params) => {
 let SubmitSaveCall = async (params) => {
     try{ 
         if(params.body.conclusion=="null"){
-            params.body.conclusion=null
+            params.body.conclusion=null;
+            params.body.status='stopped';
+        } else if (params.body.conclusion=="negative"){
+            params.body.status='rejected';
+        } else if (params.body.conclusion=="positive"){
+            params.body.status='accepted';
         }
         var getdata = {
             url:process.env.MONGO_URI,
