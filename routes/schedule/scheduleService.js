@@ -114,27 +114,45 @@ let userUpdate = async (params) => {
 };
 let roomInsertion = async (params) => {
     try {
-        let jsonData;
-        if (params && params.videoass == "VA"){
-            jsonData = await json.videoassData(params);
-        }else if (params && params.videoass == "QUE"){
-            jsonData = await json.videoassData(params); 
-        }
-        else {
-            jsonData = await json.roomsData(params);
-        }
+        //create read function 
+        //get date from db searching is db.getCollection('rooms').find({template:"default"})
+        //bind the addons key
+        //let jsonData;
         var getdata = {
             url:process.env.MONGO_URI,
-            database:"proctor",
+            database: "proctor",
             model: "rooms",
-            docType: 0,
-            query: jsonData
+            docType: 1,
+            query: {_id:"default"}
         };
-        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message:responseData.data.statusMessage}
+        let response = await invoke.makeHttpCall("post", "read", getdata);
+        if (response && response.data && response.data.statusMessage) {
+            let jsonData;
+            if (params && params.videoass == "VA"){
+                jsonData = await json.videoassData(params);
+            }else if (params && params.videoass == "QUE"){
+                jsonData = await json.videoassData(params); 
+            }
+            else {
+                //jsonData = response.data.statusMessage[0].addons
+                jsonData = await json.roomsData(params);
+                jsonData.addons=response.data.statusMessage[0].addons
+            }
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "rooms",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message:responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
         } else {
-            return { success: false, message: 'Data Not Found' };
+
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
