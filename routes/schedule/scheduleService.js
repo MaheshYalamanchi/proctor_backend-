@@ -123,7 +123,7 @@ let roomInsertion = async (params) => {
             database: "proctor",
             model: "rooms",
             docType: 1,
-            query: {_id:"default"}
+            query: {_id:params.template}
         };
         let response = await invoke.makeHttpCall("post", "read", getdata);
         if (response && response.data && response.data.statusMessage) {
@@ -152,7 +152,7 @@ let roomInsertion = async (params) => {
                 return { success: false, message: 'Data Not Found' };
             }
         } else {
-
+            return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
