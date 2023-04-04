@@ -1,5 +1,7 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
+var qrcode = require("qrcode");
+const jwt_decode = require('jwt-decode');
 
 let getSessions = async (params) => {
     try {
@@ -122,9 +124,56 @@ let getChatDetails = async (params) => {
         }
     }
 };
+let getQRcode = async (params) => {
+    try { 
+        const header = params.authorization.split(" ");
+        const authorization = header[1];
+        let decodeToken = jwt_decode(params.authorization)
+        if(decodeToken){
+            let origin = params.body.origin || "";
+            let redirect = params.body.redirect || "";
+            let token = authorization;
+            let exp = new Date(1e3 * decodeToken.exp);
+            let data = `${origin}/?token=${token}&redirect=${redirect}`;
+            let response = await qrcodeData(data)
+            if (response && response.success){
+                return { success: true, message: { expires: exp, token: token, url: data, qrcode: response.message } };
+            } else {
+                return { success: false, message: 'data  not found...' };
+            }
+        } else {
+            return { success: false, message: 'decode token error' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+function qrcodeData(data) {
+    return new Promise((resolve, reject) => {
+  
+        try {
+            qrcode.toDataURL(data, { margin: 0 }, function (A, w) {
+                if (!w) {
+                    resolve({ success: false, message: A })
+                } else{
+                    resolve({ success: true, message: w })
+                }
+            });
+        } catch (error) {
+            console.log(error)
+            reject({ success: false, message: error })
+        }
+  
+ })
+};
 module.exports = {
     getSessions,
     updateRecord,
     getRecord,
-    getChatDetails
+    getChatDetails,
+    getQRcode
 }
