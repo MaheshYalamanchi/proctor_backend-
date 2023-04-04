@@ -68,7 +68,35 @@ let generateToken = async (req) => {
         };
         user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
         if (user.proctorToken){
-            return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken };
+            const data = {
+                "assessmentId": user.assessmentId,
+                "exp": req.exp,
+                "iat": req.iat,
+                "id": user.id,
+                "nickname": user.nickname,
+                "subject": user.subject,
+                "taskId": user.taskId,
+                "template": user.template,
+                "timeout": user.timeout,
+                "tags": user.tags,
+                "username": user.username,
+                "proctorToken": user.proctorToken,
+                "requestType": user.requestType,
+                "videoass": user.videoass
+              }
+              var postdata = {
+                url:process.env.MONGO_URI,
+                database: "proctor",
+                model: "log",
+                docType: 0,
+                query: data
+              };
+              let responseData = await invoke.makeHttpCall("post", "write", postdata);
+              if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken };
+              } else {
+                return { success: false, message: 'Data Not inserted' }
+              }
         }else{
             return {success: false, message:'Error While Generating Token!'};
         }
