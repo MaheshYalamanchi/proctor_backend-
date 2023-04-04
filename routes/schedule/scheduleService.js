@@ -134,9 +134,9 @@ let roomInsertion = async (params) => {
                 jsonData = await json.videoassData(params); 
             }
             else {
-                //jsonData = response.data.statusMessage[0].addons
                 jsonData = await json.roomsData(params);
                 jsonData.addons=response.data.statusMessage[0].addons
+                jsonData.threshold=response.data.statusMessage[0].threshold
             }
             var getdata = {
                 url:process.env.MONGO_URI,
