@@ -130,14 +130,17 @@ let roomInsertion = async (params) => {
             let jsonData;
             if (params && params.videoass == "VA"){
                 jsonData = await json.videoassData(params);
+                jsonData.members = response.data.statusMessage[0].members
             }else if (params && params.videoass == "QUE"){
                 jsonData = await json.videoassData(params); 
+                jsonData.members = response.data.statusMessage[0].members 
             }
             else {
                 jsonData = await json.roomsData(params);
                 jsonData.addons=response.data.statusMessage[0].addons
                 jsonData.threshold=response.data.statusMessage[0].threshold
                 jsonData.rules=response.data.statusMessage[0].rules
+                jsonData.members = response.data.statusMessage[0].members
             }
             var getdata = {
                 url:process.env.MONGO_URI,
