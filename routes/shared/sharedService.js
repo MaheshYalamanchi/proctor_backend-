@@ -30,7 +30,8 @@ let proctorLoginCall = async (params) => {
                 return {
                     success: true, message: {
                         id: responseData.data.statusMessage[0]._id,
-                        role: responseData.data.statusMessage[0].role, token: response
+                        role: responseData.data.statusMessage[0].role, token: response,
+                        roleId:responseData.data.statusMessage[0].roleId
                     }
                 }
                 
