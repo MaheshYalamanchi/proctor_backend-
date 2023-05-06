@@ -142,8 +142,8 @@ let getFaceResponse = async (params) => {
             var thresold = params.thresold || 0.25;
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
-                for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                            const B = userResponse[0].rep[A] - params.rep[A];
+                for (let A = 0; A < userResponse.message[0].rep.length; A++) {
+                            const B = userResponse.message[0].rep[A] - params.rep[A];
                             distance += B * B;
                         }
                     }
@@ -168,53 +168,92 @@ let getFaceResponse = async (params) => {
             }
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
             if (similarfaces && similarfaces.data.success){
-                var jsonData = {
-                    thresold : thresold,
-                    distance : distance,
-                    // verified : verified,
-                    similar : similarfaces.data.message,
-                    userId : decodeToken.id,
-                    rep : params.rep
-                }
-                let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
-                if (getDetails.success){
-                    let userData = await scheduleService.userDetails(decodeToken);
-                    if (userData && userData.success){
-                        params.message = userData.message[0];
-                        let response = await scheduleservice.faceResponse(params);
-                        if (response.success){
-                            var getdata = {
-                                url:process.env.MONGO_URI,
-                                database:"proctor",
-                                model: "attaches",
-                                docType: 1,
-                                query: [
-                                        {
-                                            "$addFields": { "test": { "$toString": "$_id" } }
-                                        },
-                                        {
-                                            "$match": { "test": response.message }
-                                        },
-                                        {
-                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
-                                        }
-                                    ]
-                            };
-                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                            if (responseData && responseData.data && responseData.data.statusMessage) {
-                                return { success: true, message: responseData.data.statusMessage[0] }
+                if (verified == true){
+                    var jsonData = {
+                        thresold : thresold,
+                        distance : distance,
+                        // verified : verified,
+                        similar : similarfaces.data.message,
+                        userId : decodeToken.id,
+                        rep : params.rep
+                    }
+                    let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
+                    if (getDetails.success){
+                        let userData = await scheduleService.userDetails(decodeToken);
+                        if (userData && userData.success){
+                            params.message = userData.message[0];
+                            params.distance = distance;
+                            params.verified = verified;
+                            params.threshold = thresold;
+                            let response = await scheduleservice.faceResponse(params);
+                            if (response.success){
+                                var getdata = {
+                                    url:process.env.MONGO_URI,
+                                    database:"proctor",
+                                    model: "attaches",
+                                    docType: 1,
+                                    query: [
+                                            {
+                                                "$addFields": { "test": { "$toString": "$_id" } }
+                                            },
+                                            {
+                                                "$match": { "test": response.message }
+                                            },
+                                            {
+                                                "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                            metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                                            }
+                                        ]
+                                };
+                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                                if (responseData && responseData.data && responseData.data.statusMessage) {
+                                    return { success: true, message: responseData.data.statusMessage[0] }
+                                } else {
+                                    return { success: false, message: 'Data Not Found' };
+                                }
                             } else {
-                                return { success: false, message: 'Data Not Found' };
-                            }
+                                return { success: false, message: response.message };
+                            } 
                         } else {
-                            return { success: false, message: response.message };
+                            return { success: false, message: userData.message };
                         } 
+                    }else {
+                        return { success: false, message: getDetails.message}
+                    }
+                } else {
+                    params.similar = similarfaces.data.message;
+                    params.distance = distance;
+                    params.verified = verified;
+                    params.threshold = thresold;
+                    let response = await scheduleservice.missMatchResponse(params);
+                    if (response.success){
+                        var getdata = {
+                            url:process.env.MONGO_URI,
+                            database:"proctor",
+                            model: "attaches",
+                            docType: 1,
+                            query: [
+                                    {
+                                        "$addFields": { "test": { "$toString": "$_id" } }
+                                    },
+                                    {
+                                        "$match": { "test": response.message }
+                                    },
+                                    {
+                                        "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                    metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                                    }
+                                ]
+                        };
+                        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                        if (responseData && responseData.data && responseData.data.statusMessage) {
+                            return { success: true, message: responseData.data.statusMessage[0] }
+                        } else {
+                            return { success: false, message: 'Data Not Found' };
+                        }
                     } else {
-                        return { success: false, message: userData.message };
+                        return { success: false, message: response.message };
                     } 
-                }else {
-                    return { success: false, message: getDetails.message}
                 }
             } else {
                 return { success: false, message: 'similarfaces error' };
