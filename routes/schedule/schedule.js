@@ -98,10 +98,12 @@ let updateScore = async (params) => {
                     "k1" : null,
                     "m1" : null,
                     "m2" : null,
+                    "m3" : null,
                     "n1" : null,
                     "n2" : null,
                     "s1" : null,
-                    "s2" : null
+                    "s2" : null,
+                    "h1" : null
                 }
                 // averages :roomsData.metrics{}
             };
@@ -133,7 +135,8 @@ let updateScore = async (params) => {
                         Y = jsonData.timesheet.sum[I] || 0;
                     let F = 0;
                     if ("n1" === I) {
-                        F = ~~(100 * (1 - (jsonData.duration ? (jsonData.duration > TotalTime ? TotalTime : jsonData.duration) / TotalTime : 0)));
+                        F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
+                        //F = ~~(100 * (1 - (jsonData.duration ? (jsonData.duration > TotalTime ? TotalTime : jsonData.duration) / TotalTime : 0)));
                     } else F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
                     (!F || isNaN(F) || F < 0) && (F = 0), F > 100 && (F = 100), (w[I] = F), (scoreValue -= F);
                 }
