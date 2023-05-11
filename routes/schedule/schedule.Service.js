@@ -251,7 +251,7 @@ let broadcastMesssage = async (params) => {
             query:[
                 {
                     $match:{
-                        members:{$elemMatch:{$in:["defaultproctor"]}},
+                        members:{$elemMatch:{$in:[params.user.id]}},
                     }
                 },
                 {$sort:{updatedAt:-1}},
