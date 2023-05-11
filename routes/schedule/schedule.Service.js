@@ -4,7 +4,7 @@ const jwt_decode = require('jwt-decode');
 const scheduleService = require('../schedule/scheduleService');
 const schedule = require('./schedule');
 var ObjectID = require('mongodb').ObjectID;
-
+const moment = require('moment');
 let getChatDetails = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
@@ -239,6 +239,70 @@ let getPassport = async (params) => {
         }
     }
 };
+let broadcastMesssage = async (params) => {
+    try {
+        const date = moment()
+        const formattedDate = date.format('YYYY-MM-DD');
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query:[
+                {
+                    $match:{
+                        members:{$elemMatch:{$in:["defaultproctor"]}},
+                    }
+                },
+                {$sort:{updatedAt:-1}},
+                {$limit:100},
+                {
+                $project:{"student": 1, id:"$_id",_id:0,test: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } }}
+                },
+                {
+                $match:{test:{$eq:formattedDate}}
+                }
+                ]
+        };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                let messages = responseData.data.statusMessage
+                let data = []
+                for (const value of messages) {
+                     const obj = {
+                        "room": value.id,
+                        "members":"defaultproctor",
+                        "type":"message",
+                        "metadata" : params.metadata,
+                        "user": value.student,
+                        "message":  params.message
+                     };
+                     data.push(obj)
+                }
+                var postdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "chats",
+                    docType: 0,
+                    query: data
+                };
+                let response = await invoke.makeHttpCall("post", "write", postdata);
+                if (response && response.data && response.data.statusMessage) {
+                    return { success: true, message: response.data.statusMessage }
+                } else {
+                    return { success: false, message: 'Data Not found' }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getChatDetails,
@@ -246,5 +310,6 @@ module.exports = {
     getCandidateFcaeSend,
     userInfo,
     getface,
-    getPassport
+    getPassport,
+    broadcastMesssage
 }
