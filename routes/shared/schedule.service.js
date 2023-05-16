@@ -41,6 +41,7 @@ let getCandidateMessages = async (params) => {
                              "user.id":"$data._id","user.nickname":"$data.nickname","user.role":"$data.role","user.username":"$data._id"
                         }
                     },
+                    {$sort:{createdAt:-1}},
                     { "$skip": start },
                     { "$limit": limit }
                 ]
