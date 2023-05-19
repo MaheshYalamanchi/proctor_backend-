@@ -40,41 +40,80 @@ let getChatDetails = async (params) => {
 };
 
 let getCandidateEventSend = async (params) => {
-    decodeToken = jwt_decode(params.body.authorization)
     try {
-        jsonData = {
-            "type" : params.body.type,
-            "attach" : [],
-            "room" : params.params.roomId,
-            "user" : decodeToken.id,
-            "createdAt" : new Date(),
-            "metadata" : params.body.metadata
-        }
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "chats",
-            docType: 0,
-            query: jsonData
-        };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage._id) {
-            let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
-            if (userResponse && userResponse.success){
-                json = {
-                    timestamp:new Date(),
-                    room :params.params.roomId,
-                    metrics : params.body.metadata.metrics
-                }
-                let score = await schedule.updateScore(json)
-                if (score.success){
-                    userResponse.message[0].metadata.score = score.message;
-                    return { success: true, message:userResponse.message[0]}
-                } else  {
-                    return { success: true, message:"data not found"}
-                }
+        if(params.body.authorization){
+            decodeToken = jwt_decode(params.body.authorization)
+            jsonData = {
+                "type" : params.body.type,
+                "attach" : [],
+                "room" : params.params.roomId,
+                "user" : decodeToken.id,
+                "createdAt" : new Date(),
+                "metadata" : params.body.metadata
             }
-        } else {
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "write", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
+                if (userResponse && userResponse.success){
+                    json = {
+                        timestamp:new Date(),
+                        room :params.params.roomId,
+                        metrics : params.body.metadata.metrics
+                    }
+                    let score = await schedule.updateScore(json)
+                    if (score.success){
+                        userResponse.message[0].metadata.score = score.message;
+                        return { success: true, message:userResponse.message[0]}
+                    } else  {
+                        return { success: true, message:"data not found"}
+                    }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+        }else if(params.body){
+            jsonData = {
+                "type" : params.body.type,
+                "attach" : [],
+                "room" : params.params.roomId,
+                "createdAt" : new Date(),
+                "metadata" : params.body.metadata
+            }
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "write", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
+                if (userResponse && userResponse.success){
+                    json = {
+                        timestamp:new Date(),
+                        room :params.params.roomId,
+                        metrics : params.body.metadata.metrics
+                    }
+                    let score = await schedule.updateScore(json)
+                    if (score.success){
+                        userResponse.message[0].metadata.score = score.message;
+                        return { success: true, message:userResponse.message[0]}
+                    } else  {
+                        return { success: true, message:"data not found"}
+                    }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+        }else{
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
