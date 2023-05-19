@@ -654,7 +654,7 @@ let mobilecheck = async (params) => {
             docType: 1,
             query: [
                 { $match : { "_id" : jsonData.roomId } },
-                { $project : { _id : 0 , id:"$_id" , averages : 1 } }
+                { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
