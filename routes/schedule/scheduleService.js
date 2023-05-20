@@ -133,12 +133,14 @@ let roomInsertion = async (params) => {
                 jsonData.members = response.data.statusMessage[0].members
                 jsonData.metrics=response.data.statusMessage[0].metrics
                 jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
                 
             }else if (params && params.videoass == "QUE"){
                 jsonData = await json.videoassData(params); 
                 jsonData.members = response.data.statusMessage[0].members 
                 jsonData.metrics=response.data.statusMessage[0].metrics
                 jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
             }
             else {
                 jsonData = await json.roomsData(params);
@@ -148,6 +150,7 @@ let roomInsertion = async (params) => {
                 jsonData.members = response.data.statusMessage[0].members
                 jsonData.metrics=response.data.statusMessage[0].metrics
                 jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
             }
             var getdata = {
                 url:process.env.MONGO_URI,
@@ -180,6 +183,7 @@ let roomUpdate = async (params) => {
         var jsonData = {
             "metrics":fetchTemplateData.message.metrics,
             "weights":fetchTemplateData.message.weights,
+            "addons":fetchTemplateData.message.addons,
             "loggedAt" : new Date(),
             "browser" : {
                 "name" : browser,
