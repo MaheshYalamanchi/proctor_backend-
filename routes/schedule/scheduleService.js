@@ -131,9 +131,14 @@ let roomInsertion = async (params) => {
             if (params && params.videoass == "VA"){
                 jsonData = await json.videoassData(params);
                 jsonData.members = response.data.statusMessage[0].members
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
+                
             }else if (params && params.videoass == "QUE"){
                 jsonData = await json.videoassData(params); 
                 jsonData.members = response.data.statusMessage[0].members 
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
             }
             else {
                 jsonData = await json.roomsData(params);
@@ -141,6 +146,8 @@ let roomInsertion = async (params) => {
                 jsonData.threshold=response.data.statusMessage[0].threshold
                 jsonData.rules=response.data.statusMessage[0].rules
                 jsonData.members = response.data.statusMessage[0].members
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
             }
             var getdata = {
                 url:process.env.MONGO_URI,
@@ -168,8 +175,11 @@ let roomInsertion = async (params) => {
 };
 let roomUpdate = async (params) => {
     try {
+        let fetchTemplateData=await fetchTemplate(params)
         var browser = params.headers["user-agent"];
         var jsonData = {
+            "metrics":fetchTemplateData.message.metrics,
+            "weights":fetchTemplateData.message.weights,
             "loggedAt" : new Date(),
             "browser" : {
                 "name" : browser,
@@ -398,6 +408,29 @@ let roomFetch = async (params) => {
     }
 };
 
+let fetchTemplate =async(params)=>{
+    try {
+        let F = params.template
+        data = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match: { _id: F, "status" : "template"} },
+                { $project: { weights: 1,metrics:1 } },
+            ]
+        };
+        let result = await invoke.makeHttpCall("post", "aggregate", data)
+        if (result && result.data && result.data.statusMessage.length) {
+            return { success: true, message: result.data.statusMessage[0] }
+        } else {
+            return { success: true, message: {} }
+        }
+    } catch (error) {
+        
+    }
+}
 module.exports = {
     userInsertion,
     userFetch,

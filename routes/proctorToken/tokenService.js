@@ -141,9 +141,10 @@ let jwtToken = async (req) => {
         return {success:false,message:'Something went wrong!'};
     }
 };
+
 module.exports = {
     generateProctorToken,
     ProctorTokenGeneration,
     generateToken,
-    jwtToken
+    jwtToken,
 }
