@@ -261,6 +261,17 @@ let MessageSend = async (params) => {
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
                     let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+                    var getdata = {
+                        url:process.env.MONGO_URI,
+                        database:"proctor",
+                        model: "rooms",
+                        docType: 0,
+                        query: {
+                                filter: { "_id": responseData.data.statusMessage[0].room },
+                                update: {$set: { incidents:  response.data.statusMessage[0].incidents}}
+                        }
+                    };
+                    let Data = await invoke.makeHttpCall("post", "update", getdata)
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
                             responseData.data.statusMessage[0].metadata={}
@@ -269,14 +280,11 @@ let MessageSend = async (params) => {
                     }else{
                         response.data.statusMessage[0].incidents=0
                     }
-                    
                     return responseData;
             //     } 
             // }else{
             //     return responseData
             // }
-            
-           
         } else {
             return "Data Not Found";
         }
