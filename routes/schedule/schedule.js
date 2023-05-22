@@ -2,6 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const shared_Service = require("./shared.service");
 const { SageMakerMetrics } = require("aws-sdk");
+const { it } = require("mocha");
 
 let eventInfo = async (params) => {
     try {
@@ -69,7 +70,7 @@ let updateScore = async (params) => {
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
-            let c=roomsData.metrics;
+            let c = roomsData.metrics;
             let timestamp = new Date(params.timestamp || new Date());
                 metrics = params.metrics || {};
                 timesheet = roomsData.timesheet || (roomsData.timesheet = {});
@@ -87,43 +88,46 @@ let updateScore = async (params) => {
                 duration : newduration,
                 score:null,
                 averages : {
-                    "b1" : null,
-                    "b2" : null,
-                    "b3" : null,
-                    "c1" : null,
-                    "c2" : null,
-                    "c3" : null,
-                    "c4" : null,
-                    "c5" : null,
-                    "k1" : null,
-                    "m1" : null,
-                    "m2" : null,
-                    "m3" : null,
-                    "n1" : null,
-                    "n2" : null,
-                    "s1" : null,
-                    "s2" : null,
-                    "h1" : null
+                    "b1" : 0,
+                    "b2" : 0,
+                    "b3" : 0,
+                    "c1" : 0,
+                    "c2" : 0,
+                    "c3" : 0,
+                    "c4" : 0,
+                    "c5" : 0,
+                    "k1" : 0,
+                    "m1" : 0,
+                    "m2" : 0,
+                    "m3" : 0,
+                    "n1" : 0,
+                    "n2" : 0,
+                    "s1" : 0,
+                    "s2" : 0,
+                    "h1" : 0
                 }
-                // averages :roomsData.metrics{}
             };
-            var length = Object.keys(metrics).length;
-            for(let A =0; A<length;A++){
+            var length = Object.keys(c).length;
+            for(let A = 0; A < length;A++){
                 let B = c[A];
                 timesheet.sum[B]||(timesheet.sum[B]=0),(timesheet.sum[B] += metrics[B]||0)
                 // timesheet.xaxis.sum[A]||(timesheet.sum[B]=0)
             };
             for(let A =1; A<length;A++){
-                jsonData.timesheet.xaxis.push(A),
-                jsonData.timesheet.yaxis.push(metrics)
+                for (const key in metrics) {
+                    if (metrics[key] > 100){
+                        metrics[key] = 100
+                    }
+                }
+                jsonData.timesheet.xaxis.push(A)
             };
+            jsonData.timesheet.yaxis.push(metrics)
             for (const key in metrics) {
                 if (Object.hasOwnProperty.call(metrics, key)) {
                     const element = metrics[key];
-                    metrics[key]=Math.round(timesheet.sum[key]/length)
+                    jsonData.averages[key]=Math.round(timesheet.sum[key]/length)
                 }
             }
-            jsonData.averages=metrics
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
             if (((isNaN(TotalTime) || TotalTime < 0) && (TotalTime = 0), TotalTime > 0 || roomsData.stoppedAt)) {
                 let A =roomsData.metrics;
@@ -140,7 +144,7 @@ let updateScore = async (params) => {
                     } else F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
                     (!F || isNaN(F) || F < 0) && (F = 0), F > 100 && (F = 100), (w[I] = F), (scoreValue -= F);
                 }
-                (jsonData.averages = w),(!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
+                (!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
             }
             params.jsonData = jsonData
             let response = await shared_Service.roomsUpdate(params);
