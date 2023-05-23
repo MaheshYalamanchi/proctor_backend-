@@ -694,6 +694,30 @@ let mobilecheck = async (params) => {
         return {success:false,message:'Data not found...'};
     }
 };
+let headphonecheck = async (params) => {
+    var decodeToken = jwt_decode(params.bearer)
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match : { "_id" : decodeToken.room } },
+                { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        console.log(err)
+        return {success:false,message:'Data not found...'};
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -708,5 +732,6 @@ module.exports = {
     getPassportPhotoResponse,
     getCandidateDetails,
     getCandidateDetailsStop,
-    mobilecheck
+    mobilecheck,
+    headphonecheck
 }

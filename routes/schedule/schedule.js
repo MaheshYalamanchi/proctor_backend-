@@ -125,7 +125,13 @@ let updateScore = async (params) => {
             for (const key in metrics) {
                 if (Object.hasOwnProperty.call(metrics, key)) {
                     const element = metrics[key];
-                    jsonData.averages[key]=Math.round(timesheet.sum[key]/length)
+                    var avgCal=Math.round(timesheet.sum[key]/length)
+                    if(avgCal<=100){
+                        jsonData.averages[key]=Math.round(timesheet.sum[key]/length)
+                    }else{
+                        jsonData.averages[key]=100
+                    }
+                    
                 }
             }
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
