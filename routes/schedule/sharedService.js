@@ -16,23 +16,52 @@ let getCandidateMessageSend = async (params) => {
         params.body.room = params.params.roomId;
         params.body.user = decodeToken.id;
         delete params.body.headers;
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "chats",
-            docType: 0,
-            query: params.body
-        };
-        let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.statusMessage._id) {
-            let responseData = await schedule.MessageSend(response.data.statusMessage._id);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
+        if(params.params.roomId == "sendToAll"){
+            var data = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "rooms",
+                docType: 1,
+                query: [
+                    { $match: { "members": "defaultproctor" }},
+                    { $group: {_id: params.params.roomId, count: { $sum: 1 }}},
+                    {$project: {_id: 1,count: 1 }}
+                ]
+            };
+            let response = await invoke.makeHttpCall("post", "aggregate", data)
+            if(response && response.data && response.data.statusMessage[0].count){
+                jsonData = {
+                    count : response.data.statusMessage[0].count,
+                    data : params
+                }
+                let responseData = await schedule.chatincidents(jsonData)
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+            }else{
+                return { success: false, message: 'Data Not Found' }
+            }
+        }else{
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 0,
+                query: params.body
+            };
+            let response = await invoke.makeHttpCall("post", "write", getdata);
+            if (response && response.data && response.data.statusMessage._id) {
+                let responseData = await schedule.MessageSend(response.data.statusMessage._id);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
-        } else {
-            return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -644,16 +673,13 @@ let getCandidateDetailsStop = async (params) => {
 let mobilecheck = async (params) => {
     var decodeToken = jwt_decode(params.bearer)
     try {
-        jsonData = {
-            "roomId" : decodeToken.id,
-        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 1,
             query: [
-                { $match : { "_id" : jsonData.roomId } },
+                { $match : { "_id" : decodeToken.room } },
                 { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
             ]
         };

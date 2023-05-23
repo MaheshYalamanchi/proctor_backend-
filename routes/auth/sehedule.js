@@ -444,6 +444,39 @@ let updateTemplate = async(params) => {
         }
     }
 }
+let chatincidents = async(params) => {
+    try{
+        jsonData = {
+            "type" : params.data.body.type,
+            "metadata" : {
+                "incidents" : params.count
+            },
+            "user" : params.data.body.user,
+            "room" : params.data.body.room,
+            "message" : params.data.body.message,
+            "createdAt" : new Date(),
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "chats",
+            docType: 0,
+            query: jsonData
+        };
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+}
 
 module.exports = {
     roomUserDetails,
@@ -457,5 +490,6 @@ module.exports = {
     roomSubmitSave,
     attachCall,
     getTemplate,
-    updateTemplate
+    updateTemplate,
+    chatincidents
 }
