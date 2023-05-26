@@ -219,11 +219,46 @@ let getViolated = async (params) => {
         }
     }
 };
+let stoped = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match : { "_id" : params} },
+                { $project : 
+                    {
+                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                        members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                        subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                        updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                        stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
+                        duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
+                        startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                        os: "$os", platform: "$platform", averages: "$averages", student: "$student"
+                    }
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        console.log(err)
+        return {success:false,message:'Data not found...'};
+    }
+};
 module.exports = {
     getSessions,
     updateRecord,
     getRecord,
     getChatDetails,
     getQRcode,
-    getViolated
+    getViolated,
+    stoped
 }
