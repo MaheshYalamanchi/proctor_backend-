@@ -87,7 +87,7 @@
     "pbkdf2": "^3.0.17",
     "pbkdf2-password-hash": "^2.0.0",
     "pbkdf2-sha256": "^1.1.1",
-    "qrcode": "^1.4.4",
+    "qrcode": "^1.5.1",
     "querystring": "^0.2.0",
     "randomstring": "^1.1.5",
     "razorpay": "^2.0.3",
