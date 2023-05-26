@@ -718,6 +718,31 @@ let headphonecheck = async (params) => {
         return {success:false,message:'Data not found...'};
     }
 };
+let stoppedAt = async (params) => {
+    try {
+        var date = new Date()
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.id },
+                update: { $set: { stoppedAt: date} }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+            let status = await shared.stoped(params.id)
+            return { success: true, message: status.message }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        console.log(err)
+        return {success:false,message:'Data not found...'};
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -733,5 +758,6 @@ module.exports = {
     getCandidateDetails,
     getCandidateDetailsStop,
     mobilecheck,
-    headphonecheck
+    headphonecheck,
+    stoppedAt
 }
