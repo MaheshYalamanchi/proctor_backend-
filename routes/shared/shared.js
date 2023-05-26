@@ -170,10 +170,60 @@ function qrcodeData(data) {
   
  })
 };
+let getViolated = async (params) => {
+    try {  
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "chats",
+            docType: 1,
+            query: [
+                {
+                    $match: { room:params.id ,"metadata.violated" : true}
+                },
+                {   $project:{attach:1}
+                },
+                {   $unwind: { path: "$attach", preserveNullAndEmptyArrays: true } 
+                },
+                {
+                    $lookup: {
+                        from: 'attaches',
+                        localField: 'attach',
+                        foreignField: '_id',
+                        as: 'data',
+                    }
+                },
+                {   $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
+                {
+                    $project  :{data:1}
+                },
+                {
+                    $match:{"data.filename":"screen.jpg"}
+                },
+                {
+                    $project:{id:"$data._id",filename:"$data.filename",createdAt:"$data.createdAt",_id:0}
+                }
+        ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage};
+        } else {
+            return { success: false, message: 'data not found...' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 module.exports = {
     getSessions,
     updateRecord,
     getRecord,
     getChatDetails,
-    getQRcode
+    getQRcode,
+    getViolated
 }

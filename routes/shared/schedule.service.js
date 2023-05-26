@@ -1,7 +1,8 @@
 const { off } = require("npm");
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
-const shared = require('../shared/shared')
+const shared = require('../shared/shared');
+const logger = require('../../logger/logger');
 let getCandidateMessages = async (params) => {
     try {
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
@@ -628,6 +629,39 @@ let SubmitSaveCall = async (params) => {
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
             let getData = await schedule.roomSubmitSave(params);
             if(getData && getData.data && getData.data.statusMessage){
+                let violatedResponse = await shared.getViolated(params.query)
+                if(violatedResponse && violatedResponse.success){
+                    let roomData = getData.data.statusMessage[0]
+                    let jsonData = {
+                            "score": roomData.score,
+                            "student": roomData.student.id,
+                            "email": roomData.tags[0],
+                            "labels": roomData.labels ||"-",
+                            "verified": "yes",
+                            "id": roomData.id,
+                            "face": roomData.student.face,
+                            "passport": roomData.student.passport,
+                            "subject": roomData.subject,
+                            "startedat": roomData.startedAt,
+                            "stoppedat": roomData.stoppedAt ||new Date() ,
+                            "credibility" :"0%",
+                            "conclusion": roomData.conclusion || "-",
+                            "proctor": roomData.members,
+                            "comment": roomData.comment,
+                            "averages": roomData.averages,
+                            "xaxis": roomData.timesheet.xaxis,
+                            "yaxis": roomData.timesheet.yaxis,
+                            "metrics": roomData.metrics,
+                            "screen" : violatedResponse.message
+                        }
+                    let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
+                    if (generateReport) {
+                        logger.info({ success: true, message: "pdf report generated successfully..." });
+                    } else {
+                        logger.info({ success: false, message: "pdf report not generated..." });
+                    }
+                    
+                }
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
