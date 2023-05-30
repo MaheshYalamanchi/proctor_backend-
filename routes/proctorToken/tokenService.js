@@ -57,10 +57,10 @@ let generateToken = async (req) => {
         user.requestType = req.requestType;
         user.videoass=req.videoass
         let tokenArg = {
-            nickname : user.username,
+            nickname : user.nickname,
             id : user.id,
             tags : user.tags,
-            username : user.nickname,
+            username : user.username,
             template : user.template,
             subject : user.subject,
             timeout : user.timeout,
