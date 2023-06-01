@@ -145,9 +145,9 @@ let updateScore = async (params) => {
                         Y = jsonData.timesheet.sum[I] || 0;
                     let F = 0;
                     if ("n1" === I) {
-                        F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
+                        F = jsonData.averages[I];
                         //F = ~~(100 * (1 - (jsonData.duration ? (jsonData.duration > TotalTime ? TotalTime : jsonData.duration) / TotalTime : 0)));
-                    } else F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
+                    } else F = jsonData.averages[I];
                     (!F || isNaN(F) || F < 0) && (F = 0), F > 100 && (F = 100), (w[I] = F), (scoreValue -= F);
                 }
                 (!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
