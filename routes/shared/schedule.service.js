@@ -657,7 +657,7 @@ let SubmitSaveCall = async (params) => {
                             }
                         console.log(jsonData)
                         let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
-                        console.log(generateReport)
+                        console.log(generateReport,'jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
                         if (generateReport) {
                             logger.info({ success: true, message: "pdf report generated successfully..." });
                         } else {
