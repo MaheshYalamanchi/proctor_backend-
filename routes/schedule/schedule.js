@@ -82,8 +82,8 @@ let updateScore = async (params) => {
                     firstAt : timesheet.firstAt || (timesheet.firstAt = timestamp),
                     lastAt  : timesheet.lastAt = timestamp,
                     sum : timesheet.sum || (timesheet.sum = {}),
-                    xaxis:[],
-                    yaxis:[],  
+                    xaxis: timesheet.xaxis || [],
+                    yaxis: timesheet.yaxis || [],  
                 },
                 duration : newduration,
                 score:null,
@@ -113,15 +113,16 @@ let updateScore = async (params) => {
                 timesheet.sum[B]||(timesheet.sum[B]=0),(timesheet.sum[B] += metrics[B]||0)
                 // timesheet.xaxis.sum[A]||(timesheet.sum[B]=0)
             };
-            for(let A =1; A<length;A++){
+            if (jsonData.timesheet.xaxis.length< length){
+                let x = jsonData.timesheet.xaxis.length
+                jsonData.timesheet.xaxis.push(x+1)
+                jsonData.timesheet.yaxis.push(metrics);
+            }else{
                 for (const key in metrics) {
-                    if (metrics[key] > 100){
-                        metrics[key] = 100
-                    }
+                    let data = jsonData.timesheet.yaxis[0][ key] + metrics[key]
+                    jsonData.timesheet.yaxis[0][ key] = data
                 }
-                jsonData.timesheet.xaxis.push(A)
-            };
-            jsonData.timesheet.yaxis.push(metrics)
+            }
             for (const key in metrics) {
                 if (Object.hasOwnProperty.call(metrics, key)) {
                     const element = metrics[key];
@@ -131,7 +132,6 @@ let updateScore = async (params) => {
                     }else{
                         jsonData.averages[key]=100
                     }
-                    
                 }
             }
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
