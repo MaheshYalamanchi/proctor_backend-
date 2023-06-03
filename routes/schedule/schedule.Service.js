@@ -291,7 +291,8 @@ let broadcastMesssage = async (params) => {
             query:[
                 {
                     $match:{
-                        members:{$elemMatch:{$in:[params.user.id]}},
+                        status:"started",
+                        members:{$elemMatch:{$in:[params.user.id || params.user]}},status:"started"
                     }
                 },
                 {$sort:{updatedAt:-1}},
@@ -311,10 +312,10 @@ let broadcastMesssage = async (params) => {
                 for (const value of messages) {
                      const obj = {
                         "room": value.id,
-                        "members":"defaultproctor",
+                        "members": params.user,
                         "type":"message",
                         "metadata" : params.metadata,
-                        "user": value.student,
+                        "user": params.user,
                         "message":  params.message
                      };
                      data.push(obj)
@@ -326,7 +327,7 @@ let broadcastMesssage = async (params) => {
                     docType: 0,
                     query: data
                 };
-                let response = await invoke.makeHttpCall("post", "write", postdata);
+                let response = await invoke.makeHttpCall("post", "insertMany", postdata);
                 if (response && response.data && response.data.statusMessage) {
                     return { success: true, message: response.data.statusMessage }
                 } else {
