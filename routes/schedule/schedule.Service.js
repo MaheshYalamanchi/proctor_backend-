@@ -344,6 +344,28 @@ let broadcastMesssage = async (params) => {
         }
     }
 };
+let fetchurl = async (params) => {
+    try {
+        var url =[]
+        for (const iterator of params.statusMessage[0].data){
+            var data = iterator.id
+            url.push(data)
+        }
+        var urldata = "/#!/side/vision?id=" + url
+        const result = urldata.replace(/,/g, '.');
+        if (url) {
+                return { success: true, message:result}
+        } else {
+            return { success: false, message: 'url is not created' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getChatDetails,
@@ -352,5 +374,6 @@ module.exports = {
     userInfo,
     getface,
     getPassport,
-    broadcastMesssage
+    broadcastMesssage,
+    fetchurl
 }
