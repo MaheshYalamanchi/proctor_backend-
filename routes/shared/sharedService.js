@@ -401,7 +401,8 @@ let proctorLimitCall = async (params) => {
                 };
                 let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
                 if (responseData && responseData.data) {
-                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count } }
+                    let response = await schedule_Service.fetchurl(responseData.data)   
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count[0].count,url: response.message } }
                 } else {
                     return { success: false, message: 'Data Not Found' }
                 }
@@ -533,7 +534,7 @@ let proctorLimitCall = async (params) => {
                             as: 'members',
                         }
                     }
-               ]
+                ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data) {
@@ -546,6 +547,7 @@ let proctorLimitCall = async (params) => {
                 }
                 let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
                 if (getCount && getCount.data){
+
                     return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
                 }
             } else {
