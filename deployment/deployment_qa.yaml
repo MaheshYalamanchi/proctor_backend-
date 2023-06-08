@@ -52,6 +52,11 @@ spec:
               secretKeyRef:
                 name: proctor-dev-env
                 key: MINIO_ENDPOINT
+          - name: REPORTSERVICE
+            valueFrom:
+              secretKeyRef:
+                name: proctor-qa-env
+                key: REPORTSERVICE
                                                                         
           ports:
           - containerPort: 3002
