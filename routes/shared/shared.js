@@ -253,6 +253,35 @@ let stoped = async (params) => {
         return {success:false,message:'Data not found...'};
     }
 };
+let roomstatusUpdate = async (params) => {
+    try {
+        let status={
+            status:params.status
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.room },
+                update: { $set: status }
+            }
+        };
+        let response = await invoke.makeHttpCall("post", "update", getdata);
+        if (response && response.data && response.data.statusMessage && response.data.statusMessage.nModified == 1) {
+            return { success: true, message: "status updated" }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    } catch (erroe) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 module.exports = {
     getSessions,
     updateRecord,
@@ -260,5 +289,6 @@ module.exports = {
     getChatDetails,
     getQRcode,
     getViolated,
-    stoped
+    stoped,
+    roomstatusUpdate
 }
