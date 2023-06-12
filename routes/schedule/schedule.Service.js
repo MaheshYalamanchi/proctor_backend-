@@ -366,6 +366,69 @@ let fetchurl = async (params) => {
         }
     }
 };
+let fetchstatus = async (params) => {
+    try {
+        const data = params.response.statusMessage[0].data
+        var sort = -1;
+        var start;
+        if (params&&params.start&&params.start.query&&params.start.query.start) {
+            start = parseInt(params.query.start);
+        } else {
+            start = 0;
+        }
+        var limit = parseInt(params.start.query.limit)
+        var postdata = {
+            url: process.env.MONGO_URI,
+            database: "proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { "$sort": { startedAt: sort } },
+                { "$skip": start },
+                { "$limit": limit },
+                { $group: { _id: { status: "$status" }, count: { $sum: 1 } } },
+                { $project: { _id: 0, "status": "$_id.status", "count": 1 } },
+            ]
+        };
+        let response = await invoke.makeHttpCall("post", "aggregate", postdata);
+        if (response && response.data && response.data.statusMessage) {
+            const message = []
+            let mergedCount = 0;
+            for (let obj of response.data.statusMessage) {
+                if (obj.status === 'stopped' || obj.status === 'accepted') {
+                    mergedCount += obj.count;
+                } else if (obj.status === 'started') {
+                    message.push({ "In Progress": obj.count })
+                } else if (obj.status === 'paused') {
+                    message.push({ "Idle": obj.count })
+                } else if (obj.status === 'rejected') {
+                    message.push({ "Terminated": obj.count })
+                }
+            }
+            message.push({ "Completed": mergedCount });
+            var jsonData = {
+                'Completed' : 0,
+                "In Progress" : 0,
+                "Idle" : 0,
+                'Terminated' : 0
+            }
+            message.forEach((item) => {
+                const key = Object.keys(item)[0]; 
+                const value = item[key]; 
+                jsonData[key] = value;
+              });
+            return { success: true, message: jsonData }
+        } else {
+            return { success: false, message: 'Data Not found' }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     getChatDetails,
@@ -375,5 +438,6 @@ module.exports = {
     getface,
     getPassport,
     broadcastMesssage,
-    fetchurl
+    fetchurl,
+    fetchstatus
 }

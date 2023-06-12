@@ -730,7 +730,7 @@ let stoppedAt = async (params) => {
             docType: 0,
             query: {
                 filter: { "_id": params.id },
-                update: { $set: { stoppedAt: date} }
+                update: { $set: { stoppedAt: date ,status : "stopped"} }
             }
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
