@@ -238,11 +238,27 @@ let MessageSend = async (params) => {
                     }
                 },
                 {
+                    "$lookup": {
+                        "from": 'attaches',
+                        "localField": 'attach',
+                        "foreignField": '_id',
+                        "as": 'attach',
+                    }
+                },
+                {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
                 {
+                    "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true }
+                },
+                {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach":[{
+                            "id":"$attach._id",
+                            "filename":"$attach.filename",
+                            "mimetype":"$attach.mimetype"
+                        }],
+                        "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
