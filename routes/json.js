@@ -87,6 +87,7 @@ let videoassData = async (params) => {
         "startedAt":null,
         "useragent" : null,
         "proctor" : null,
+        "notofication":null,
         "student" : username,
         "template" : params.template,
         "averages" : {}
@@ -175,6 +176,7 @@ let roomsData =  async (params) => {
         "startedAt":null,
         "useragent" : null,
         "proctor" : null,
+        "notofication":null,
         "student" : username,
         "template" : params.template,
         "averages" : {}

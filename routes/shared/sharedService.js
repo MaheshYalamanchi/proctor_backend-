@@ -1321,6 +1321,33 @@ let getfacePassport = async (params) => {
         }
     }
 };
+let notificationupdate = async (params) => {
+    try {
+      var getdata = {
+        url:process.env.MONGO_URI,
+        database: "proctor",
+        model: "rooms",
+        docType: 0,
+        query: {
+          filter :{"_id": params.roomId},
+          update:{$set: { notofication:"read",}}
+        }
+      };
+      let responseData = await invoke.makeHttpCall("post", "update", getdata);
+      if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+        return { success: true, message: "Record updated sucessfully" }
+      } else {
+        return { success: false, message: 'Data Not Found' }
+      }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+  };
 
 module.exports = {
     proctorLoginCall,
@@ -1335,5 +1362,6 @@ module.exports = {
     proctorRoomDetails,
     proctorSuggestSaveCall,
     proctorusagestatistics,
-    getfacePassport
+    getfacePassport,
+    notificationupdate
 }

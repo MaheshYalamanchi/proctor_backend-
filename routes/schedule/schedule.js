@@ -131,7 +131,6 @@ let updateScore = async (params) => {
                     }else{
                         jsonData.averages[key]=100
                     }
-                    
                 }
             }
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
