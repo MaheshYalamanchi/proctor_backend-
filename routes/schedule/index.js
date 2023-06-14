@@ -202,7 +202,6 @@ module.exports = function (params) {
     });
     app.post('/api/auth/jwt', async (req, res,next) => {
         try {
-            console.log(JSON.stringify(req.body))
             if(req.body && req.body.authorization){
                 let result = await sharedService.tokenValidation(req);
                 if (result && result.success) {
