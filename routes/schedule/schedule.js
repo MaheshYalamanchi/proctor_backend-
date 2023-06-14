@@ -74,8 +74,7 @@ let updateScore = async (params) => {
             let timestamp = new Date(params.timestamp || new Date());
                 metrics = params.metrics || {};
                 timesheet = roomsData.timesheet || (roomsData.timesheet = {});
-            // roomsData.duration || (roomsData.duration = 0);
-            // roomsData.duration || (roomsData.duration + 1);
+            roomsData.duration || (roomsData.duration = 0);
             var newduration =   roomsData.duration + 1 ;
             var jsonData = {
                 timesheet : {
@@ -123,15 +122,17 @@ let updateScore = async (params) => {
                     jsonData.timesheet.yaxis[0][ key] = data
                 }
             }
+            let i = 0;
             for (const key in metrics) {
                 if (Object.hasOwnProperty.call(metrics, key)) {
-                    const element = metrics[key];
-                    var avgCal=Math.round(timesheet.sum[key]/length)
+                    // const element = metrics[key];
+                    var avgCal=(timesheet.sum[key] * roomsData.weights[i])/jsonData.duration || 0
                     if(avgCal<=100){
-                        jsonData.averages[key]=Math.round(timesheet.sum[key]/length)
+                        jsonData.averages[key]= Math.round(avgCal)
                     }else{
-                        jsonData.averages[key]=100
+                        jsonData.averages[key]= 100
                     }
+                    i = i+1
                 }
             }
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
@@ -140,9 +141,7 @@ let updateScore = async (params) => {
                 const w = {};
                 let scoreValue = 100;
                 for (let g = 0; g < A.length; g++) {
-                    const I = A[g],
-                        D = roomsData.weights[g] || 1,
-                        Y = jsonData.timesheet.sum[I] || 0;
+                    const I = A[g];
                     let F = 0;
                     if ("n1" === I) {
                         F = jsonData.averages[I];
