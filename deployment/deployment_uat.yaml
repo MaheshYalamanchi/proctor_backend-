@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proctorbackend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proctorbackend
+  template:
+    metadata:
+      labels:
+        app: proctorbackend
+    spec:
+      containers:
+        - name: proctorbackend
+          image: proctordev.azurecr.io/proctorbackend:$tag
+          imagePullPolicy: Always
+          env:
+          - name: DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: DATA_SERVICE_ENDPOINT  
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: MONGO_URI   
+          - name: SOCKET_IO
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: SOCKET_IO
+          - name: MAPREDUCE_URL
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: MAPREDUCE_URL
+          - name: MINIO_ACCESSKEY
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: MINIO_ACCESSKEY
+          - name: MINIO_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: MINIO_SECRETKEY
+          - name: MINIO_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: MINIO_ENDPOINT
+          - name: REPORTSERVICE
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: REPORTSERVICE
+                                                                        
+          ports:
+          - containerPort: 3002
+      imagePullSecrets:
+        - name: mysecret
