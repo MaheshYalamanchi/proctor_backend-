@@ -53,7 +53,9 @@ let proctorLoginCall = async (params) => {
 let proctorMeCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
-        if(decodeToken && decodeToken.role == "student"){
+        if(decodeToken && decodeToken.room == "check"){
+            return { success: true, message: "null" }
+        }else if(decodeToken && decodeToken.role == "student"){
             var getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",
@@ -197,7 +199,35 @@ let proctorFetchCall = async (params) => {
                         }
                     ]
                 }; 
-            } else {
+            } else if (decodeToken.room=="check"){
+                getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "rooms",
+                    docType: 1,
+                    query: [
+                        {
+                            "$match": { 
+                                "_id" : decodeToken.room
+                            }
+                        },
+                        {
+                            "$project": {
+                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt",subject: "$subject",
+                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",duration:"$duration",
+                                error:"$error",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",os:"$os",platform:"$platform",
+                                score:"$score",signedAt:"$signedAt",template:"$template",useragent:"$useragent",startedAt:"$startedAt"
+    
+                            }
+                        }
+                    ]
+                };
+            }
+            else {
                 getdata = {
                     url:process.env.MONGO_URI,
                     database:"proctor",
@@ -301,6 +331,22 @@ let proctorFetchCall = async (params) => {
 let proctorAuthCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
+        if(decodeToken.room=="check"){
+            let response = await tokenService.authCheckToken(decodeToken);
+            if(response){
+                var token = jwt_decode(response);
+                if (decodeToken.exp){
+                    return {success: true, message: { exp :token.exp, iat: token.iat, id: token.id,
+                        role: token.role,token: response,room:token.room}
+                    }
+                } else {
+                    return {success: true, message: { iat: token.iat, id: token.id,
+                        role: token.role,token: response,room:token.room}
+                    }
+                }
+                
+            }
+        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -1328,6 +1374,24 @@ let getfacePassport = async (params) => {
         }
     }
 };
+let getCheck = async (params) => {
+    try {
+        let response = await tokenService.checkToken();
+        if (response){
+            return { success: true, message: response }
+        } 
+        else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     proctorLoginCall,
@@ -1342,5 +1406,6 @@ module.exports = {
     proctorRoomDetails,
     proctorSuggestSaveCall,
     proctorusagestatistics,
-    getfacePassport
+    getfacePassport,
+    getCheck
 }

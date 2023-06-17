@@ -5,6 +5,7 @@ const jwt_decode = require('jwt-decode');
 const sharedService = require('../shared/sharedService');
 const secret = 'eime6Daeb2xanienojaefoh4';
 const invoke = require("../../lib/http/invoke");
+const { v4: uuidv4 } = require('uuid');
 
 let generateProctorToken = async (req) => {
     try {
@@ -141,10 +142,78 @@ let jwtToken = async (req) => {
         return {success:false,message:'Something went wrong!'};
     }
 };
+let checkToken = async (req) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query:[
+              { $match:{ "_id":"check"}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {
+            let user = { "id": uuidv4(), "role": "student" ,"room":responseData.data.statusMessage[0]._id}
+            let tokenArg = {
+                id: user.id,
+                role : user.role,
+                room : user.room
+            };
+            user.proctorToken = jwt.sign(tokenArg, secret);
+            if (user.proctorToken) {
+                return user.proctorToken;
+            } else {
+                return {success: false, message:'Error While Generating Token!'};
+            }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        console.log(err)
+        return {success:false,message:'Something went wrong!'};
+    }
+};
+let authCheckToken = async (req) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query:[
+              { $match:{ "_id":req.room}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {
+            let user = { "id": uuidv4(), "role": "student" ,"room":responseData.data.statusMessage[0]._id}
+            let tokenArg = {
+                id: user.id,
+                role : user.role,
+                room : user.room
+            };
+            user.proctorToken = jwt.sign(tokenArg, secret,{ expiresIn: 5400000 });
+            if (user.proctorToken) {
+                return user.proctorToken;
+            } else {
+                return {success: false, message:'Error While Generating Token!'};
+            }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        console.log(err)
+        return {success:false,message:'Something went wrong!'};
+    }
+};
 
 module.exports = {
     generateProctorToken,
     ProctorTokenGeneration,
     generateToken,
     jwtToken,
+    checkToken,
+    authCheckToken
 }
