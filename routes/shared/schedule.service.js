@@ -631,9 +631,11 @@ let SubmitSaveCall = async (params) => {
             console.log('n modified after',responseData.data.statusMessage.nModified)
             let getData = await schedule.roomSubmitSave(params);
             if(getData && getData.data && getData.data.statusMessage){
+                console.log('roomsubmisave',getData.data.statusMessage)
                 let violatedResponse = await shared.getViolated(params.query)
                 if(violatedResponse && violatedResponse.success){
                     try {
+                        console.log(violatedResponse,'violation response')
                         let roomData = getData.data.statusMessage[0]
                         let jsonData = {
                                 "score": roomData.score,
@@ -666,6 +668,7 @@ let SubmitSaveCall = async (params) => {
                             logger.info({ success: false, message: "pdf report not generated..." });
                         }
                     }catch(error){
+                        console.log('erro...........',error)
                         logger.info({ success: false, message: "pdf report not generated..." });
                     }
                 }
@@ -677,6 +680,7 @@ let SubmitSaveCall = async (params) => {
             return { success: false, message: 'Data Not Found' }
         }
     } catch (error) {
+        console.log('error........................111111111111111111',error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
