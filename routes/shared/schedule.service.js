@@ -626,7 +626,9 @@ let SubmitSaveCall = async (params) => {
             }
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        console.log('n modified before',responseData.data.statusMessage.nModified)
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
+            console.log('n modified after',responseData.data.statusMessage.nModified)
             let getData = await schedule.roomSubmitSave(params);
             if(getData && getData.data && getData.data.statusMessage){
                 let violatedResponse = await shared.getViolated(params.query)
