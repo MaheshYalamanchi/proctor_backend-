@@ -1,5 +1,6 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
+const schedule = require("../auth/sehedule");
 var qrcode = require("qrcode");
 const jwt_decode = require('jwt-decode');
 
@@ -15,9 +16,17 @@ let getSessions = async (params) => {
                 update:{$set:{ status: "paused"}}
             }   
         };
+        let response = await schedule.fetchdata(getdata.query)
         let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
             let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+            for (const iterator of response.data.statusMessage) {
+                let jsondata = {
+                    pausetime : new Date(),
+                    room : iterator._id
+                }
+                let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
+            }
             return { success: true, message: 'Status updated successfully...' };
         } else {
             let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
