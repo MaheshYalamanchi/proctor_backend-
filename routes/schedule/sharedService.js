@@ -428,6 +428,13 @@ let getDatails = async (params) => {
                     ]
             };
         } else {
+            if(params.body.body.error !== null){
+                data = {
+                    id : params.query.id,
+                    body : params.body.body.error
+                }
+                let responsemessage = await scheduleService.errorupdate(data)
+            }
             getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",

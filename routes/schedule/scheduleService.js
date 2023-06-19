@@ -432,7 +432,43 @@ let fetchTemplate =async(params)=>{
             return { success: true, message: {} }
         }
     } catch (error) {
-        
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+}
+let errorupdate =async(params)=>{
+    try {
+        const object = {
+            error : params.body
+          }
+        data = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.id },
+                update: { 
+                    $push: { "errorlog" : object},
+                    $set: { error : params.body}
+                }
+            }
+        };
+        let result = await invoke.makeHttpCall("post", "update", data)
+        if (result && result.data && result.data.statusMessage) {
+            return { success: true, message: result.data.statusMessage }
+        } else {
+            return { success: true, message: {} }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
     }
 }
 module.exports = {
@@ -446,5 +482,6 @@ module.exports = {
     getCandidateDetailsUpdate,
     chatDetails,
     roomFetch,
-    getCandidateDetailsUpdateStop
+    getCandidateDetailsUpdateStop,
+    errorupdate
 }
