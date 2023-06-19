@@ -429,7 +429,7 @@ let fetchTemplate =async(params)=>{
         if (result && result.data && result.data.statusMessage.length) {
             return { success: true, message: result.data.statusMessage[0] }
         } else {
-            return { success: true, message: {} }
+            return { success: true, message: 'Data Not Found' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -441,8 +441,10 @@ let fetchTemplate =async(params)=>{
 }
 let errorupdate =async(params)=>{
     try {
+        const date = new Date()
         const object = {
-            error : params.body
+            error : params.body,
+            "Time": date
           }
         data = {
             url:process.env.MONGO_URI,
@@ -461,7 +463,7 @@ let errorupdate =async(params)=>{
         if (result && result.data && result.data.statusMessage) {
             return { success: true, message: result.data.statusMessage }
         } else {
-            return { success: true, message: {} }
+            return { success: true, message: 'Data Not Found'  }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
