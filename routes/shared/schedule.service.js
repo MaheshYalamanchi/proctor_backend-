@@ -384,8 +384,8 @@ let getCandidateMessages = async (params) => {
                         "$facet": {
                             "data": [
                                 { "$sort": { "createdAt": sort } },
+                                {"$skip":start},
                                 { "$limit": limit },
-                                {"$skip":start}
                             ],
                             "total_count": [
                                 { "$group": { _id: null, "count": { "$sum": 1 } } },
