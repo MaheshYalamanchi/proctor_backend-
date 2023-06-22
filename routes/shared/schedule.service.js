@@ -659,9 +659,7 @@ let SubmitSaveCall = async (params) => {
                                 "metrics": roomData.metrics,
                                 "screen" : violatedResponse.message
                             }
-                        console.log(JSON.stringify(jsonData,'COMMENT ADDED BY RANJAN'))
                         let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
-                        console.log(JSON.stringify(generateReport,'11111111111111111111111111111111111'))
                         if (generateReport) {
                             logger.info({ success: true, message: "pdf report generated successfully..." });
                         } else {

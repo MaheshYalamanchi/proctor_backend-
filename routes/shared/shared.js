@@ -190,7 +190,7 @@ let getViolated = async (params) => {
                 {
                     $match: { room:params.id ,"metadata.violated" : true}
                 },
-                {   $project:{attach:1}
+                {   $project:{attach:1,violation:1}
                 },
                 {   $unwind: { path: "$attach", preserveNullAndEmptyArrays: true } 
                 },
@@ -204,13 +204,13 @@ let getViolated = async (params) => {
                 },
                 {   $unwind: { path: "$data", preserveNullAndEmptyArrays: true } },
                 {
-                    $project  :{data:1}
+                    $project  :{data:1,violation:1}
                 },
                 {
                     $match:{"data.filename":"screen.jpg"}
                 },
                 {
-                    $project:{id:"$data._id",filename:"$data.filename",createdAt:"$data.createdAt",_id:0}
+                    $project:{violation:1,"screen.id":"$data._id","screen.filename":"$data.filename","screen.createdAt":"$data.createdAt",_id:0}
                 }
         ]
         };
