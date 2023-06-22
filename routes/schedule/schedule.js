@@ -2,7 +2,6 @@ const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
 const shared_Service = require("./shared.service");
 const { SageMakerMetrics } = require("aws-sdk");
-const { it } = require("mocha");
 
 let eventInfo = async (params) => {
     try {

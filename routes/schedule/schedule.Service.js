@@ -49,7 +49,8 @@ let getCandidateEventSend = async (params) => {
                 "room" : params.params.roomId,
                 "user" : decodeToken.id,
                 "createdAt" : new Date(),
-                "metadata" : params.body.metadata
+                "metadata" : params.body.metadata,
+                "violation" : params.body.violation
             }
             var getdata = {
                 url:process.env.MONGO_URI,
@@ -60,7 +61,6 @@ let getCandidateEventSend = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                
                 let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
                 if (userResponse && userResponse.success){
                     json = {
@@ -85,7 +85,8 @@ let getCandidateEventSend = async (params) => {
                 "attach" : [],
                 "room" : params.params.roomId,
                 "createdAt" : new Date(),
-                "metadata" : params.body.metadata
+                "metadata" : params.body.metadata,
+                "violation" : params.body.violation
             }
             var getdata = {
                 url:process.env.MONGO_URI,
