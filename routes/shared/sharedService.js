@@ -1320,50 +1320,63 @@ let getfacePassport = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
         if(params && params.face){
-            let jsonData =  {
-                "face" : params.face
-            };
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "users",
-                docType: 0,
-                query: {
-                    filter: { "_id": decodeToken.id },
-                    update: { $set: jsonData }
-                }
-            };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                let response = await schedule_Service.getface(decodeToken)
-                if (response.success){
-                    return { success: true, message: response.message[0] }
+            let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
+            if (faceResponse && faceResponse.success){
+                let jsonData =  {
+                    "face" : params.face,
+                    "rep" : faceResponse.message[0].metadata.rep,
+                    "threshold" : faceResponse.message[0].metadata.threshold,
+                    "similar" : faceResponse.message[0].metadata.similar
+                };
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 0,
+                    query: {
+                        filter: { "_id": decodeToken.id },
+                        update: { $set: jsonData }
+                    }
+                };
+                let responseData = await invoke.makeHttpCall("post", "update", getdata);
+                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                    let response = await schedule_Service.getface(decodeToken)
+                    if (response.success){
+                        return { success: true, message: response.message[0] }
+                    }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
                 }
             } else {
-                return { success: false, message: 'Data Not Found' }
+                return { success: false, message: faceResponse.message }
             }
+           
         } else if (params && params.passport){
-            let jsonData =  {
-                "passport" : params.passport
-            };
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "users",
-                docType: 0,
-                query: {
-                    filter: { "_id": decodeToken.id },
-                    update: { $set: jsonData }
+            let passportResponse = await schedule_Service.getFacePassportResponse(params.passport);
+            if(passportResponse && passportResponse.success){
+                let jsonData =  {
+                    "passport" : params.passport,
+                    "verified" : passportResponse.message[0].metadata.verified
+                };
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 0,
+                    query: {
+                        filter: { "_id": decodeToken.id },
+                        update: { $set: jsonData }
+                    }
+                };
+                let responseData = await invoke.makeHttpCall("post", "update", getdata);
+                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                    let response = await schedule_Service.getPassport(decodeToken)
+                    if (response.success){
+                        return { success: true, message: response.message[0] }
+                    }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
                 }
-            };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                let response = await schedule_Service.getPassport(decodeToken)
-                if (response.success){
-                    return { success: true, message: response.message[0] }
-                }
-            } else {
-                return { success: false, message: 'Data Not Found' }
             }
         }
     } catch (error) {
