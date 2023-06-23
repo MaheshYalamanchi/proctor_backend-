@@ -171,7 +171,7 @@ let getFaceResponse = async (params) => {
     try {
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
-            var thresold = params.thresold || 0.25;
+            var thresold = params.thresold || 0.45;
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
                 for (let A = 0; A < userResponse.message[0].rep.length; A++) {
