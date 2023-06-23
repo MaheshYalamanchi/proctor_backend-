@@ -169,17 +169,27 @@ let getNewChatMessagesV2 = async (params) => {
 let getFaceResponse = async (params) => {
     decodeToken = jwt_decode(params.authorization)
     try {
+        let takePhotoThreshHold,validationVal;
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
-            var thresold = params.thresold || 0.25;
+            var thresold = userResponse.message[0].thresold || 0.25;
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
                 for (let A = 0; A < userResponse.message[0].rep.length; A++) {
                             const B = userResponse.message[0].rep[A] - params.rep[A];
                             distance += B * B;
-                        }
-                    }
-            var verified = distance <= thresold
+                }
+                takePhotoThreshHold=userResponse.message[0].thresold
+                verified = distance <= takePhotoThreshHold
+            }else{
+                for (let A = 0; A < params.rep.length; A++) {
+                    const B = -0 - params.rep[A];
+                    distance += B * B;
+                }
+                takePhotoThreshHold=(Math.round(distance)+1)/10
+                verified = 0 <= takePhotoThreshHold
+            }
+            
             var getData = {
                 url: process.env.MONGO_URI,
                 client: "users",
@@ -202,7 +212,7 @@ let getFaceResponse = async (params) => {
             if (similarfaces && similarfaces.data.success){
                 if (verified == true){
                     var jsonData = {
-                        thresold : thresold,
+                        thresold : takePhotoThreshHold,
                         distance : distance,
                         // verified : verified,
                         similar : similarfaces.data.message,
@@ -480,7 +490,7 @@ let getPassportPhotoResponse = async (params) => {
         if (decodeToken){
             let userResponse = await scheduleService.userDetails(decodeToken);
             if (userResponse && userResponse.success){
-                var thresold = params.thresold || 0.25;
+                var thresold = params.thresold || 0.45;
                 var distance = 0;
                 if (userResponse.message[0].rep.length === params.rep.length){
                     for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {

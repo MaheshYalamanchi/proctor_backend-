@@ -230,6 +230,7 @@ let usersDetailsUpdate = async (params) => {
             var jsonData = {
                 similar : params.similar,
                 rep : params.rep,
+                thresold:params.thresold
                 // face : objectId   it should get insert after me api
             }
         } else if(params && params.verified) {
