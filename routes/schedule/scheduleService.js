@@ -228,9 +228,9 @@ let usersDetailsUpdate = async (params) => {
         var objectId = new ObjectID();
         if (params && !params.verified){
             var jsonData = {
-                similar : params.similar,
-                rep : params.rep,
-                thresold:params.thresold
+                // similar : params.similar,
+                // rep : params.rep,
+                // thresold:params.thresold
                 // face : objectId   it should get insert after me api
             }
         } else if(params && params.verified) {
