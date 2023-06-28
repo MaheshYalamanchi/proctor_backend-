@@ -352,10 +352,10 @@ let fetchurl = async (params) => {
             var data = iterator.id
             url.push(data)
         }
-        var urldata = "/#!/side/vision?id=" + url
-        const result = urldata.replace(/,/g, '.');
-        if (url) {
-                return { success: true, message:result}
+        const stringData = url.join(',');
+        const replacedString = stringData.replace(/,/g, '.');
+        if (replacedString) {
+                return { success: true, message:replacedString}
         } else {
             return { success: false, message: 'url is not created' };
         }
