@@ -284,7 +284,7 @@ let MessageSend = async (params) => {
                         docType: 0,
                         query: {
                                 filter: { "_id": responseData.data.statusMessage[0].room },
-                                update: {$set: { incidents:  response.data.statusMessage[0].incidents,notofication: "unread"}}
+                                update: {$set: { incidents:  response.data.statusMessage[0].incidents}}
                         }
                     };
                     let Data = await invoke.makeHttpCall("post", "update", getdata)

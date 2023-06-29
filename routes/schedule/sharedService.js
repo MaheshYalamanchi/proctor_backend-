@@ -45,6 +45,7 @@ let getCandidateMessageSend = async (params) => {
                 return { success: false, message: 'Data Not Found' }
             }
         }else{
+            params.body.notification = "unread"
             var getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",

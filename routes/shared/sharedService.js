@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const schedule_Service = require('../schedule/schedule.Service');
 const search = require('../../routes/search');
 const logger =require('../../logger/logger')
+const _ = require('lodash');
 let proctorLoginCall = async (params) => {
     try {
         var postdata = {
@@ -1407,22 +1408,31 @@ let getCheck = async (params) => {
 };
 let notificationupdate = async (params) => {
     try {
-      var getdata = {
-        url:process.env.MONGO_URI,
-        database: "proctor",
-        model: "rooms",
-        docType: 0,
-        query: {
-          filter :{"_id": params.roomId},
-          update:{$set: { notofication:"read",}}
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                {
+                    $match: {"student": params.userId,"status": { $in: ["paused", "started"] } } 
+                },
+                {
+                    $project: { "_id": 0 ,"id" :"$_id" }
+                },    
+                { $group: { _id: null, data: { $push: "$id" }}}
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let result = await schedule_Service.unreadmessagefetch(responseData.data.statusMessage[0].data)
+        if (result && result.success && result.message && result.message.length>0) {
+            var data = _.map(result.message, (iterator) => iterator._id);
+            var message = _.map(result.message, (iterator) => _.pick(iterator, ['message', 'user', 'notification', 'createdAt']))
+            let response = await schedule_Service.unreadchat(data)
+            return { success: true, message: message}
+        } else {
+            return { success: false, message: '[]' }
         }
-      };
-      let responseData = await invoke.makeHttpCall("post", "update", getdata);
-      if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-        return { success: true, message: "Record updated sucessfully" }
-      } else {
-        return { success: false, message: 'Data Not Found' }
-      }
     }
     catch (error) {
       if (error && error.code == 'ECONNREFUSED') {
@@ -1448,5 +1458,5 @@ module.exports = {
     proctorusagestatistics,
     getfacePassport,
     getCheck,
-    notificationupdate
+    notificationupdate,
 }
