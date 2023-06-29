@@ -460,6 +460,65 @@ let getFacePassportResponse = async (params) => {
         }
     }
 };
+let unreadmessagefetch = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "chats",
+            docType: 1,
+            query:[
+                {
+                    $match: {"room": { $in: params },"notification": "unread","message":{ "$exists": true } } 
+                },
+                {
+                    $project: {"_id":0,"notification": 1 ,"message" :1,"user" :1,"createdAt":1,"_id" :1}
+                },
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+  };
+
+let unreadchat = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "chats",
+            docType: 1,
+            query:{
+                filter :{_id:{$in:params}},
+                update :{$set:{notification:"read"}}
+            } 
+        };
+        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+            return { success: true, message: "Record updated sucessfully" }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+  };
 
 module.exports = {
     getChatDetails,
@@ -471,5 +530,7 @@ module.exports = {
     broadcastMesssage,
     fetchurl,
     fetchstatus,
-    getFacePassportResponse
+    getFacePassportResponse,
+    unreadchat,
+    unreadmessagefetch
 }
