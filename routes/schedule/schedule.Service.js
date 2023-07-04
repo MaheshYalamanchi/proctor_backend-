@@ -150,13 +150,13 @@ let getCandidateFcaeSend = async (params) => {
         if (responseData && responseData.data && responseData.data.statusMessage._id) {
             let chatResponse = await schedule.faceInfo(responseData.data.statusMessage._id);
             if (chatResponse && chatResponse.success){
-                let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
-                if (attatchResponse.success){
-                    chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
+                // let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
+                // if (attatchResponse.success){
+                    // chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
                     return { success: true, message:chatResponse.message[0]}
-                } else  {
-                    return { success: true, message:"data not found"}
-                }
+                // } else  {
+                //     return { success: true, message:"data not found"}
+                // }
             }
         } else {
             return { success: false, message: 'Data Not Found' };
