@@ -187,21 +187,13 @@ let getViolated = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                  $match: {
-                    $and: [
-                      { "room": params.id },
-                      {
-                        $or: [
-                          { "metadata.violated": true },
-                          { "type": { $in: ["event", "face"] } }
-                        ]
-                      }
-                    ]
+                { $match: {
+                    $and: [{ "room": params.id },{ 
+                    $or: [{ "type": { $in: ["event", "face"] } }]}]
                   }
                 },
                 {
-                  $project: { "attach": 1, "metadata.peak": 1 }
+                  $project: { "attach": 1, "metadata.peak": 1 , violation:1}
                 },
                 {
                   $unwind: { path: "$attach", preserveNullAndEmptyArrays: true }
@@ -220,13 +212,9 @@ let getViolated = async (params) => {
                 {
                   $project: { data: 1, violation: 1, "metadata.peak": 1 }
                 },
-                {
-                  $match: {
-                    $or: [
-                      { "data.filename": "webcam.jpg" },
-                    //   { "data.filename": "face.jpg" }
-                    ]
-                  }
+                { $match: {
+                    $or: [{ "data.filename": "webcam.jpg" },]
+                    }
                 },
                 {
                   $addFields: {
@@ -258,13 +246,8 @@ let getViolated = async (params) => {
                 },
                 {
                   $project: {
-                    "peak": 1,
-                    violation: 1,
-                    "screen.id": "$data._id",
-                    "screen.filename": "$data.filename",
-                    "screen.createdAt": "$data.createdAt",
-                    _id: 0
-                  }
+                      "peak": 1,"violation": 1,"screen.id": "$data._id","screen.filename": "$data.filename","screen.createdAt": "$data.createdAt",_id: 0
+                      }
                 }
             ]
         };
