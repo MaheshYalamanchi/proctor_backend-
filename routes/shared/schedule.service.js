@@ -615,6 +615,7 @@ let SubmitSaveCall = async (params) => {
         } else if (params.body.conclusion=="positive"){
             params.body.status='accepted';
         }
+        params.body.stoppedAt = new Date()
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -647,8 +648,8 @@ let SubmitSaveCall = async (params) => {
                                 "face": roomData.student.face,
                                 "passport": roomData.student.passport,
                                 "subject": roomData.subject,
-                                "startedat": roomData.startedAt,
-                                "stoppedat": roomData.stoppedAt ||new Date() ,
+                                "startedAt": roomData.startedAt,
+                                "stoppedAt": roomData.stoppedAt ||new Date() ,
                                 "credibility" :"0%",
                                 "conclusion": roomData.conclusion || "-",
                                 "proctor": roomData.members,
@@ -657,7 +658,12 @@ let SubmitSaveCall = async (params) => {
                                 "xaxis": roomData.timesheet.xaxis,
                                 "yaxis": roomData.timesheet.yaxis,
                                 "metrics": roomData.metrics,
-                                "screen" : violatedResponse.message
+                                "screen" : violatedResponse.message,
+                                "browser": roomData.browser,
+                                "os": roomData.os,
+                                "ipaddress": roomData.ipaddress,
+                                "duration": roomData.duration,
+                                "status": roomData.status
                             }
                         let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
                         if (generateReport) {
@@ -666,7 +672,6 @@ let SubmitSaveCall = async (params) => {
                             logger.info({ success: false, message: "pdf report not generated..." });
                         }
                     }catch(error){
-                        console.log('erro...........',error)
                         logger.info({ success: false, message: "pdf report not generated..." });
                     }
                 }
@@ -678,7 +683,6 @@ let SubmitSaveCall = async (params) => {
             return { success: false, message: 'Data Not Found' }
         }
     } catch (error) {
-        console.log('error........................111111111111111111',error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
