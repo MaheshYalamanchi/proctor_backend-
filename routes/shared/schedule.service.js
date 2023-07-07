@@ -615,6 +615,7 @@ let SubmitSaveCall = async (params) => {
         } else if (params.body.conclusion=="positive"){
             params.body.status='accepted';
         }
+        params.body.stoppedAt = new Date()
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
