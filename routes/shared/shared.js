@@ -343,6 +343,32 @@ let roomstatusUpdate = async (params) => {
         }
     }
 };
+let timeoutupdate = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.params.roomId },
+                update: {$set: { timeout:  params.body.timeout}}
+            }
+        };
+        let response = await invoke.makeHttpCall("post", "update", getdata);
+        if (response && response.data && response.data.statusMessage ) {
+            return { success: true, message: "Timeout updated" }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    } catch (erroe) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 module.exports = {
     getSessions,
     updateRecord,
@@ -351,5 +377,6 @@ module.exports = {
     getQRcode,
     getViolated,
     stoped,
-    roomstatusUpdate
+    roomstatusUpdate,
+    timeoutupdate
 }
