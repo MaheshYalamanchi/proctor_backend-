@@ -688,6 +688,27 @@ let mobilecheck = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
+            if(!responseData.data.statusMessage[0].averages){
+                responseData.data.statusMessage[0].averages = {
+                    "b1" : 0,
+                    "b2" : 0,
+                    "b3" : 0,
+                    "c1" : 0,
+                    "c2" : 0,
+                    "c3" : 0,
+                    "c4" : 0,
+                    "c5" : 0,
+                    "k1" : 0,
+                    "m1" : 0,
+                    "m2" : 0,
+                    "m3" : 0,
+                    "n1" : 0,
+                    "n2" : 0,
+                    "s1" : 0,
+                    "s2" : 0,
+                    "h1" : 0
+                }
+            }
             return { success: true, message: responseData.data.statusMessage[0] }
         }else{
             return {success: false, message:'Data not found...'};
