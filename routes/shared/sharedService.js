@@ -1190,7 +1190,7 @@ let proctorRoomDetails = async (params) => {
                         stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
                         duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                         startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", student: "$student", template: "$template", browser: "$browser",
-                        os: "$os", platform: "$platform", averages: "$averages",pdf:"$pdf"
+                        os: "$os", platform: "$platform", averages: "$averages",pdf:"$pdf",errorlog:"$errorlog"
                     }
                 }
             ]
