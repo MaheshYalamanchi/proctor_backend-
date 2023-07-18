@@ -642,7 +642,7 @@ let proctorSearchCall = async (params) => {
                             {$match: {
                                 $and: [
                                      { members:decodeToken.id } ,
-                                     { student:params.query.filter } 
+                                     { student: { $regex: filterData, $options: 'i' } }
                                 ]
                             }},
                             {
