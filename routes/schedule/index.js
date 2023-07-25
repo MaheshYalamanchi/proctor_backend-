@@ -181,6 +181,7 @@ module.exports = function (params) {
         try {
             if(req.body){
                 let result = await tokenService.generateToken(req.body);
+                console.log(JSON.stringify(result),"response=======>>>>>")
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result });
                     app.http.customResponse(res, result, 200);
