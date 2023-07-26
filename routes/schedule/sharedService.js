@@ -173,7 +173,7 @@ let getFaceResponse = async (params) => {
     try {
         let takePhotoThreshHold,validationVal;
         let userResponse = await scheduleService.userDetails(decodeToken);
-        console.log(JSON.stringify(userResponse),"userResponse======>>>>>")
+        console.log(userResponse,"userResponse======>>>>>")
         if (userResponse && userResponse.success){
             // var threshold = userResponse.message[0].threshold || 0.25;
             var distance = 0;
@@ -212,7 +212,7 @@ let getFaceResponse = async (params) => {
                 }
             }
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            console.log(JSON.stringify(similarfaces),"similarfaces=======>>>>>")
+            console.log(similarfaces,"similarfaces=======>>>>>")
             if (similarfaces && similarfaces.data.success){
                 if (verified == true){
                     params.message = similarfaces.data.message;
@@ -220,7 +220,7 @@ let getFaceResponse = async (params) => {
                     params.verified = verified;
                     params.threshold = takePhotoThreshHold;
                     let response = await scheduleservice.faceResponse(params);
-                    console.log(JSON.stringify(response),"response1=======>>>>>")
+                    console.log(response,"response1=======>>>>>")
                     if (response.success){
                         var getdata = {
                             url:process.env.MONGO_URI,
@@ -241,7 +241,7 @@ let getFaceResponse = async (params) => {
                                 ]
                         };
                         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        console.log(JSON.stringify(responseData.data),"responseData========>>>>>>")
+                        console.log(responseData.data,"responseData========>>>>>>")
                         if (responseData && responseData.data && responseData.data.statusMessage) {
                             return { success: true, message: responseData.data.statusMessage[0] }
                         } else {
