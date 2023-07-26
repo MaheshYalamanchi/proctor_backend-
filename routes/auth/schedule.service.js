@@ -107,6 +107,7 @@ let faceResponse = async (params) => {
             return ({success:false,message :"Data not found"});
         }
     } catch (error) {
+        console.log(error,"attachError=====>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
