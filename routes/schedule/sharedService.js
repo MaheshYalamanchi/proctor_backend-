@@ -220,7 +220,9 @@ let getFaceResponse = async (params) => {
                     params.verified = verified;
                     params.threshold = takePhotoThreshHold;
                     let response = await scheduleservice.faceResponse(params);
-                    console.log(response,"response1=======>>>>>")
+                    console.log(response.response.status,"status=====>>>>")
+                    console.log(JSON.stringify(response.response.data),"responseError=======>>>>>")
+                    console.log(response,"response1===========>>>>>")
                     if (response.success){
                         var getdata = {
                             url:process.env.MONGO_URI,
