@@ -203,7 +203,6 @@ module.exports = function (params) {
     });
     app.post('/api/auth/jwt', async (req, res,next) => {
         try {
-            console.log(req._remoteAddress,"ipaddress====>>>>")
             if(req.body && req.body.authorization){
                 let result = await sharedService.tokenValidation(req);
                 if (result && result.success) {
