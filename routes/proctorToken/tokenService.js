@@ -93,7 +93,6 @@ let generateToken = async (req) => {
                 query: data
               };
               let responseData = await invoke.makeHttpCall("post", "write", postdata);
-              console.log(responseData,"responseData>>>>>>>>>>>>>>>>>")
               if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken };
               } else {
@@ -103,7 +102,6 @@ let generateToken = async (req) => {
             return {success: false, message:'Error While Generating Token!'};
         }
     } catch (err) {
-        console.log(err,"err======>>>")
         return err;
     }
 };

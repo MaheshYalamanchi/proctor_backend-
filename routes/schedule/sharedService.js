@@ -168,12 +168,10 @@ let getNewChatMessagesV2 = async (params) => {
     }
 };
 let getFaceResponse = async (params) => {
-    console.log(params,"params=======>>>>>>>>")
     decodeToken = jwt_decode(params.authorization)
     try {
         let takePhotoThreshHold,validationVal;
         let userResponse = await scheduleService.userDetails(decodeToken);
-        console.log(userResponse,"userResponse======>>>>>")
         if (userResponse && userResponse.success){
             // var threshold = userResponse.message[0].threshold || 0.25;
             var distance = 0;
@@ -212,7 +210,6 @@ let getFaceResponse = async (params) => {
                 }
             }
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            console.log(similarfaces,"similarfaces=======>>>>>")
             if (similarfaces && similarfaces.data.success){
                 if (verified == true){
                     params.message = similarfaces.data.message;
@@ -220,7 +217,6 @@ let getFaceResponse = async (params) => {
                     params.verified = verified;
                     params.threshold = takePhotoThreshHold;
                     let response = await scheduleservice.faceResponse(params);
-                    console.log(JSON.stringify(response),"response1===========>>>>>")
                     if (response.success){
                         var getdata = {
                             url:process.env.MONGO_URI,
@@ -241,7 +237,6 @@ let getFaceResponse = async (params) => {
                                 ]
                         };
                         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        console.log(responseData.data,"responseData========>>>>>>")
                         if (responseData && responseData.data && responseData.data.statusMessage) {
                             return { success: true, message: responseData.data.statusMessage[0] }
                         } else {
@@ -256,7 +251,6 @@ let getFaceResponse = async (params) => {
                     params.verified = verified;
                     params.threshold = takePhotoThreshHold;
                     let response = await scheduleservice.missMatchResponse(params);
-                    console.log(response,"response2=======>>>>>")
                     if (response.success){
                         var getdata = {
                             url:process.env.MONGO_URI,
@@ -277,7 +271,6 @@ let getFaceResponse = async (params) => {
                                 ]
                         };
                         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        console.log(responseData.data,"responseData2========>>>>>>")
                         if (responseData && responseData.data && responseData.data.statusMessage) {
                             return { success: true, message: responseData.data.statusMessage[0] }
                         } else {
@@ -359,6 +352,7 @@ let tokenValidation = async(params,req)=> {
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
+            console.log(decodedToken,"decodeToken=========>")
             if(decodedToken){
                 let userResponse = await scheduleService.userFetch(decodedToken);
                 var responseData ;				
