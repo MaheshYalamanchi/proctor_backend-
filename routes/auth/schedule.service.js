@@ -98,11 +98,13 @@ let faceResponse = async (params) => {
             docType: 0,
             query: jsonData
         };
+        console.log(JSON.stringify(getdata.query),"query=======>>>>>")
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        console.log(JSON.stringify(responseData,data.statusMessage),"attachresponse======>>>>>>")
         if (responseData && responseData.data.statusMessage._id) {
             return ({success:true,message :responseData.data.statusMessage._id}) ;
         } else {
-            return "Data Not Found";
+            return {success:false,message :"Data not found"};
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
