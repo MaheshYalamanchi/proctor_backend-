@@ -225,28 +225,14 @@ let roomUpdate = async (params) => {
 };
 let usersDetailsUpdate = async (params) => {
     try {
-        var objectId = new ObjectID();
-        if (params && !params.verified){
-            var jsonData = {
-                // similar : params.similar,
-                // rep : params.rep,
-                // thresold:params.thresold
-                // face : objectId   it should get insert after me api
-            }
-        } else if(params && params.verified) {
-            var jsonData = {
-                verified : params.verified,
-                // passport : objectId it should get insert after me api
-            }
-        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
             query:{
-                filter: { "_id": params.userId },
-                update: { $set: jsonData }
+                filter: { "_id": params.id },
+                update: { $set: { verified: params.verified} }
             }
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
