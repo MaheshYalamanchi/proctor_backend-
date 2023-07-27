@@ -211,6 +211,7 @@ let getFaceResponse = async (params) => {
             }
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
             if (similarfaces && similarfaces.data.success){
+                if (verified == true){
                     params.message = similarfaces.data.message;
                     params.distance = distance;
                     params.verified = verified;
@@ -244,6 +245,41 @@ let getFaceResponse = async (params) => {
                     } else {
                         return { success: false, message: response.message };
                     } 
+                } else {
+                    params.similar = similarfaces.data.message;
+                    params.distance = distance;
+                    params.verified = verified;
+                    params.threshold = takePhotoThreshHold;
+                    let response = await scheduleservice.missMatchResponse(params);
+                    if (response.success){
+                        var getdata = {
+                            url:process.env.MONGO_URI,
+                            database:"proctor",
+                            model: "attaches",
+                            docType: 1,
+                            query: [
+                                    {
+                                        "$addFields": { "test": { "$toString": "$_id" } }
+                                    },
+                                    {
+                                        "$match": { "test": response.message }
+                                    },
+                                    {
+                                        "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                    metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                                    }
+                                ]
+                        };
+                        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                        if (responseData && responseData.data && responseData.data.statusMessage) {
+                            return { success: true, message: responseData.data.statusMessage[0] }
+                        } else {
+                            return { success: false, message: 'Data Not Found' };
+                        }
+                    } else {
+                        return { success: false, message: response.message };
+                    } 
+                }
             } else {
                 return { success: false, message: 'similarfaces error' };
             }    
@@ -467,9 +503,17 @@ let getPassportPhotoResponse = async (params) => {
                 }
                 var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
                 if (similarfaces && similarfaces.data.success){
-                    decodeToken.verified =verified
-                    let getDetails = await scheduleService.usersDetailsUpdate(decodeToken);
+                    var jsonData = {
+                        verified : verified,
+                        similar : similarfaces.data.message,
+                        userId : decodeToken.id,
+                        rep : params.rep
+                    }
+                    let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
                     if (getDetails.success){
+                        let userData = await scheduleService.userDetails(decodeToken);
+                        if (userData && userData.success){
+                            params.message = userData.message[0];
                             let response = await scheduleservice.passportResponse(params);
                             if (response.success){
                                 var getdata = {
@@ -501,8 +545,47 @@ let getPassportPhotoResponse = async (params) => {
                             } else {
                                 return { success: false, message: 'faceDetails insertion error' }
                             }
+                        } else {
+                            return { success: false, message: userData.message }
+                        }
                     }else {
-                        return { success: false, message: 'user updation error' }
+                        let userData = await scheduleService.userDetails(decodeToken);
+                        if (userData && userData.success){
+                            params.message = userData.message[0];
+                            let response = await scheduleservice.passportResponse(params);
+                            if (response.success){
+                                var getdata = {
+                                    url:process.env.MONGO_URI,
+                                    database:"proctor",
+                                    model: "attaches",
+                                    docType: 1,
+                                    query: [
+                                        {
+                                            "$addFields": { "test": { "$toString": "$_id" } }
+                                        },
+                                        {
+                                            "$match": { "test": response.message }
+                                        },
+                                        {
+                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
+                                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
+                                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+                                        }
+                                    ]
+                                };
+                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                                if (responseData && responseData.data && responseData.data.statusMessage) {
+                                    return { success: true, message: responseData.data.statusMessage[0] }
+                                } else {
+                                    return { success: false, message: 'Data Not Found' };
+                                }
+                            } else {
+                                return { success: false, message: 'faceDetails insertion error' }
+                            }
+                        } else {
+                            return { success: false, message: userData.message }
+                        }
                     }
                 } else {
                     return { success: false, message: 'similar face error' }
