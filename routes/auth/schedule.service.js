@@ -150,51 +150,9 @@ let passportResponse = async (params) => {
         }
     }
 };
-let missMatchResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization);
-    try {
-        jsonData = {
-            // "_id" :new ObjectID(params.message.face),
-            "user" : decodeToken.id,
-            "filename" : params.myfile.originalFilename,
-            "mimetype" : params.myfile.mimetype,
-            "size" : params.myfile.size,
-            "createdAt" : new Date(),
-            "attached" : true,
-            "metadata" : {
-                "distance" : params.distance,
-                "threshold" : params.threshold,
-                "verified" : params.verified,
-                "objectnew" : "",
-                "similar" :params.similar||[],
-                "rep" : params.rep
-            },
-        }
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "attaches",
-            docType: 0,
-            query: jsonData
-        };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data.statusMessage._id) {
-            return ({success:true,message :responseData.data.statusMessage._id}) ;
-        } else {
-            return "Data Not Found";
-        }
-    } catch (error) {
-        if (error && error.code == 'ECONNREFUSED') {
-            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-        } else {
-            return { success: false, message: error }
-        }
-    }
-};
 module.exports = {
     getcount,
     getAttach,
     faceResponse,
     passportResponse,
-    missMatchResponse
 }
