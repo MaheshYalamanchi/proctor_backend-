@@ -62,3 +62,5 @@ spec:
           - containerPort: 3002
       imagePullSecrets:
         - name: mysecret
+      nodeSelector:
+        agentpool: proctordevqa
