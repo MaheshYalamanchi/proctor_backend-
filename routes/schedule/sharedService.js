@@ -447,56 +447,18 @@ let getDatails = async (params) => {
         }
     }
 };
-let getPassportPhotoResponse = async (params) => {
+let getPassportPhotoResponse1 = async (params) => {
     decodeToken = jwt_decode(params.authorization)
     try {
         if (decodeToken){
-            let userResponse = await scheduleService.userDetails(decodeToken);
-            if (userResponse && userResponse.success){
-                var thresold = params.thresold || 0.45;
-                var distance = 0;
-                if (userResponse.message[0].rep.length === params.rep.length){
-                    for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                            const B = userResponse[0].rep[A] - params.rep[A];
-                            distance += B * B;
-                        }
-                    }
-                var verified = distance <= thresold
-                var getData = {
-                    url: process.env.MONGO_URI,
-                    client: "users",
-                    docType: 0,
-                    query : {
-                        "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
-                        "scope":{
-                            "c":0,
-                            "e":[userResponse.message[0]._id],
-                            "n":10,
-                            "s":params.rep,
-                            "t":0.15
-                        },
-                        "out":"myCollections",
-                        "sort":{ "loggedAt": -1 },
-                        "limit":1000
-                    }
-                }
-                var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-                if (similarfaces && similarfaces.data.success){
-                    similarfaces.data.distance = distance;
-                    similarfaces.data.verified = verified;
-                    similarfaces.data.threshold = thresold;
-                    similarfaces.data.decodeToken = decodeToken;
-                    similarfaces.data.originalFilename = params.myfile.originalFilename;
-                    similarfaces.data.mimetype = params.myfile.mimetype;
-                    similarfaces.data.size = params.myfile.size;
-                    similarfaces.data.rep = params.rep;
-                    decodeToken.verified =verified
-                    return { success: true, message: similarfaces.data }
-                } else {
-                    return { success: false, message: 'similar face error' }
-                }
-            } else {
-                return { success: false, message: userResponse.message }
+            params.decodeToken = decodeToken;
+            let response = await scheduleservice.passportResponse1(params);
+            if (response && response.success){
+                response.rep = params.rep;
+                response.decodeToken = decodeToken
+                return { success: response.success, message: response }
+            }  else {
+                return { success: response.success, message: response.message};
             }
         }
     } catch (error) {
@@ -507,73 +469,39 @@ let getPassportPhotoResponse = async (params) => {
         }
     }
 };
-let getPassportPhotoResponse1 = async (params) => {
+let getPassportPhotoResponse2 = async (params) => {
     try {
-        let getDetails = await scheduleService.usersDetailsUpdate(params);
-        if (getDetails.success){
-            let response = await scheduleservice.passportResponse(params);
-            if (response.success){
-                var getdata = {
-                    url:process.env.MONGO_URI,
-                    database:"proctor",
-                    model: "attaches",
-                    docType: 1,
-                    query: [
-                        {
-                            "$addFields": { "test": { "$toString": "$_id" } }
-                        },
-                        {
-                            "$match": { "test": response.message }
-                        },
-                        {
-                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                        }
-                    ]
-                };
-                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (responseData && responseData.data && responseData.data.statusMessage) {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                } else {
-                    return { success: false, message: 'Data Not Found' };
+        let userResponse = await scheduleService.userDetails(params.decodeToken);
+        if (userResponse && userResponse.success){
+            var thresold = params.thresold || 0.45;
+            var distance = 0;
+            if (userResponse.message[0].rep.length === params.rep.length){
+                for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
+                        const B = userResponse[0].rep[A] - params.rep[A];
+                        distance += B * B;
+                    }
                 }
-            } else {
-                return { success: false, message: 'faceDetails insertion error' }
-            }
-        }else {
-            let response = await scheduleservice.passportResponse(params);
-            if (response.success){
-                var getdata = {
-                    url:process.env.MONGO_URI,
-                    database:"proctor",
-                    model: "attaches",
-                    docType: 1,
-                    query: [
-                        {
-                            "$addFields": { "test": { "$toString": "$_id" } }
-                        },
-                        {
-                            "$match": { "test": response.message }
-                        },
-                        {
-                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                        }
-                    ]
-                };
-                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (responseData && responseData.data && responseData.data.statusMessage) {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                } else {
-                    return { success: false, message: 'Data Not Found' };
+                var verified = distance <= thresold;
+                params.verified = verified;
+                params.user = params.message
+                let getDetails = await scheduleService.usersDetailsUpdate(params);
+                if (getDetails.success){
+                    let response = await scheduleservice.passportResponse2(params);
+                    if (response.success){
+                        return { success: true, message:  response.message}
+                    } else {
+                        return { success: false, message: response.message }
+                    }
+                }else {
+                    let response = await scheduleservice.passportResponse2(params);
+                    if (response.success){
+                        return { success: true, message: response.message }
+                    } else {
+                        return { success: false, message: response.message }
+                    }
                 }
-            } else {
-                return { success: false, message: 'faceDetails insertion error' }
-            }
+        } else {
+            return { success: false, message: userResponse.message }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -798,7 +726,7 @@ module.exports = {
     attachmentPostCall,
     tokenValidation,
     getDatails,
-    getPassportPhotoResponse,
+    getPassportPhotoResponse2,
     getPassportPhotoResponse1,
     getCandidateDetails,
     getCandidateDetailsStop,

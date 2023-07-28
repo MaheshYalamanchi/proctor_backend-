@@ -1361,11 +1361,8 @@ let getface = async (params) => {
 let getPassport = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
-        let passportResponse = await schedule_Service.getFacePassportResponse(params.passport);
-        if(passportResponse && passportResponse.success){
             let jsonData =  {
                 "passport" : params.passport,
-                "verified" : passportResponse.message[0].metadata.verified
             };
             var getdata = {
                 url:process.env.MONGO_URI,
@@ -1386,7 +1383,6 @@ let getPassport = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }

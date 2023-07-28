@@ -271,10 +271,10 @@ module.exports = function (params) {
             }
         }
     });
-    app.post('/api/storage/passport', async (req, res,next) => {
+    app.post('/api/storage/passport1', async (req, res,next) => {
         try {
             if(req.body){
-                let result = await sharedService.getPassportPhotoResponse(req.body);
+                let result = await sharedService.getPassportPhotoResponse1(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -294,13 +294,13 @@ module.exports = function (params) {
             }
         }
     });
-    app.post('/api/storage/passport1', async (req, res,next) => {
+    app.post('/api/storage/passport2', async (req, res,next) => {
         try {
             if(req.body){
-                let result = await sharedService.getPassportPhotoResponse1(req.body);
+                let result = await sharedService.getPassportPhotoResponse2(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
+                    app.http.customResponse(res, result, 200);
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
