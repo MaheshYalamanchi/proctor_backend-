@@ -112,15 +112,41 @@ let faceResponse = async (params) => {
         }
     }
 };
-let passportResponse = async (params) => {
+let passportResponse1 = async (params) => {
     try {
         jsonData = {
-            // "_id" :new ObjectID(params.message.passport),
             "user" : params.decodeToken.id,
-            "filename" : params.originalFilename,
-            "mimetype" : params.mimetype,
-            "size" : params.size,
-            "createdAt" : new Date(),
+            "filename" : params.myfile.originalFilename,
+            "mimetype" : params.myfile.mimetype,
+            "size" : params.myfile.size,
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "attaches",
+            docType: 0,
+            query: jsonData
+        };
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        if (responseData && responseData.data.statusMessage._id) {
+            responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+            delete responseData.data.statusMessage._id;
+            delete responseData.data.statusMessage.__v;
+            return ({success: true,message: responseData.data.statusMessage}) ;
+        } else {
+            return ({success: false, message: "attach insertion failed"});
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let passportResponse2 = async (params) => {
+    try {
+        jsonData = {
             "attached" : true,
             "metadata" : {
                 "distance" : 0,
@@ -133,13 +159,16 @@ let passportResponse = async (params) => {
             database:"proctor",
             model: "attaches",
             docType: 0,
-            query: jsonData
+            query: {
+                filter: {_id: params.user.id},
+                update: { $set: jsonData }
+            }
         };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data.statusMessage._id) {
-            return ({success:true,message :responseData.data.statusMessage._id}) ;
+        let responseData = await invoke.makeHttpCall("post", "updateOne", getdata);
+        if (responseData && responseData.data.statusMessage.nModified>0) {
+            return ({success: true, message: "record updated successfully"}) ;
         } else {
-            return "Data Not Found";
+            return ({success: true,message: "record updated failed"});
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -153,5 +182,6 @@ module.exports = {
     getcount,
     getAttach,
     faceResponse,
-    passportResponse,
+    passportResponse1,
+    passportResponse2
 }
