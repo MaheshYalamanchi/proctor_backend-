@@ -26,14 +26,14 @@ app.util = require("./lib/util/parser");
 app.invoke = require("./lib/http/invoke");
 var request = require('request')
 var CronJob = require('cron').CronJob;
-// new CronJob('*/2 * * * *', function() {
-//     request(process.env.ENDPOINT, function(error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//           console.log('You will see this message every 2 minutes');
-//             // console.log(body) // Show the HTML for the Google homepage.
-//         }
-//     })
-// }, null, true, "Asia/Calcutta")
+new CronJob('*/2 * * * *', function() {
+    request(process.env.ENDPOINT, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+          console.log('You will see this message every 2 minutes');
+            // console.log(body) // Show the HTML for the Google homepage.
+        }
+    })
+}, null, true, "Asia/Calcutta")
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
