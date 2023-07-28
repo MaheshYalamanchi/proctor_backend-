@@ -177,8 +177,8 @@ let getFaceResponse = async (params) => {
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
                 for (let A = 0; A < userResponse.message[0].rep.length; A++) {
-                            const B = userResponse.message[0].rep[A] - params.rep[A];
-                            distance += B * B;
+                    const B = userResponse.message[0].rep[A] - params.rep[A];
+                    distance += B * B;
                 }
                 takePhotoThreshHold=userResponse.message[0].threshold
                 verified = distance <= takePhotoThreshHold
@@ -211,45 +211,60 @@ let getFaceResponse = async (params) => {
             }
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
             if (similarfaces && similarfaces.data.success){
-                    params.message = similarfaces.data.message;
-                    params.distance = distance;
-                    params.verified = verified;
-                    params.threshold = takePhotoThreshHold;
-                    let response = await scheduleservice.faceResponse(params);
-                    if (response.success){
-                        var getdata = {
-                            url:process.env.MONGO_URI,
-                            database:"proctor",
-                            model: "attaches",
-                            docType: 1,
-                            query: [
-                                    {
-                                        "$addFields": { "test": { "$toString": "$_id" } }
-                                    },
-                                    {
-                                        "$match": { "test": response.message }
-                                    },
-                                    {
-                                        "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                    metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
-                                    }
-                                ]
-                        };
-                        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        if (responseData && responseData.data && responseData.data.statusMessage) {
-                            return { success: true, message: responseData.data.statusMessage[0] }
-                        } else {
-                            return { success: false, message: 'Data Not Found' };
-                        }
-                    } else {
-                        return { success: false, message: response.message };
-                    } 
+                similarfaces.data.distance = distance;
+                similarfaces.data.verified = verified;
+                similarfaces.data.threshold = takePhotoThreshHold;
+                similarfaces.data.decodeToken = decodeToken;
+                similarfaces.data.originalFilename = params.myfile.originalFilename;
+                similarfaces.data.mimetype = params.myfile.mimetype;
+                similarfaces.data.size = params.myfile.size;
+                similarfaces.data.rep = params.rep;
+                return { success: true, message: similarfaces.data }
             } else {
                 return { success: false, message: 'similarfaces error' };
             }    
         } else {
             return { success: false, message: userResponse.message };
         }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getFaceResponse1 = async (params) => {
+    try {
+        let response = await scheduleservice.faceResponse(params);
+        if (response.success){
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "attaches",
+                docType: 1,
+                query: [
+                        {
+                            "$addFields": { "test": { "$toString": "$_id" } }
+                        },
+                        {
+                            "$match": { "test": response.message }
+                        },
+                        {
+                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+                        }
+                    ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+        } else {
+            return { success: false, message: response.message };
+        }  
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -442,10 +457,10 @@ let getPassportPhotoResponse = async (params) => {
                 var distance = 0;
                 if (userResponse.message[0].rep.length === params.rep.length){
                     for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                                const B = userResponse[0].rep[A] - params.rep[A];
-                                distance += B * B;
-                            }
+                            const B = userResponse[0].rep[A] - params.rep[A];
+                            distance += B * B;
                         }
+                    }
                 var verified = distance <= thresold
                 var getData = {
                     url: process.env.MONGO_URI,
@@ -467,78 +482,97 @@ let getPassportPhotoResponse = async (params) => {
                 }
                 var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
                 if (similarfaces && similarfaces.data.success){
+                    similarfaces.data.distance = distance;
+                    similarfaces.data.verified = verified;
+                    similarfaces.data.threshold = thresold;
+                    similarfaces.data.decodeToken = decodeToken;
+                    similarfaces.data.originalFilename = params.myfile.originalFilename;
+                    similarfaces.data.mimetype = params.myfile.mimetype;
+                    similarfaces.data.size = params.myfile.size;
+                    similarfaces.data.rep = params.rep;
                     decodeToken.verified =verified
-                    let getDetails = await scheduleService.usersDetailsUpdate(decodeToken);
-                    if (getDetails.success){
-                        let response = await scheduleservice.passportResponse(params);
-                        if (response.success){
-                            var getdata = {
-                                url:process.env.MONGO_URI,
-                                database:"proctor",
-                                model: "attaches",
-                                docType: 1,
-                                query: [
-                                    {
-                                        "$addFields": { "test": { "$toString": "$_id" } }
-                                    },
-                                    {
-                                        "$match": { "test": response.message }
-                                    },
-                                    {
-                                        "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                    "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                                    "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                                    "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                                    }
-                                ]
-                            };
-                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                            if (responseData && responseData.data && responseData.data.statusMessage) {
-                                return { success: true, message: responseData.data.statusMessage[0] }
-                            } else {
-                                return { success: false, message: 'Data Not Found' };
-                            }
-                        } else {
-                            return { success: false, message: 'faceDetails insertion error' }
-                        }
-                    }else {
-                        let response = await scheduleservice.passportResponse(params);
-                        if (response.success){
-                            var getdata = {
-                                url:process.env.MONGO_URI,
-                                database:"proctor",
-                                model: "attaches",
-                                docType: 1,
-                                query: [
-                                    {
-                                        "$addFields": { "test": { "$toString": "$_id" } }
-                                    },
-                                    {
-                                        "$match": { "test": response.message }
-                                    },
-                                    {
-                                        "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                    "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                                    "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                                    "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                                    }
-                                ]
-                            };
-                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                            if (responseData && responseData.data && responseData.data.statusMessage) {
-                                return { success: true, message: responseData.data.statusMessage[0] }
-                            } else {
-                                return { success: false, message: 'Data Not Found' };
-                            }
-                        } else {
-                            return { success: false, message: 'faceDetails insertion error' }
-                        }
-                    }
+                    return { success: true, message: similarfaces.data }
                 } else {
                     return { success: false, message: 'similar face error' }
                 }
             } else {
                 return { success: false, message: userResponse.message }
+            }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getPassportPhotoResponse1 = async (params) => {
+    try {
+        let getDetails = await scheduleService.usersDetailsUpdate(params);
+        if (getDetails.success){
+            let response = await scheduleservice.passportResponse(params);
+            if (response.success){
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "attaches",
+                    docType: 1,
+                    query: [
+                        {
+                            "$addFields": { "test": { "$toString": "$_id" } }
+                        },
+                        {
+                            "$match": { "test": response.message }
+                        },
+                        {
+                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
+                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
+                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+            } else {
+                return { success: false, message: 'faceDetails insertion error' }
+            }
+        }else {
+            let response = await scheduleservice.passportResponse(params);
+            if (response.success){
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "attaches",
+                    docType: 1,
+                    query: [
+                        {
+                            "$addFields": { "test": { "$toString": "$_id" } }
+                        },
+                        {
+                            "$match": { "test": response.message }
+                        },
+                        {
+                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
+                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
+                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+            } else {
+                return { success: false, message: 'faceDetails insertion error' }
             }
         }
     } catch (error) {
@@ -765,9 +799,11 @@ module.exports = {
     tokenValidation,
     getDatails,
     getPassportPhotoResponse,
+    getPassportPhotoResponse1,
     getCandidateDetails,
     getCandidateDetailsStop,
     mobilecheck,
     headphonecheck,
-    stoppedAt
+    stoppedAt,
+    getFaceResponse1
 }

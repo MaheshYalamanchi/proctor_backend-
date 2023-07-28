@@ -231,7 +231,7 @@ let usersDetailsUpdate = async (params) => {
             model: "users",
             docType: 0,
             query:{
-                filter: { "_id": params.id },
+                filter: { "_id": params.decodeToken.id },
                 update: { $set: { verified: params.verified} }
             }
         };
