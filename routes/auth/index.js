@@ -361,11 +361,10 @@ module.exports = function (params) {
             }
         }
     });
-    app.put("/api/user/me", async (req, res) => {
+    app.put("/api/user/me1", async (req, res) => {
         "use strict";
         try {
-            // req.body.authorization = req.headers.authorization;
-            let result = await sharedSevices.getfacePassport(req.body)
+            let result = await sharedSevices.getface(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
@@ -374,7 +373,26 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
-            console.log(error,"me error>>>>>>>>>>>>>>>>>>>>>>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.put("/api/user/me2", async (req, res) => {
+        "use strict";
+        try {
+            let result = await sharedSevices.getPassport(req.body)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
+        } catch (error) {
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)

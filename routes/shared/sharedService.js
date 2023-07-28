@@ -1317,67 +1317,74 @@ let proctorusagestatistics = async (params) => {
         }
     }
 };
-let getfacePassport = async (params) => {
+let getface = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
-        if(params && params.face){
-            let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
-            if (faceResponse && faceResponse.success){
-                let jsonData =  {
-                    "face" : params.face,
-                    "rep" : faceResponse.message[0].metadata.rep,
-                    "threshold" : faceResponse.message[0].metadata.threshold,
-                    "similar" : faceResponse.message[0].metadata.similar
-                };
-                var getdata = {
-                    url:process.env.MONGO_URI,
-                    database:"proctor",
-                    model: "users",
-                    docType: 0,
-                    query: {
-                        filter: { "_id": decodeToken.id },
-                        update: { $set: jsonData }
-                    }
-                };
-                let responseData = await invoke.makeHttpCall("post", "update", getdata);
-                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                    let response = await schedule_Service.getface(decodeToken)
-                    if (response.success){
-                        return { success: true, message: response.message[0] }
-                    }
-                } else {
-                    return { success: false, message: 'Data Not Found' }
+        let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
+        if (faceResponse && faceResponse.success){
+            let jsonData =  {
+                "face" : params.face,
+                "rep" : faceResponse.message[0].metadata.rep,
+                "threshold" : faceResponse.message[0].metadata.threshold,
+                "similar" : faceResponse.message[0].metadata.similar
+            };
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "users",
+                docType: 0,
+                query: {
+                    filter: { "_id": decodeToken.id },
+                    update: { $set: jsonData }
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                let response = await schedule_Service.getface(decodeToken)
+                if (response.success){
+                    return { success: true, message: response.message[0] }
                 }
             } else {
-                return { success: false, message: faceResponse.message }
+                return { success: false, message: 'Data Not Found' }
             }
-           
-        } else if (params && params.passport){
-            let passportResponse = await schedule_Service.getFacePassportResponse(params.passport);
-            if(passportResponse && passportResponse.success){
-                let jsonData =  {
-                    "passport" : params.passport,
-                    "verified" : passportResponse.message[0].metadata.verified
-                };
-                var getdata = {
-                    url:process.env.MONGO_URI,
-                    database:"proctor",
-                    model: "users",
-                    docType: 0,
-                    query: {
-                        filter: { "_id": decodeToken.id },
-                        update: { $set: jsonData }
-                    }
-                };
-                let responseData = await invoke.makeHttpCall("post", "update", getdata);
-                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                    let response = await schedule_Service.getPassport(decodeToken)
-                    if (response.success){
-                        return { success: true, message: response.message[0] }
-                    }
-                } else {
-                    return { success: false, message: 'Data Not Found' }
+        } else {
+            return { success: false, message: faceResponse.message }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getPassport = async (params) => {
+    var decodeToken = jwt_decode(params.authorization);
+    try {
+        let passportResponse = await schedule_Service.getFacePassportResponse(params.passport);
+        if(passportResponse && passportResponse.success){
+            let jsonData =  {
+                "passport" : params.passport,
+                "verified" : passportResponse.message[0].metadata.verified
+            };
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "users",
+                docType: 0,
+                query: {
+                    filter: { "_id": decodeToken.id },
+                    update: { $set: jsonData }
                 }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                let response = await schedule_Service.getPassport(decodeToken)
+                if (response.success){
+                    return { success: true, message: response.message[0] }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' }
             }
         }
     } catch (error) {
@@ -1456,7 +1463,8 @@ module.exports = {
     proctorRoomDetails,
     proctorSuggestSaveCall,
     proctorusagestatistics,
-    getfacePassport,
+    getface,
+    getPassport,
     getCheck,
     notificationupdate,
 }
