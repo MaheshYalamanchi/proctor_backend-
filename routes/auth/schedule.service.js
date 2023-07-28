@@ -72,14 +72,14 @@ let getAttach = async (params) => {
     }
 };
 let faceResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization);
+    // decodeToken = jwt_decode(params.authorization);
     try {
         jsonData = {
             // "_id" :new ObjectID(params.message.face),
-            "user" : decodeToken.id,
-            "filename" : params.myfile.originalFilename,
-            "mimetype" : params.myfile.mimetype,
-            "size" : params.myfile.size,
+            "user" : params.decodeToken.id,
+            "filename" : params.originalFilename,
+            "mimetype" : params.mimetype,
+            "size" : params.size,
             "createdAt" : new Date(),
             "attached" : true,
             "metadata" : {
@@ -113,14 +113,13 @@ let faceResponse = async (params) => {
     }
 };
 let passportResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization);
     try {
         jsonData = {
             // "_id" :new ObjectID(params.message.passport),
-            "user" : decodeToken.id,
-            "filename" : params.myfile.originalFilename,
-            "mimetype" : params.myfile.mimetype,
-            "size" : params.myfile.size,
+            "user" : params.decodeToken.id,
+            "filename" : params.originalFilename,
+            "mimetype" : params.mimetype,
+            "size" : params.size,
             "createdAt" : new Date(),
             "attached" : true,
             "metadata" : {
