@@ -100,7 +100,10 @@ let faceResponse = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if (responseData && responseData.data.statusMessage._id) {
-            return ({success:true,message :responseData.data.statusMessage._id}) ;
+            responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+            delete responseData.data.statusMessage._id;
+            delete responseData.data.statusMessage.__v;
+            return ({success:true,message :responseData.data.statusMessage}) ;
         } else {
             return ({success:false,message :"Data not found"});
         }
