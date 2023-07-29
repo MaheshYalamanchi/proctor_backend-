@@ -157,9 +157,11 @@ module.exports = function (params) {
     app.post('/api/storage/face1', async (req, res,next) => {
         try {
             if(req.body){
+                console.log('start face 1=',new Date())
                 let result = await sharedService.getFaceResponse1(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
+                    console.log('end face 1=',new Date())
                     app.http.customResponse(res, result.message, 200);
                 } else {
                     app.logger.info({ success: false, message: result.message });
