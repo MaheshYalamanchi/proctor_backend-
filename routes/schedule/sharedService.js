@@ -221,9 +221,7 @@ let getFaceResponse = async (params) => {
                     "limit":1000
                 }
             }
-            console.log('start mongo query srevice time', new Date())
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            console.log('end mongo query srevice time', new Date())
             if (similarfaces && similarfaces.data.success){
                 similarfaces.data.distance = distance;
                 similarfaces.data.verified = verified;
@@ -250,9 +248,7 @@ let getFaceResponse = async (params) => {
 };
 let getFaceResponse1 = async (params) => {
     try {
-        console.log('insertion time face1=',new Date())
         let response = await scheduleservice.faceResponse(params);
-        console.log('end time face1=',new Date())
         if (response.success){
             // var getdata = {
             //     url:process.env.MONGO_URI,
@@ -347,7 +343,6 @@ let tokenValidation = async(params,req)=> {
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
-            console.log(decodedToken,"decodeToken=========>")
             if(decodedToken){
                 let userResponse = await scheduleService.userFetch(decodedToken);
                 var responseData ;				
@@ -640,8 +635,7 @@ let mobilecheck = async (params) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Data not found...'};
+        return {success:false,message:err};
     }
 };
 let headphonecheck = async (params) => {
@@ -664,8 +658,7 @@ let headphonecheck = async (params) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Data not found...'};
+        return {success:false,message:err};
     }
 };
 let stoppedAt = async (params) => {
@@ -727,8 +720,7 @@ let stoppedAt = async (params) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Data not found...'};
+        return {success:false,message:err};
     }
 };
 
