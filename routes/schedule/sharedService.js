@@ -254,30 +254,30 @@ let getFaceResponse1 = async (params) => {
         let response = await scheduleservice.faceResponse(params);
         console.log('end time face1=',new Date())
         if (response.success){
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "attaches",
-                docType: 1,
-                query: [
-                        {
-                            "$addFields": { "test": { "$toString": "$_id" } }
-                        },
-                        {
-                            "$match": { "test": response.message }
-                        },
-                        {
-                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
-                        }
-                    ]
-            };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
-            } else {
-                return { success: false, message: 'Data Not Found' };
-            }
+            // var getdata = {
+            //     url:process.env.MONGO_URI,
+            //     database:"proctor",
+            //     model: "attaches",
+            //     docType: 1,
+            //     query: [
+            //             {
+            //                 "$addFields": { "test": { "$toString": "$_id" } }
+            //             },
+            //             {
+            //                 "$match": { "test": response.message }
+            //             },
+            //             {
+            //                 "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+            //                             metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+            //             }
+            //         ]
+            // };
+            // let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            // if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: response.message }
+            // } else {
+            //     return { success: false, message: 'Data Not Found' };
+            // }
         } else {
             return { success: false, message: response.message };
         }  
