@@ -175,7 +175,7 @@ let getFaceResponse = async (params) => {
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
             // var threshold = userResponse.message[0].threshold || 0.25;
-            console.log('start time', new Date().getMilliseconds())
+         
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
                 /*for (let A = 0; A < userResponse.message[0].rep.length; A++) {
@@ -202,7 +202,7 @@ let getFaceResponse = async (params) => {
                 takePhotoThreshHold=(Math.round(distance)+1)/10
                 verified = 0 <= takePhotoThreshHold
             }
-            console.log('end time', new Date().getMilliseconds())
+          
             var getData = {
                 url: process.env.MONGO_URI,
                 client: "users",
@@ -221,9 +221,9 @@ let getFaceResponse = async (params) => {
                     "limit":1000
                 }
             }
-            console.log('start mongo query srevice time', new Date().getMilliseconds())
+            console.log('start mongo query srevice time', new Date())
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            console.log('end mongo query srevice time', new Date().getMilliseconds())
+            console.log('end mongo query srevice time', new Date())
             if (similarfaces && similarfaces.data.success){
                 similarfaces.data.distance = distance;
                 similarfaces.data.verified = verified;
