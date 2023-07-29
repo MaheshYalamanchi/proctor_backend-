@@ -250,7 +250,9 @@ let getFaceResponse = async (params) => {
 };
 let getFaceResponse1 = async (params) => {
     try {
+        console.log('insertion time face1=',new Date())
         let response = await scheduleservice.faceResponse(params);
+        console.log('end time face1=',new Date())
         if (response.success){
             var getdata = {
                 url:process.env.MONGO_URI,
