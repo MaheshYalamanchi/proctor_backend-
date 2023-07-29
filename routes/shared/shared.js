@@ -173,7 +173,6 @@ function qrcodeData(data) {
                 }
             });
         } catch (error) {
-            console.log(error)
             reject({ success: false, message: error })
         }
   
@@ -310,8 +309,7 @@ let stoped = async (params) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Data not found...'};
+        return {success:false,message:err};
     }
 };
 let roomstatusUpdate = async (params) => {
