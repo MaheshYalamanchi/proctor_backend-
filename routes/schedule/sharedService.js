@@ -9,6 +9,7 @@ const scheduleservice = require('../auth/schedule.service');
 const scheduleService = require('../schedule/scheduleService');
 const shared = require("../../routes/shared/shared");
 const logger = require('../../logger/logger');
+const _ = require('lodash');
 
 let getCandidateMessageSend = async (params) => {
     try {
@@ -174,23 +175,34 @@ let getFaceResponse = async (params) => {
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
             // var threshold = userResponse.message[0].threshold || 0.25;
+            console.log('start time', new Date().getMilliseconds())
             var distance = 0;
             if (userResponse.message[0].rep.length === params.rep.length){
-                for (let A = 0; A < userResponse.message[0].rep.length; A++) {
+                /*for (let A = 0; A < userResponse.message[0].rep.length; A++) {
                     const B = userResponse.message[0].rep[A] - params.rep[A];
                     distance += B * B;
-                }
+                }*/
+                var A=0
+                _.map(userResponse.message[0].rep, (item) => {
+                    const B = item - params.rep[A];
+                    A++
+                    return distance += B * B;
+                  });
                 takePhotoThreshHold=userResponse.message[0].threshold
                 verified = distance <= takePhotoThreshHold
             }else{
-                for (let A = 0; A < params.rep.length; A++) {
+                /*for (let A = 0; A < params.rep.length; A++) {
                     const B = -0 - params.rep[A];
                     distance += B * B;
-                }
+                }*/
+                 _.map(params.rep, (item) => {
+                    const B = -0 - item;
+                    distance += B * B;
+                  });
                 takePhotoThreshHold=(Math.round(distance)+1)/10
                 verified = 0 <= takePhotoThreshHold
             }
-            
+            console.log('end time', new Date().getMilliseconds())
             var getData = {
                 url: process.env.MONGO_URI,
                 client: "users",
@@ -209,7 +221,9 @@ let getFaceResponse = async (params) => {
                     "limit":1000
                 }
             }
+            console.log('start mongo query srevice time', new Date().getMilliseconds())
             var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
+            console.log('end mongo query srevice time', new Date().getMilliseconds())
             if (similarfaces && similarfaces.data.success){
                 similarfaces.data.distance = distance;
                 similarfaces.data.verified = verified;
