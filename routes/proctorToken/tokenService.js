@@ -84,25 +84,27 @@ let generateToken = async (req) => {
                 "proctorToken": user.proctorToken,
                 "requestType": user.requestType,
                 "videoass": user.videoass
-              }
-              var postdata = {
-                url:process.env.MONGO_URI,
-                database: "proctor",
-                model: "log",
-                docType: 0,
-                query: data
-              };
-              let responseData = await invoke.makeHttpCall("post", "write", postdata);
-              if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken };
-              } else {
-                return { success: false, message: 'Data Not inserted' }
-              }
+            }
+            return { success: true, message: "Proctor Token",ProctorToken:user.proctorToken ,data:data};
         }else{
             return {success: false, message:'Error While Generating Token!'};
         }
     } catch (err) {
-        return err;
+        return {success:false,message:err};
+    }
+};
+let generateToken1 = async (req) => {
+    try {
+        var postdata = {
+        url:process.env.MONGO_URI,
+        database: "proctor",
+        model: "log",
+        docType: 0,
+        query: req
+        };
+        let responseData = await invoke.makeHttpCall("post", "write", postdata);
+    } catch (err) {
+        return {success:false,message:err};
     }
 };
 let jwtToken = async (req) => {
@@ -138,8 +140,7 @@ let jwtToken = async (req) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Something went wrong!'};
+        return {success:false,message:err};
     }
 };
 let checkToken = async (req) => {
@@ -171,8 +172,7 @@ let checkToken = async (req) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Something went wrong!'};
+        return {success:false,message:err};
     }
 };
 let authCheckToken = async (req) => {
@@ -204,8 +204,7 @@ let authCheckToken = async (req) => {
             return {success: false, message:'Data not found...'};
         }
     } catch (err) {
-        console.log(err)
-        return {success:false,message:'Something went wrong!'};
+        return {success:false,message:err};
     }
 };
 
@@ -213,6 +212,7 @@ module.exports = {
     generateProctorToken,
     ProctorTokenGeneration,
     generateToken,
+    generateToken1,
     jwtToken,
     checkToken,
     authCheckToken
