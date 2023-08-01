@@ -203,41 +203,51 @@ let getFaceResponse = async (params) => {
                 verified = 0 <= takePhotoThreshHold
             }
           
-            var getData = {
-                url: process.env.MONGO_URI,
-                client: "users",
-                docType: 0,
-                query : {
-                    "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
-                    "scope":{
-                        "c":0,
-                        "e":[userResponse.message[0]._id],
-                        "n":10,
-                        "s":params.rep,
-                        "t":0.15
-                    },
-                    "out":"myCollections",
-                    "sort":{ "loggedAt": -1 },
-                    "limit":1000
+            // var getData = {
+            //     url: process.env.MONGO_URI,
+            //     client: "users",
+            //     docType: 0,
+            //     query : {
+            //         "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
+            //         "scope":{
+            //             "c":0,
+            //             "e":[userResponse.message[0]._id],
+            //             "n":10,
+            //             "s":params.rep,
+            //             "t":0.15
+            //         },
+            //         "out":"myCollections",
+            //         "sort":{ "loggedAt": -1 },
+            //         "limit":1000
+            //     }
+            // }
+            // var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
+            // if (similarfaces && similarfaces.data.success){
+                // similarfaces.data.distance = distance;
+                // similarfaces.data.verified = verified;
+                // similarfaces.data.threshold = takePhotoThreshHold;
+                // similarfaces.data.decodeToken = decodeToken;
+                // similarfaces.data.originalFilename = params.myfile.originalFilename;
+                // similarfaces.data.mimetype = params.myfile.mimetype;
+                // similarfaces.data.size = params.myfile.size;
+                // similarfaces.data.rep = params.rep;
+                let data = {
+                    distance: distance,
+                    verified: verified,
+                    threshold: takePhotoThreshHold,
+                    decodeToken: decodeToken,
+                    originalFilename: params.myfile.originalFilename,
+                    mimetype: params.myfile.mimetype,
+                    size: params.myfile.size,
+                    rep: params.rep,
                 }
-            }
-            var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            if (similarfaces && similarfaces.data.success){
-                similarfaces.data.distance = distance;
-                similarfaces.data.verified = verified;
-                similarfaces.data.threshold = takePhotoThreshHold;
-                similarfaces.data.decodeToken = decodeToken;
-                similarfaces.data.originalFilename = params.myfile.originalFilename;
-                similarfaces.data.mimetype = params.myfile.mimetype;
-                similarfaces.data.size = params.myfile.size;
-                similarfaces.data.rep = params.rep;
-                return { success: true, message: similarfaces.data }
+                return { success: true, message: data }
             } else {
                 return { success: false, message: 'similarfaces error' };
             }    
-        } else {
-            return { success: false, message: userResponse.message };
-        }
+        // } else {
+        //     return { success: false, message: userResponse.message };
+        // }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
