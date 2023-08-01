@@ -249,6 +249,7 @@ let getFaceResponse = async (params) => {
         //     return { success: false, message: userResponse.message };
         // }
     } catch (error) {
+        console.log(error,"face2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -288,6 +289,7 @@ let getFaceResponse1 = async (params) => {
             return { success: false, message: response.message };
         }  
     } catch (error) {
+        console.log(error,"face4====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -483,6 +485,7 @@ let getPassportPhotoResponse1 = async (params) => {
             }
         }
     } catch (error) {
+        console.log(error,"passport2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -525,6 +528,7 @@ let getPassportPhotoResponse2 = async (params) => {
             return { success: false, message: userResponse.message }
         }
     } catch (error) {
+        console.log(error,"passport4====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {

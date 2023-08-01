@@ -146,6 +146,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(error,"face1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -169,6 +170,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(error,"face3====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -307,6 +309,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(error,"passport1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -330,6 +333,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(error,"passport3====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
