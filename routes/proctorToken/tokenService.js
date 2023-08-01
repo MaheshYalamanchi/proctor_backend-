@@ -90,6 +90,7 @@ let generateToken = async (req) => {
             return {success: false, message:'Error While Generating Token!'};
         }
     } catch (err) {
+        console.log(err,"geenrateToken2===>>>>")
         return {success:false,message:err};
     }
 };

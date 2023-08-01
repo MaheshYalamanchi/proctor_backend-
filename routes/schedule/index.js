@@ -217,6 +217,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(err,"geenrateToken1===>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -263,6 +264,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log(error,"jwtError1===>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
