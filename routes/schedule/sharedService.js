@@ -390,6 +390,7 @@ let tokenValidation = async(params,req)=> {
             }
         }
     }catch(error){
+        console.log(error,"jwtError2===>>>>")
         if(error){
             return {success:false, message:"TokenExpiredError"}
         }else{
