@@ -717,7 +717,12 @@ let stoppedAt = async (params) => {
                                 "xaxis": roomData.timesheet.xaxis,
                                 "yaxis": roomData.timesheet.yaxis,
                                 "metrics": roomData.metrics,
-                                "screen" : violatedResponse.message
+                                "screen" : violatedResponse.message,
+                                "browser": roomData.browser,
+                                "os": roomData.os,
+                                "ipaddress": roomData.ipaddress,
+                                "duration": roomData.duration,
+                                "status": roomData.status
                             }
                         let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
                         if (generateReport) {
