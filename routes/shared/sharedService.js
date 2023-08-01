@@ -146,6 +146,7 @@ let proctorMeCall = async (params) => {
             }
         }
     } catch (error) {
+        console.log(error,"userError2=======>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -322,6 +323,7 @@ let proctorFetchCall = async (params) => {
             }
         }
     } catch (error) {
+        console.log(error,"fetchError2=======>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -376,7 +378,8 @@ let proctorAuthCall = async (params) => {
         } else {
             return { success: false, message: 'Data Not Found' }
         }
-    } catch {
+    } catch (error) {
+        console.log(error,"authError2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -1351,6 +1354,7 @@ let getface = async (params) => {
             return { success: false, message: faceResponse.message }
         }
     } catch (error) {
+        console.log(error,"putme1====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -1384,6 +1388,7 @@ let getPassport = async (params) => {
                 return { success: false, message: 'Data Not Found' }
             }
     } catch (error) {
+        console.log(error,"putme2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
