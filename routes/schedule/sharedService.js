@@ -718,8 +718,8 @@ let stoppedAt = async (params) => {
                                 "yaxis": roomData.timesheet.yaxis,
                                 "metrics": roomData.metrics,
                                 "screen" : violatedResponse.message,
-                                "browser": roomData.browser,
-                                "os": roomData.os,
+                                "browser": roomData.student.browser,
+                                "os": roomData.student.os,
                                 "ipaddress": roomData.ipaddress,
                                 "duration": roomData.duration,
                                 "status": roomData.status
