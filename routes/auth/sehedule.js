@@ -223,12 +223,7 @@ let MessageSend = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -250,6 +245,9 @@ let MessageSend = async (params) => {
                 },
                 {
                     "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true }
+                },
+                {
+                    "$addFields": { "test": { "$toString": "$_id" } }
                 },
                 {
                     "$project": {

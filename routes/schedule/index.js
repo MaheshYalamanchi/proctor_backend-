@@ -346,17 +346,13 @@ module.exports = function (params) {
     });
     app.post('/api/room/start', async (req, res,next) => {
         try {
-            if(req && req.query){
-                let result = await sharedService.getCandidateDetails(req.query);
-                if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
-                } else {
-                    app.logger.info({ success: false, message: result.message });
-                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-                }
-            }else{
-                app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
+            let result = await sharedService.getCandidateDetails(req);
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
             app.logger.error({ success: false, message: error });
