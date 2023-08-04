@@ -11,12 +11,7 @@ let eventInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -27,6 +22,9 @@ let eventInfo = async (params) => {
                 },
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
+                },
+                {
+                    "$addFields": { "test": { "$toString": "$_id" } }
                 },
                 {
                     "$project": {
@@ -181,12 +179,7 @@ let faceInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -197,6 +190,9 @@ let faceInfo = async (params) => {
                 },
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
+                },
+                {
+                    "$addFields": { "test": { "$toString": "$_id" } }
                 },
                 {
                     "$project": {

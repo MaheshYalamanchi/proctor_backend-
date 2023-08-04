@@ -343,15 +343,16 @@ let getCandidateDetailsUpdate = async (params) => {
     try {
         jsonData = {
             status : 'started',
-            startedAt : new Date()
+            startedAt : new Date(),
+            ipaddress: params.body.ipAddress
         }
-        var getdata = {
+        var getdata = {   
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
             docType: 0,
             query:{
-                filter: { "_id": params.id },
+                filter: { "_id": params.query.id },
                 update: { $set: jsonData }
             }
         };
@@ -407,12 +408,7 @@ let chatDetails = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { 
-                    "$addFields": {"test": { "$toString": "$_id" }} 
-                },
-                {
-                    "$match":{"test":params.chatId}
-                },
+                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params.chatId } ] } } },
                 {
                     "$project":{
                         "_id":1,"type":"$type","room":"$room","user":"$user","createdAt":"$createdAt","metadata":"$metadata","attach":"$attach"
