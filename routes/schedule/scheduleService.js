@@ -1,5 +1,6 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
+const schedule = require("./schedule")
 var ObjectID = require('mongodb').ObjectID;
 const json = require('../json');
 function getOperatingSystemInfo(browser) {
@@ -341,26 +342,39 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
-        jsonData = {
-            status : 'started',
-            startedAt : new Date(),
-            ipaddress: params.body.ipAddress
-        }
-        var getdata = {   
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "rooms",
-            docType: 0,
-            query:{
-                filter: { "_id": params.query.id },
-                update: { $set: jsonData }
+        let roomsData = await schedule.getRoomDetails(params);
+        if(roomsData && roomsData.success){
+            let jsonData;
+            if (roomsData.message && (roomsData.message.startedAt == null)){
+                jsonData = {
+                    status : 'started',
+                    startedAt : new Date(),
+                    ipaddress: params.body.ipaddress
+                }
+            } else {
+                jsonData = {
+                    status : 'started',
+                    ipaddress: params.body.ipaddress
+                }
             }
-        };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
-            return { success: true, message: responseData.data.statusMessage}
+            var getdata = {   
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "rooms",
+                docType: 0,
+                query:{
+                    filter: { "_id": params.query.id },
+                    update: { $set: jsonData }
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+                return { success: true, message: responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: roomsData.success , message: roomsData.message };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
