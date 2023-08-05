@@ -188,7 +188,7 @@ let getFaceResponse = async (params) => {
                     A++
                     return distance += B * B;
                   });
-                takePhotoThreshHold=userResponse.message[0].threshold
+                takePhotoThreshHold=0.25
                 verified = distance <= takePhotoThreshHold
             }else{
                 /*for (let A = 0; A < params.rep.length; A++) {
