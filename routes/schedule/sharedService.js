@@ -699,7 +699,7 @@ let stoppedAt = async (params) => {
                         let roomData = status.message;
                         let jsonData = {
                                 "score": roomData.score,
-                                "student": roomData.student.id,
+                                "student": roomData.student.nickname,
                                 "email": roomData.tags[0],
                                 "labels": roomData.labels ||"-",
                                 "verified": "yes",

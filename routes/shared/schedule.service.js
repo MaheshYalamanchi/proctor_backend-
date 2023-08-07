@@ -636,7 +636,7 @@ let SubmitSaveCall = async (params) => {
                         let roomData = getData.data.statusMessage[0]
                         let jsonData = {
                                 "score": roomData.score,
-                                "student": roomData.student.id,
+                                "student": roomData.student.nickname,
                                 "email": roomData.tags[0],
                                 "labels": roomData.labels ||"-",
                                 "verified": "yes",
