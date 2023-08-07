@@ -349,12 +349,13 @@ let getCandidateDetailsUpdate = async (params) => {
                 jsonData = {
                     status : 'started',
                     startedAt : new Date(),
-                    ipaddress: params.body.ipaddress
+                    ipaddress: params.body.ipAddress
                 }
             } else {
                 jsonData = {
                     status : 'started',
-                    ipaddress: params.body.ipaddress
+                    ipaddress: params.body.ipAddress,
+                    updatedAt: new Date()
                 }
             }
             var getdata = {   
