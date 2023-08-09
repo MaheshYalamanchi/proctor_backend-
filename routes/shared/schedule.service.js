@@ -152,7 +152,8 @@ let getCandidateMessages = async (params) => {
                         {
                             "$match": {
                                 "room": params.params.roomId,
-                                "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
                             }
                         },
                         {
@@ -208,8 +209,8 @@ let getCandidateMessages = async (params) => {
                             "$facet": {
                                 "data": [
                                     { "$sort": { "createdAt": sort } },
-                                    { "$limit": limit },
-                                    { "$skip" : start}
+                                    { "$skip" : start},
+                                    { "$limit": limit }
                                 ],
                                 "total_count": [
                                     { "$group": { _id: null, "count": { "$sum": 1 } } },
@@ -239,7 +240,8 @@ let getCandidateMessages = async (params) => {
                         {
                             "$match": {
                                 "room": params.params.roomId,
-                                "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
                             }
                         },
                         {
