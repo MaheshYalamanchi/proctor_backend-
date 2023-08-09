@@ -191,6 +191,7 @@ let getViolated = async (params) => {
                     $or: [{ "type": { $in: ["event", "face"] } }]}]
                   }
                 },
+                { $sort: { createdAt: 1}},
                 {
                   $project: { "attach": 1, "metadata.peak": 1 , violation:1}
                 },
