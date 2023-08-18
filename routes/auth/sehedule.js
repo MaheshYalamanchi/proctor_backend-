@@ -370,17 +370,23 @@ let attachCall = async (params) => {
             model: "attaches",
             docType: 1,
             query:[
+                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params._id } ] } } },
                 {
-                    "$addFields": { "id": { "$toString": "$_id" } }
+                    "$addFields": { "test": { "$toString": "$_id" } }
                 },
                 {
-                    $match: { "id": params._id }
-                },
-                {
-                    "$project":{"_id" : 0,"attached" : 0}
+                    "$project":{"_id" : 0,"id": "$test" ,"createdAt":1,"filename":1,"mimetype":1,"size":1,"user":1 }
                 }
-
-            ] 
+                // {
+                //     "$addFields": { "id": { "$toString": "$_id" } }
+                // },
+                // {
+                //     $match: { "id": params._id }
+                // },
+                // {
+                //     "$project":{"_id" : 0,"attached" : 0}
+                // }
+            ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if(responseData){
