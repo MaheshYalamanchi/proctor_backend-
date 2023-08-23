@@ -153,8 +153,8 @@ let passportResponse2 = async (params) => {
             "attached" : true,
             "metadata" : {
                 "distance" : 0,
-                "objectnew" : "",
-                "rep" : params.rep
+                "objectnew" : ""
+                // "rep" : params.rep
             },
         }
         var getdata = {
@@ -163,7 +163,7 @@ let passportResponse2 = async (params) => {
             model: "attaches",
             docType: 0,
             query: {
-                filter: {_id: params.user.id},
+                filter: {_id: params.message.id},
                 update: { $set: jsonData }
             }
         };

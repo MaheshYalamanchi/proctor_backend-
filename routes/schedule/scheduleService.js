@@ -296,7 +296,8 @@ let usersDetailsUpdate = async (params) => {
             docType: 0,
             query:{
                 filter: { "_id": params.decodeToken.id },
-                update: { $set: { verified: params.verified} }
+                // update: { $set: { verified: params.verified} }
+                update: { $set: { verified: true } }
             }
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);

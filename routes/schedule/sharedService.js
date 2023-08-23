@@ -482,7 +482,7 @@ let getPassportPhotoResponse1 = async (params) => {
             params.decodeToken = decodeToken;
             let response = await scheduleservice.passportResponse1(params);
             if (response && response.success){
-                response.rep = params.rep;
+                // response.rep = params.rep;
                 response.decodeToken = decodeToken
                 return { success: response.success, message: response }
             }  else {
@@ -500,19 +500,19 @@ let getPassportPhotoResponse1 = async (params) => {
 };
 let getPassportPhotoResponse2 = async (params) => {
     try {
-        let userResponse = await scheduleService.userDetails(params.decodeToken);
-        if (userResponse && userResponse.success){
-            var thresold = params.thresold || 0.45;
-            var distance = 0;
-            if (userResponse.message[0].rep.length === params.rep.length){
-                for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                        const B = userResponse[0].rep[A] - params.rep[A];
-                        distance += B * B;
-                    }
-                }
-                var verified = distance <= thresold;
-                params.verified = verified;
-                params.user = params.message
+        // let userResponse = await scheduleService.userDetails(params.decodeToken);
+        // if (userResponse && userResponse.success){
+        //     var thresold = params.thresold || 0.45;
+        //     var distance = 0;
+        //     if (userResponse.message[0].rep.length === params.rep.length){
+        //         for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
+        //                 const B = userResponse[0].rep[A] - params.rep[A];
+        //                 distance += B * B;
+        //             }
+        //         }
+        //         var verified = distance <= thresold;
+        //         params.verified = verified;
+        //         params.user = params.message
                 let getDetails = await scheduleService.usersDetailsUpdate(params);
                 if (getDetails.success){
                     let response = await scheduleservice.passportResponse2(params);
@@ -529,9 +529,9 @@ let getPassportPhotoResponse2 = async (params) => {
                         return { success: false, message: response.message }
                     }
                 }
-        } else {
-            return { success: false, message: userResponse.message }
-        }
+        // } else {
+        //     return { success: false, message: userResponse.message }
+        // }
     } catch (error) {
         console.log(error,"passport4====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
