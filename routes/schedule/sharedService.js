@@ -350,7 +350,7 @@ let attachmentPostCall = async (params) => {
         }
     }
 };
-let tokenValidation = async(params,req)=> {
+let tokenValidation = async(params)=> {
     const token =params.body.authorization.authorization.split(" ");
     try {
         if (!token) {
