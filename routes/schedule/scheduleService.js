@@ -4,49 +4,54 @@ const schedule = require("./schedule")
 var ObjectID = require('mongodb').ObjectID;
 const json = require('../json');
 function getOperatingSystemInfo(browser) {
-    const userAgent = browser;
-    let osName = 'Unknown';
-    let osVersion = 'Unknown';
-  
-    // Check for Windows
-    if (userAgent.indexOf('Win') !== -1) {
-      osName = 'Windows';
-      if (userAgent.indexOf('Windows NT 10.0') !== -1) osVersion = 'Windows 10';
-      else if (userAgent.indexOf('Windows NT 6.3') !== -1) osVersion = 'Windows 8.1';
-      else if (userAgent.indexOf('Windows NT 6.2') !== -1) osVersion = 'Windows 8';
-      else if (userAgent.indexOf('Windows NT 6.1') !== -1) osVersion = 'Windows 7';
-      else if (userAgent.indexOf('Windows NT 6.0') !== -1) osVersion = 'Windows Vista';
-      else if (userAgent.indexOf('Windows NT 5.1') !== -1) osVersion = 'Windows XP';
+    try{
+        const userAgent = browser;
+        let osName = 'Unknown';
+        let osVersion = 'Unknown';
+      
+        // Check for Windows
+        if (userAgent.indexOf('Win') !== -1) {
+          osName = 'Windows';
+          if (userAgent.indexOf('Windows NT 10.0') !== -1) osVersion = 'Windows 10';
+          else if (userAgent.indexOf('Windows NT 6.3') !== -1) osVersion = 'Windows 8.1';
+          else if (userAgent.indexOf('Windows NT 6.2') !== -1) osVersion = 'Windows 8';
+          else if (userAgent.indexOf('Windows NT 6.1') !== -1) osVersion = 'Windows 7';
+          else if (userAgent.indexOf('Windows NT 6.0') !== -1) osVersion = 'Windows Vista';
+          else if (userAgent.indexOf('Windows NT 5.1') !== -1) osVersion = 'Windows XP';
+        }
+        // Check for macOS
+        else if (userAgent.indexOf('Mac') !== -1) {
+          osName = 'macOS';
+          const regex = /Mac OS X (\d+[._]\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+        // Check for Linux
+        else if (userAgent.indexOf('Linux') !== -1) {
+          osName = 'Linux';
+        }
+        // Check for Android
+        else if (userAgent.indexOf('Android') !== -1) {
+          osName = 'Android';
+          const regex = /Android (\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+        // Check for iOS
+        else if (userAgent.indexOf('iPhone') !== -1 || userAgent.indexOf('iPad') !== -1) {
+          osName = 'iOS';
+          const regex = /OS (\d+[._]\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+      
+        return { name: osName, version: osVersion };
+    }catch(error){
+        console.log(error,'while capturing os')
     }
-    // Check for macOS
-    else if (userAgent.indexOf('Mac') !== -1) {
-      osName = 'macOS';
-      const regex = /Mac OS X (\d+[._]\d+[._]\d+)/;
-      const match = userAgent.match(regex);
-      if (match) osVersion = match[1].replace(/_/g, '.');
-    }
-    // Check for Linux
-    else if (userAgent.indexOf('Linux') !== -1) {
-      osName = 'Linux';
-    }
-    // Check for Android
-    else if (userAgent.indexOf('Android') !== -1) {
-      osName = 'Android';
-      const regex = /Android (\d+[._]\d+)/;
-      const match = userAgent.match(regex);
-      if (match) osVersion = match[1].replace(/_/g, '.');
-    }
-    // Check for iOS
-    else if (userAgent.indexOf('iPhone') !== -1 || userAgent.indexOf('iPad') !== -1) {
-      osName = 'iOS';
-      const regex = /OS (\d+[._]\d+[._]\d+)/;
-      const match = userAgent.match(regex);
-      if (match) osVersion = match[1].replace(/_/g, '.');
-    }
-  
-    return { name: osName, version: osVersion };
   }
 function getBrowserInfo(userAgent){
+   try {
     if (userAgent.includes('Firefox/')) {
         console.log(`Firefox v${userAgent.split('Firefox/')[1]}`)
         return (`Firefox v${userAgent.split('Firefox/')[1]}`)
@@ -59,6 +64,9 @@ function getBrowserInfo(userAgent){
     } else if (userAgent.includes('Safari/')) {
         // Safari
     }
+   } catch (error) {
+    console.log(error,'while capturing browser')
+   }
 }
   
 let userInsertion = async (params) => {
@@ -118,8 +126,8 @@ let userInsertion = async (params) => {
     }
 };
 let userFetch = async (params) => {
-    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     try {
+        let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
