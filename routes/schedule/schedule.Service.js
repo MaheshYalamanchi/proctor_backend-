@@ -63,10 +63,19 @@ let getCandidateEventSend = async (params) => {
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
                 if (userResponse && userResponse.success){
-                    json = {
-                        timestamp:new Date(),
-                        room :params.params.roomId,
-                        metrics : params.body.metadata.metrics
+                    if (params.body.metadata.peak == "m3"){
+                        json = {
+                            timestamp:new Date(),
+                            room :params.params.roomId,
+                            metrics : params.body.metadata.metrics,
+                            peak : params.body.metadata.peak
+                        }
+                    } else {
+                        json = {
+                            timestamp:new Date(),
+                            room :params.params.roomId,
+                            metrics : params.body.metadata.metrics
+                        }
                     }
                     let score = await schedule.updateScore(json)
                     if (score.success){
@@ -99,10 +108,19 @@ let getCandidateEventSend = async (params) => {
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
                 if (userResponse && userResponse.success){
-                    json = {
-                        timestamp:new Date(),
-                        room :params.params.roomId,
-                        metrics : params.body.metadata.metrics
+                    if (params.body.metadata.peak == "m3"){
+                        json = {
+                            timestamp:new Date(),
+                            room :params.params.roomId,
+                            metrics : params.body.metadata.metrics,
+                            peak : params.body.metadata.peak
+                        }
+                    } else {
+                        json = {
+                            timestamp:new Date(),
+                            room :params.params.roomId,
+                            metrics : params.body.metadata.metrics
+                        }
                     }
                     let score = await schedule.updateScore(json)
                     if (score.success){
