@@ -351,8 +351,8 @@ let attachmentPostCall = async (params) => {
     }
 };
 let tokenValidation = async(params)=> {
-    const token =params.body.authorization.authorization.split(" ");
     try {
+        const token =params.body.authorization.authorization.split(" ");
         if (!token) {
             return {success:false,message:"A token is required for authentication"};
         }else{
