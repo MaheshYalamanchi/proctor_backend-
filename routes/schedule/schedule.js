@@ -71,8 +71,12 @@ let updateScore = async (params) => {
             let timestamp = new Date(params.timestamp || new Date());
                 metrics = params.metrics || {};
                 timesheet = roomsData.timesheet || (roomsData.timesheet = {});
-            roomsData.duration || (roomsData.duration = 0);
-            var newduration =   roomsData.duration + 1 ;
+            if(!params.peak){
+                roomsData.duration || (roomsData.duration = 0);
+                var newduration =   roomsData.duration + 1 ;
+            } else {
+                var newduration = roomsData.duration
+            }
             var jsonData = {
                 timesheet : {
                     firstAt : timesheet.firstAt || (timesheet.firstAt = timestamp),
