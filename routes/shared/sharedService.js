@@ -1324,6 +1324,7 @@ let proctorusagestatistics = async (params) => {
 };
 let getface = async (params) => {
     try {
+        console.log(params)
         var decodeToken = jwt_decode(params.authorization);
         let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
         if (faceResponse && faceResponse.success){
@@ -1345,9 +1346,14 @@ let getface = async (params) => {
                 }
             };
             let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            console.log('before response ',responseData.data)
             if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                console.log('after response',responseData.data)
+                console.log('before calling getface',decodeToken)
                 let response = await schedule_Service.getface(decodeToken)
+                console.log('response before........................',response)
                 if (response.success){
+                    console.log('response after........................',response)
                     return { success: true, message: response.message[0] }
                 }
             } else {
