@@ -251,6 +251,7 @@ module.exports = function (params) {
     });
     app.post('/api/auth/jwt', async (req, res,next) => {
         try {
+            console.log('jwtapicall')
             if(req.body && req.body.authorization){
                 let result = await sharedService.tokenValidation(req);
                 if (result && result.success) {
@@ -264,6 +265,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log('jwtapicallfailedapi')
             console.log(error,"jwtError1===>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
