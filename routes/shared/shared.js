@@ -4,42 +4,42 @@ const schedule = require("../auth/sehedule");
 var qrcode = require("qrcode");
 const jwt_decode = require('jwt-decode');
 
-let getSessions = async (params) => {
-    try {
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "rooms",
-            docType: 1,
-            query: {
-                filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
-                update:{$set:{ status: "paused"}}
-            }   
-        };
-        let response = await schedule.fetchdata(getdata.query)
-        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
-        if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-            for (const iterator of response.data.statusMessage) {
-                let jsondata = {
-                    pausetime : new Date(),
-                    room : iterator._id
-                }
-                let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
-            }
-            return { success: true, message: 'Status updated successfully...' };
-        } else {
-            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-            return { success: false, message: 'Status not updated...' };
-        }
-    } catch (error) {
-        if (error && error.code == 'ECONNREFUSED') {
-            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-        } else {
-            return { success: false, message: error }
-        }
-    }
-};
+// let getSessions = async (params) => {
+//     try {
+//         var getdata = {
+//             url:process.env.MONGO_URI,
+//             database:"proctor",
+//             model: "rooms",
+//             docType: 1,
+//             query: {
+//                 filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
+//                 update:{$set:{ status: "paused"}}
+//             }   
+//         };
+//         let response = await schedule.fetchdata(getdata.query)
+//         let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+//         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+//             let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//             for (const iterator of response.data.statusMessage) {
+//                 let jsondata = {
+//                     pausetime : new Date(),
+//                     room : iterator._id
+//                 }
+//                 let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
+//             }
+//             return { success: true, message: 'Status updated successfully...' };
+//         } else {
+//             let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//             return { success: false, message: 'Status not updated...' };
+//         }
+//     } catch (error) {
+//         if (error && error.code == 'ECONNREFUSED') {
+//             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+//         } else {
+//             return { success: false, message: error }
+//         }
+//     }
+// };
 let updateRecord = async (params) => {
     try {
         let updatedAt = new Date().toISOString()    
@@ -369,7 +369,7 @@ let timeoutupdate = async (params) => {
     }
 };
 module.exports = {
-    getSessions,
+    // getSessions,
     updateRecord,
     getRecord,
     getChatDetails,
