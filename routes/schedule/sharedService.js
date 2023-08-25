@@ -353,6 +353,7 @@ let attachmentPostCall = async (params) => {
 };
 let tokenValidation = async(params)=> {
     try {
+        console.log(params.body,'body....................jwt')
         const token =params.body.authorization.authorization.split(" ");
         if (!token) {
             return {success:false,message:"A token is required for authentication"};
