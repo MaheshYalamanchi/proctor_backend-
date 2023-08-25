@@ -356,9 +356,13 @@ let tokenValidation = async(params)=> {
         console.log(params.body,'body....................jwt')
         const token =params.body.authorization.authorization.split(" ");
         if (!token) {
-            return {success:false,message:"A token is required for authentication"};
+            return {success:false,message:"A token is required for authentication"+token[1]};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
+            if(!decodedToken){
+                console.log(decodedToken,'decodedToken................')
+                return {success:false,message:"A token is required for authentication"};
+            }
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
             if(decodedToken){

@@ -1324,7 +1324,7 @@ let proctorusagestatistics = async (params) => {
 };
 let getface = async (params) => {
     try {
-        console.log('params..................',params)
+        // console.log('params..................',params)
         var decodeToken = jwt_decode(params.authorization);
         let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
         if (faceResponse && faceResponse.success){
