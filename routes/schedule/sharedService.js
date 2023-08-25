@@ -169,8 +169,9 @@ let getNewChatMessagesV2 = async (params) => {
     }
 };
 let getFaceResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization)
+    
     try {
+        decodeToken = jwt_decode(params.authorization)
         let takePhotoThreshHold,validationVal;
         let userResponse = await scheduleService.userDetails(decodeToken);
         if (userResponse && userResponse.success){
