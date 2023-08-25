@@ -376,7 +376,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
-            console.log(error,"putme1====>>>>")
+            console.log(error,"putme1====>>>>putme1")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)

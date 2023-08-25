@@ -334,8 +334,8 @@ let proctorFetchCall = async (params) => {
     }
 };
 let proctorAuthCall = async (params) => {
-    var decodeToken = jwt_decode(params.authorization);
     try {
+        var decodeToken = jwt_decode(params.authorization);
         if(decodeToken.room=="check"){
             let response = await tokenService.authCheckToken(decodeToken);
             if(response){
@@ -1357,7 +1357,7 @@ let getface = async (params) => {
             return { success: false, message: faceResponse.message }
         }
     } catch (error) {
-        console.log(error,"putme1====>>>>")
+        console.log(error,"putme1====>>>>test")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
