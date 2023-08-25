@@ -1363,10 +1363,10 @@ let getface = async (params) => {
     }
 };
 let getPassport = async (params) => {
-    var decodeToken = jwt_decode(params.authorization);
-    console.log(decodeToken.id,'decodeToken.id 1')
-    console.log(params.passport,'params.passport 2')
     try {
+        var decodeToken = jwt_decode(params.authorization);
+        console.log(decodeToken.id,'decodeToken.id 1')
+        console.log(params.passport,'params.passport 2')
             let jsonData =  {
                 "passport" : params.passport,
             };
@@ -1390,7 +1390,7 @@ let getPassport = async (params) => {
                 return { success: false, message: 'Data Not Found' }
             }
     } catch (error) {
-        console.log(error,"putme2====>>>>")
+        console.log(error,"putme2====>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
