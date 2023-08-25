@@ -1,8 +1,8 @@
 var jwt = require('jsonwebtoken');
 var uuid = require('uuid-random');
-const scheduleService = require('../shared/scheduleService');
-const jwt_decode = require('jwt-decode');
-const sharedService = require('../shared/sharedService');
+// const scheduleService = require('../shared/scheduleService');
+// const jwt_decode = require('jwt-decode');
+// const sharedService = require('../shared/sharedService');
 const secret = 'eime6Daeb2xanienojaefoh4';
 const invoke = require("../../lib/http/invoke");
 const { v4: uuidv4 } = require('uuid');

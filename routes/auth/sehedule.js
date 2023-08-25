@@ -177,6 +177,7 @@ let UserSave = async (params) => {
             ]
         };
         let getData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        console.log(getdata,'getdata,............................................')
         if(getData){
             return getData;
         }else{
