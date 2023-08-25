@@ -1364,6 +1364,8 @@ let getface = async (params) => {
 };
 let getPassport = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
+    console.log(decodeToken.id,'decodeToken.id 1')
+    console.log(params.passport,'params.passport 2')
     try {
             let jsonData =  {
                 "passport" : params.passport,
