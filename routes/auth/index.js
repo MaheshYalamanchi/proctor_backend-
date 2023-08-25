@@ -367,6 +367,7 @@ module.exports = function (params) {
     app.put("/api/user/me1", async (req, res) => {
         "use strict";
         try {
+            console.log(req.body,'body data...............')
             let result = await sharedSevices.getface(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
