@@ -2,7 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 const crypto =require("crypto");
-const logger =require('../../logger/logger')
+// const logger =require('../../logger/logger')
 let proctorRoomUserEdit = async (params) => {
     try {
         var updatedAt = new Date();
@@ -30,9 +30,11 @@ let proctorRoomUserEdit = async (params) => {
                         }
                         let updateTemplate = await schedule.updateTemplate(jsonData);
                         if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
-                            logger.info({ success: true, message: updateTemplate.data.statusMessage });
+                            console.log('nModified true')
+                            //logger.info({ success: true, message: updateTemplate.data.statusMessage });
                         } else {
-                            logger.info({ success: false, message: "records updated not successfully..." });
+                            console.log('nModified false')
+                            //logger.info({ success: false, message: "records updated not successfully..." });
                         }
                     } else {
                         return { success: false, message: templateResponse };
