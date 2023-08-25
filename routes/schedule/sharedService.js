@@ -319,20 +319,20 @@ let attachmentPostCall = async (params) => {
         };
         let response = await invoke.makeHttpCall("post", "write", getdata);
         if (response && response.data && response.data.statusMessage._id) {
-            response.data.statusMessage.id = response.data.statusMessage._id
-            delete response.data.statusMessage._id
-            delete response.data.statusMessage.attached
-            delete response.data.statusMessage.__v
+            // response.data.statusMessage.id = response.data.statusMessage._id
+            // delete response.data.statusMessage._id
+            // delete response.data.statusMessage.attached
+            // delete response.data.statusMessage.__v
             let getRecord = await shared.getRecord(decodeToken)
             if (getRecord && getRecord.success){
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 if(updatedRecord && updatedRecord.success){
-                    // let responseData = await schedule.attachCall(response.data.statusMessage);
-                    // if (responseData && responseData.data && responseData.data.statusMessage) {
-                        return { success: true, message: response.data.statusMessage }
-                    // } else {
-                    //     return { success: false, message: 'Data Not Found' };
-                    // }
+                    let responseData = await schedule.attachCall(response.data.statusMessage);
+                    if (responseData && responseData.data && responseData.data.statusMessage) {
+                        return { success: true, message: responseData.data.statusMessage[0] }
+                    } else {
+                        return { success: false, message: 'Data Not Found' };
+                    }
                 } else {
                     return { success: false, message: updatedRecord.message }
                 }
