@@ -245,26 +245,26 @@ module.exports = function (params) {
             }
         }
     });
-    // app.get("/api/sessions", async (req, res) => {
-    //     "use strict";
-    //     try {
-    //         let result = await schedule.getSessions(req)
-    //         if (result && result.success) {
-    //             app.logger.info({ success: true, message: result.message });
-    //             app.http.customResponse(res, result.message, 200);
-    //         } else {
-    //             app.logger.info({ success: false, message: result.message });
-    //             app.http.customResponse(res, { success: false, message: result.message }, 200);
-    //         }
-    //     } catch (error) {
-    //         app.logger.error({ success: false, message: error });
-    //         if (error && error.message) {
-    //             app.http.customResponse(res, { success: false, message: error.message }, 400)
-    //         } else {
-    //             app.http.customResponse(res, { success: false, message: error }, 400)
-    //         }
-    //     }
-    // });
+    app.get("/api/sessions", async (req, res) => {
+        "use strict";
+        try {
+            let result = await schedule.getSessions(req)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: result.message }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
     app.post("/api/auth/qrcode", async (req, res) => {
         "use strict";
         try {
