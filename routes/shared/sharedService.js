@@ -1327,7 +1327,7 @@ let getface = async (params) => {
         var decodeToken = jwt_decode(params.authorization);
         let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
         if (faceResponse && faceResponse.success){
-            console.log(faceResponse.message[0],'faceResponse.message[0]')
+            // console.log(faceResponse.message[0],'faceResponse.message[0]')
             let jsonData =  {
                 "face" : params.face,
                 "rep" : faceResponse.message[0].metadata.rep,
