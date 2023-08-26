@@ -301,6 +301,7 @@ let getFaceResponse1 = async (params) => {
 let attachmentPostCall = async (params) => {
    
     try {
+        console.log(params.headers,'header token................')
         decodeToken = jwt_decode(params.headers)
         console.log(decodeToken,'decodetoken...............')
         var createdAt = new Date()
