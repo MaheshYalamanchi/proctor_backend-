@@ -299,9 +299,11 @@ let getFaceResponse1 = async (params) => {
     }
 };
 let attachmentPostCall = async (params) => {
-    decodeToken = jwt_decode(params.headers)
-    var createdAt = new Date()
+   
     try {
+        decodeToken = jwt_decode(params.headers)
+        console.log(decodeToken,'decodetoken...............')
+        var createdAt = new Date()
         var jsonData = {
             "createdAt":createdAt,
             "storagefilename":params.myfile.newFilename,
@@ -400,6 +402,7 @@ let tokenValidation = async(params)=> {
             }
         }
     }catch(error){
+        console.log('jwtapicallfailed')
         console.log(error,"jwtError2===>>>>")
         if(error){
             return {success:false, message:"TokenExpiredError"}
