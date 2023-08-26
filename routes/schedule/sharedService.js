@@ -332,7 +332,7 @@ let attachmentPostCall = async (params) => {
             let getRecord = await shared.getRecord(decodeToken)
             console.log('before response of get record')
             if (getRecord && getRecord.success){
-                console.log(getRecord.message.id,'after response get record')
+                console.log(getRecord.message._id,'after response get record')
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 console.log(updatedRecord.success,'updatedRecord.success')
                 if(updatedRecord && updatedRecord.success){
