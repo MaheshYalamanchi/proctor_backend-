@@ -303,7 +303,7 @@ let attachmentPostCall = async (params) => {
     try {
         console.log(params.headers,'header token................')
         decodeToken = jwt_decode(params.headers)
-        console.log(decodeToken,'decodetoken...............')
+        // console.log(decodeToken,'decodetoken...............')
         var createdAt = new Date()
         var jsonData = {
             "createdAt":createdAt,
@@ -321,7 +321,9 @@ let attachmentPostCall = async (params) => {
             docType: 0,
             query: jsonData
         };
+        console.log(jsonData,'jsonData')
         let response = await invoke.makeHttpCall("post", "write", getdata);
+        console.log(response.data,'response.data')
         if (response && response.data && response.data.statusMessage._id) {
             // response.data.statusMessage.id = response.data.statusMessage._id
             // delete response.data.statusMessage._id
