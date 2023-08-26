@@ -335,7 +335,7 @@ let attachmentPostCall = async (params) => {
                 // console.log(getRecord.message._id,'after response get record')
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 console.log(updatedRecord,'updatedRecord.success')
-                if(updatedRecord && updatedRecord.success){
+                if(updatedRecord && updatedRecord.message){
                     // console.log('before calling attachCall function')
                     let responseData = await schedule.attachCall(response.data.statusMessage);
                     // console.log('after calling attachCall function',responseData.data.statusMessage[0])
