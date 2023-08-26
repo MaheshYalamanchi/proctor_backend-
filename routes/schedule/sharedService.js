@@ -332,10 +332,13 @@ let attachmentPostCall = async (params) => {
             let getRecord = await shared.getRecord(decodeToken)
             console.log('before response of get record')
             if (getRecord && getRecord.success){
-                console.log(getRecord,'after response get record')
+                console.log(getRecord.message.id,'after response get record')
                 let updatedRecord= await shared.updateRecord(getRecord.message);
+                console.log(updatedRecord.success,'updatedRecord.success')
                 if(updatedRecord && updatedRecord.success){
+                    console.log('before calling attachCall function')
                     let responseData = await schedule.attachCall(response.data.statusMessage);
+                    console.log('after calling attachCall function',responseData.data.statusMessage[0])
                     if (responseData && responseData.data && responseData.data.statusMessage) {
                         return { success: true, message: responseData.data.statusMessage[0] }
                     } else {
