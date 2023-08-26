@@ -55,8 +55,10 @@ let updateRecord = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified) {
+            console.log(JSON.stringify(getdata.query,'update api success'))
             return { success: true, message: 'Status updated successfully...' };
         } else {
+            console.log(JSON.stringify(getdata.query,'update api false'))
             return { success: false, message: 'Status not updated...' };
         }
     } catch (error) {
