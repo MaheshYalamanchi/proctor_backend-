@@ -321,24 +321,24 @@ let attachmentPostCall = async (params) => {
             docType: 0,
             query: jsonData
         };
-        console.log(jsonData,'jsonData')
+        //console.log(jsonData,'jsonData')
         let response = await invoke.makeHttpCall("post", "write", getdata);
-        console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
+        //console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
         if (response && response.data && response.data.statusMessage._id) {
             // response.data.statusMessage.id = response.data.statusMessage._id
             // delete response.data.statusMessage._id
             // delete response.data.statusMessage.attached
             // delete response.data.statusMessage.__v
             let getRecord = await shared.getRecord(decodeToken)
-            console.log('before response of get record')
+            // console.log('before response of get record')
             if (getRecord && getRecord.success){
-                console.log(getRecord.message._id,'after response get record')
+                // console.log(getRecord.message._id,'after response get record')
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 console.log(updatedRecord.success,'updatedRecord.success')
                 if(updatedRecord && updatedRecord.success){
-                    console.log('before calling attachCall function')
+                    // console.log('before calling attachCall function')
                     let responseData = await schedule.attachCall(response.data.statusMessage);
-                    console.log('after calling attachCall function',responseData.data.statusMessage[0])
+                    // console.log('after calling attachCall function',responseData.data.statusMessage[0])
                     if (responseData && responseData.data && responseData.data.statusMessage) {
                         return { success: true, message: responseData.data.statusMessage[0] }
                     } else {
