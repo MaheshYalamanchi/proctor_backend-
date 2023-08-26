@@ -323,14 +323,16 @@ let attachmentPostCall = async (params) => {
         };
         console.log(jsonData,'jsonData')
         let response = await invoke.makeHttpCall("post", "write", getdata);
-        console.log(response.data,'response.data')
+        console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
         if (response && response.data && response.data.statusMessage._id) {
             // response.data.statusMessage.id = response.data.statusMessage._id
             // delete response.data.statusMessage._id
             // delete response.data.statusMessage.attached
             // delete response.data.statusMessage.__v
             let getRecord = await shared.getRecord(decodeToken)
+            console.log('before response of get record')
             if (getRecord && getRecord.success){
+                console.log(getRecord,'after response get record')
                 let updatedRecord= await shared.updateRecord(getRecord.message);
                 if(updatedRecord && updatedRecord.success){
                     let responseData = await schedule.attachCall(response.data.statusMessage);
