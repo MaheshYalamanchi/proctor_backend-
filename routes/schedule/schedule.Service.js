@@ -538,6 +538,88 @@ let unreadchat = async (params) => {
     }
   };
 
+let getUserRoomsCount = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "rooms",
+            docType: 1,
+            query:[
+                {
+                    $match:{ student: params.id }
+                }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage }
+        } else {
+            return { success: false, message: 'Data Not Found' }
+        }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+};
+let GetFaceInsertionResponse = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "users",
+            docType: 0,
+            query:{
+                filter: { "_id": decodeToken.id },
+                update: { $set: {"faceArray":[{"face": params}]} }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+            return { success: true, message: "record updated successfully" }
+        } else {
+            return { success: false, message: 'record updation failed' }
+        }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+};
+let GetPassportInsertionResponse = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "users",
+            docType: 0,
+            query:{
+                filter: { "_id": decodeToken.id },
+                update: { $set: {"passportArray":[{"passport": params}]} }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+            return { success: true, message: "record updated successfully" }
+        } else {
+            return { success: false, message: 'record updation failed' }
+        }
+    }
+    catch (error) {
+      if (error && error.code == 'ECONNREFUSED') {
+        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+      } else {
+        return { success: false, message: error }
+      }
+    }
+};
 module.exports = {
     getChatDetails,
     getCandidateEventSend,
@@ -550,5 +632,8 @@ module.exports = {
     fetchstatus,
     getFacePassportResponse,
     unreadchat,
-    unreadmessagefetch
+    unreadmessagefetch,
+    getUserRoomsCount,
+    GetFaceInsertionResponse,
+    GetPassportInsertionResponse
 }

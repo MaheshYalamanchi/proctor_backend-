@@ -1329,35 +1329,50 @@ let getface = async (params) => {
         let faceResponse = await schedule_Service.getFacePassportResponse(params.face);
         if (faceResponse && faceResponse.success){
             // console.log(faceResponse.message[0],'faceResponse.message[0]')
-            let jsonData =  {
-                "face" : params.face,
-                "rep" : faceResponse.message[0].metadata.rep,
-                "threshold" : faceResponse.message[0].metadata.threshold,
-                "similar" : faceResponse.message[0].metadata.similar
-            };
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "users",
-                docType: 0,
-                query: {
-                    filter: { "_id": decodeToken.id },
-                    update: { $set: jsonData }
-                }
-            };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            // console.log('before response ',responseData.data)
-            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                // console.log('after response',responseData.data)
-                // console.log('before calling getface',decodeToken)
-                let response = await schedule_Service.getface(decodeToken)
-                // console.log('response before........................',response)
-                if (response.success){
-                    // console.log('response after........................',response)
-                    return { success: true, message: response.message[0] }
+            let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
+            if ( getCount.message.length>1 ){
+                let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params.face);
+                if(getFaceResponse && getFaceResponse.success){
+                    let response = await schedule_Service.getface(decodeToken)
+                    if (response.success){
+                        return { success: true, message: response.message[0] }
+                    } else {
+                        return { success: false, message: response.message }
+                    }
+                } else {
+                    return { success: false, message: getFaceResponse.message }
                 }
             } else {
-                return { success: false, message: 'Data Not Found' }
+                let jsonData =  {
+                    "face" : params.face,
+                    "rep" : faceResponse.message[0].metadata.rep,
+                    "threshold" : faceResponse.message[0].metadata.threshold,
+                    "similar" : faceResponse.message[0].metadata.similar
+                };
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "users",
+                    docType: 0,
+                    query: {
+                        filter: { "_id": decodeToken.id },
+                        update: { $set: jsonData }
+                    }
+                };
+                let responseData = await invoke.makeHttpCall("post", "update", getdata);
+                // console.log('before response ',responseData.data)
+                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                    // console.log('after response',responseData.data)
+                    // console.log('before calling getface',decodeToken)
+                    let response = await schedule_Service.getface(decodeToken)
+                    // console.log('response before........................',response)
+                    if (response.success){
+                        // console.log('response after........................',response)
+                        return { success: true, message: response.message[0] }
+                    }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
             }
         } else {
             return { success: false, message: faceResponse.message }
@@ -1376,6 +1391,20 @@ let getPassport = async (params) => {
         var decodeToken = jwt_decode(params.authorization);
         console.log(decodeToken.id,'decodeToken.id 1')
         console.log(params.passport,'params.passport 2')
+        let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
+        if ( getCount.message.length>1 ){
+            let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params.passport);
+            if(getPassportResponse && getPassportResponse.success){
+                let response = await schedule_Service.getPassport(decodeToken)
+                if (response.success){
+                    return { success: true, message: response.message[0] }
+                } else {
+                    return { success: false, message: response.message }
+                }
+            } else {
+                return { success: false, message: getPassportResponse.message }
+            }
+        } else {
             let jsonData =  {
                 "passport" : params.passport,
             };
@@ -1398,6 +1427,7 @@ let getPassport = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
+        }
     } catch (error) {
         console.log(error,"putme2====>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
