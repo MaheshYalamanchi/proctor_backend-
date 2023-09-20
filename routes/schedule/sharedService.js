@@ -262,6 +262,16 @@ let getFaceResponse1 = async (params) => {
     try {
         let response = await scheduleservice.faceResponse(params);
         if (response.success){
+            if(params.decodeToken.role == "student"){
+                let updatedRecord= await shared.updateRecord(params.decodeToken);
+                if (updatedRecord && updatedRecord.success){
+                    return { success: true, message: response.message }
+                } else {
+                    return { success: false, message: updatedRecord.message }
+                }
+            } else {
+                return { success: true, message: response.message }
+            }
             // var getdata = {
             //     url:process.env.MONGO_URI,
             //     database:"proctor",
@@ -333,9 +343,9 @@ let attachmentPostCall = async (params) => {
             // console.log('before response of get record')
             if (getRecord && getRecord.success){
                 // console.log(getRecord.message._id,'after response get record')
-                let updatedRecord= await shared.updateRecord(getRecord.message);
-                console.log(updatedRecord,'updatedRecord.success')
-                if(updatedRecord && updatedRecord.message){
+                // let updatedRecord= await shared.updateRecord(getRecord.message);
+                // console.log(updatedRecord,'updatedRecord.success')
+                // if(updatedRecord && updatedRecord.message){
                     // console.log('before calling attachCall function')
                     let responseData = await schedule.attachCall(response.data.statusMessage);
                     // console.log('after calling attachCall function',responseData.data.statusMessage[0])
@@ -344,9 +354,9 @@ let attachmentPostCall = async (params) => {
                     } else {
                         return { success: false, message: 'Data Not Found' };
                     }
-                } else {
-                    return { success: false, message: updatedRecord.message }
-                }
+                // } else {
+                //     return { success: false, message: updatedRecord.message }
+                // }
             } else {
                 return { success: false, message: getRecord.message }
             }
