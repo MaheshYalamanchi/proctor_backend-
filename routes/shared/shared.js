@@ -49,8 +49,8 @@ let updateRecord = async (params) => {
             model: "rooms",
             docType: 0,
             query: {
-                filter:{_id:params._id},
-                update:{$set:{ updatedAt: updatedAt}}
+                filter:{ _id: params.room},
+                update:{ $set: { updatedAt: updatedAt}}
             }   
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
