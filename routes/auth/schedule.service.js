@@ -45,11 +45,11 @@ let getAttach = async (params) => {
             model: "attaches",
             docType: 1,
             query: [
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
+                    "$match": { "_id": params }
                 },
                 {
                     "$project": { "id": "$_id","filename":"$filename","mimetype":"$mimetype","_id":0 }

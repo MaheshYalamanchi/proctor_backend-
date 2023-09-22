@@ -11,7 +11,7 @@ let eventInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
+                { $match: { "_id": params  } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -23,12 +23,12 @@ let eventInfo = async (params) => {
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
@@ -183,7 +183,7 @@ let faceInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
+                { $match: { '_id' : params  } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -195,12 +195,12 @@ let faceInfo = async (params) => {
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",

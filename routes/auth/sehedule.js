@@ -225,7 +225,7 @@ let MessageSend = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params } ] } } },
+                { $match: {"_id": params }  },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -248,9 +248,9 @@ let MessageSend = async (params) => {
                 {
                     "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true }
                 },
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
                     "$project": {
                         "attach":[{
@@ -258,7 +258,7 @@ let MessageSend = async (params) => {
                             "filename":"$attach.filename",
                             "mimetype":"$attach.mimetype"
                         }],
-                        "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
@@ -379,14 +379,14 @@ let attachCall = async (params) => {
                 // {
                 //     "$project":{"_id" : 0,"id": "$test" ,"createdAt":1,"filename":1,"mimetype":1,"size":1,"user":1 }
                 // }
+                // {
+                //     "$addFields": { "id": { "$toString": "$_id" } }
+                // },
                 {
-                    "$addFields": { "id": { "$toString": "$_id" } }
+                    $match: { "_id": params._id }
                 },
                 {
-                    $match: { "id": params._id }
-                },
-                {
-                    "$project":{"_id" : 0,"attached" : 0}
+                    "$project":{"attached" : 0}
                 }
             ]
         };

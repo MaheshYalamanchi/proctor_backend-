@@ -432,7 +432,7 @@ let chatDetails = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params.chatId } ] } } },
+                { $match: { "_id": params.chatId } },
                 {
                     "$project":{
                         "_id":1,"type":"$type","room":"$room","user":"$user","createdAt":"$createdAt","metadata":"$metadata","attach":"$attach"
