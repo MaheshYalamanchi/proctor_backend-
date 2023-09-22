@@ -347,11 +347,32 @@ let roomSubmitSave = async (params) => {
                 "student.browser":"$student.browser","student.createdAt":"$student.createdAt","student.exclude":"$student.exclude","student.face":"$student.face","student.ipaddress":"$student.ipaddress","student.passport":"$student.passport",
                 "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os","student.platform":"$student.platform","student.provider":"$student.provider",
                 "student.referer":"$student.referer","student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id","subject":"$subject",
-                "tags":"$tags","template":"$template","threshold":"$threshold","timeout":"$timeout","timesheet":"$timesheet","timezone":"$timezone","updatedAt":"$updatedAt","url":"$url","useragent":"$useragent","weights":"$weights"}}
+                "tags":"$tags","template":"$template","threshold":"$threshold","timeout":"$timeout","timesheet":"$timesheet","timezone":"$timezone","updatedAt":"$updatedAt","url":"$url","useragent":"$useragent","weights":"$weights","student.rating":"$student.rating"}}
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
         if (responseData) {
+            if(responseData.data.statusMessage[0].conclusion != null){
+                data = responseData.data.statusMessage[0].student.username
+                ratingdata = responseData.data.statusMessage[0].student.rating
+                if(responseData.data.statusMessage[0].conclusion === "positive"){
+                    var B = 100 
+                }else if (responseData.data.statusMessage[0].conclusion === "negative"){
+                    var B =0
+                }
+                "number" == typeof ratingdata? (ratingdata= Math.ceil((ratingdata+ B) / 2)) : (ratingdata = B)
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database: "proctor",
+                    model: "users",
+                    docType: 0,
+                    query: {
+                    filter :{ "_id": data},
+                    update: {$set: { rating: ratingdata}},
+                    }
+                };
+                let result = await invoke.makeHttpCall("post", "update", getdata);
+            }
             return responseData;
         } else {
             return "Data Not Found";

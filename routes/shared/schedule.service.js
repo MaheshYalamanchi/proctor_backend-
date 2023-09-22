@@ -558,7 +558,8 @@ let getCandidateMessagesDetails = async (params) => {
                 database:"proctor",
                 model: "chats",
                 docType: 1,
-                query:[
+                query:
+                [
                     {
                         "$match": {
                             "room": params.params.roomId
@@ -573,6 +574,16 @@ let getCandidateMessagesDetails = async (params) => {
                         }
                     },
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attach',
+                        }
+                    },
+                    { "$unwind": { "path": "$attacheData", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
@@ -590,10 +601,10 @@ let getCandidateMessagesDetails = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                for (const data of responseData.data.statusMessage) {
-                    let response = await shared.getChatDetails(data)
-                    data.attach = response.message
-                }
+                // for (const data of responseData.data.statusMessage) {
+                //     let response = await shared.getChatDetails(data)
+                //     data.attach = response.message
+                // }
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }
