@@ -350,6 +350,8 @@ let attachmentPostCall = async (params) => {
                     let responseData = await schedule.attachCall(response.data.statusMessage);
                     // console.log('after calling attachCall function',responseData.data.statusMessage[0])
                     if (responseData && responseData.data && responseData.data.statusMessage) {
+                        responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+                        delete responseData.data.statusMessage[0]._id
                         return { success: true, message: responseData.data.statusMessage[0] }
                     } else {
                         return { success: false, message: 'Data Not Found' };

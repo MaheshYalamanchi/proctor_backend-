@@ -97,7 +97,14 @@ let UserLimitCall = async (params) => {
                 ("1" !== B && "asc" !== B) || (Y[A] = 1), 
                 ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
-            let sort = Y
+            var sort;
+            if(Y.id){
+                sort = Y
+                sort._id = sort.id;
+                delete sort.id;
+            }else{
+                sort = Y
+            }
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
@@ -106,6 +113,7 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     { "$sort": sort },
                     { "$skip": start },
                     { "$limit": limit },
@@ -150,6 +158,10 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
+                    {
+                        $sort: { createdAt: -1 } 
+                    },
                     { $skip: start },
                     { "$limit": limit },
                     {
@@ -206,6 +218,7 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     {
                         $match: {
                             $or: [
@@ -238,6 +251,7 @@ let UserSearchCall = async (params) => {
                     model: "users",
                     docType: 1,
                     query:[
+                        { $match: { isActive: true } },
                         {
                             $match: {
                                 $or: [
@@ -272,6 +286,7 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     {
                         $match: {
                             $or: [
@@ -334,7 +349,19 @@ let UserSearchCall = async (params) => {
 };
 let UserEdit = async (params) => {
     try {
-        delete params.id;
+        // delete params.id;
+        // if(params.labels === null){
+        //     params.labels = []
+        // }
+        var buffer = crypto.randomBytes(32);
+        const salt = buffer.toString('base64')
+        var password = params.password
+        const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
+        if ( params.face &&  params.passport  ) {
+            params.verified = true
+        }
+        params.hashedPassword = hasspassword
+        params.salt = salt
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -372,6 +399,12 @@ let proctorUserSaveCall = async (params) => {
     const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
     var locked = Boolean(params.locked);
     var secure = Boolean(params.secure);
+    if(params.labels === null){ 
+        params.labels = []
+    }
+    if ( params.face &&  params.passport  ) {
+        params.verified = true
+    }
     try{
         var createdAt = new Date()
         var jsonData = { 
@@ -382,13 +415,17 @@ let proctorUserSaveCall = async (params) => {
             "rep" : [],
             "salt" : salt,
             "hashedPassword" : hasspassword,
-            "nickname" : params.username,
+            "nickname" : params.nickname,
             "group" : params.group,
             "lang" : params.lang,
             "locked" : locked,
             "secure" : secure,
             "createdAt" : createdAt,
-            "similar" : []
+            "similar" : [],
+            "face" : params.face,
+            "passport" : params.passport,
+            "verified" : params.verified || null,
+            "isActive" : true
         }
         var getdata = {
             url:process.env.MONGO_URI,
@@ -425,12 +462,14 @@ let proctorUserDeleteCall = async (params) => {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
-            docType: 1,
+            docType: 0,
             query: {
-                _id: params.UserId
+                // _id: params.UserId
+                filter :{"_id": params.UserId},
+                update: {$set: { isActive : false}},
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "readData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let response = await schedule.UserDelete(responseData.data.statusMessage[0]);
         }

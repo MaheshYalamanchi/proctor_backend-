@@ -60,11 +60,11 @@ let attachInfo = async (params) => {
             model: "attaches",
             docType: 1,
             query:[
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
+                    "$match": { "_id": params }
                 },
                 {
                     $project:{id:"$_id",_id:0,filename:"$filename",mimetype:"$mimetype"}

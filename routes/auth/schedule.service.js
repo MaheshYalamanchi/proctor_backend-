@@ -45,11 +45,11 @@ let getAttach = async (params) => {
             model: "attaches",
             docType: 1,
             query: [
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
+                    "$match": { "_id": params }
                 },
                 {
                     "$project": { "id": "$_id","filename":"$filename","mimetype":"$mimetype","_id":0 }
@@ -99,10 +99,19 @@ let faceResponse = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if (responseData && responseData.data.statusMessage._id) {
-            responseData.data.statusMessage.id = responseData.data.statusMessage._id;
-            delete responseData.data.statusMessage._id;
-            delete responseData.data.statusMessage.__v;
+            if(params.decodeToken.role === "administrator"){
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage.attached;
+                delete responseData.data.statusMessage.metadata;
+                delete responseData.data.statusMessage.__v;
+                return ({success:true,message :responseData.data.statusMessage}) ;
+            }else{
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage.__v;
             return ({success:true,message :responseData.data.statusMessage}) ;
+            }
         } else {
             return ({success:false,message :"Data not found"});
         }
