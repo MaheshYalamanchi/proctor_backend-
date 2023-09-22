@@ -343,9 +343,9 @@ let attachmentPostCall = async (params) => {
             // console.log('before response of get record')
             if (getRecord && getRecord.success){
                 // console.log(getRecord.message._id,'after response get record')
-                // let updatedRecord= await shared.updateRecord(getRecord.message);
-                // console.log(updatedRecord,'updatedRecord.success')
-                // if(updatedRecord && updatedRecord.message){
+                let updatedRecord= await shared.updateRecord(getRecord.message);
+                console.log(updatedRecord,'updatedRecord.success')
+                if(updatedRecord && updatedRecord.message){
                     // console.log('before calling attachCall function')
                     let responseData = await schedule.attachCall(response.data.statusMessage);
                     // console.log('after calling attachCall function',responseData.data.statusMessage[0])
@@ -356,9 +356,9 @@ let attachmentPostCall = async (params) => {
                     } else {
                         return { success: false, message: 'Data Not Found' };
                     }
-                // } else {
-                //     return { success: false, message: updatedRecord.message }
-                // }
+                } else {
+                    return { success: false, message: updatedRecord.message }
+                }
             } else {
                 return { success: false, message: getRecord.message }
             }
