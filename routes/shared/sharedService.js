@@ -22,6 +22,7 @@ let proctorLoginCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
         if (responseData && responseData.data) {
+            if(responseData.data.statusMessage[0].locked === false || responseData.data.statusMessage[0].locked === 0 ){
             let salt = responseData.data.statusMessage[0].salt;
             let hashedPassword = responseData.data.statusMessage[0].hashedPassword;
             let encryptPassword = crypto.createHmac("sha1", salt).update(params.password).digest("hex");
@@ -40,6 +41,9 @@ let proctorLoginCall = async (params) => {
             } else {
                 return { success: false, message: 'Please check password.' }
             }
+        }else{
+            return { success: false, message: 'Please check password.' }
+        }
         } else {
             return { success: false, message: 'Please check username' }
         }
@@ -1117,6 +1121,7 @@ let proctorUserDetailsCall = async (params) => {
                 responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
                 responseData.data.statusMessage[0].username = responseData.data.statusMessage[0]._id
                 delete responseData.data.statusMessage[0]._id;
+                responseData.data.statusMessage[0].password = responseData.data.statusMessage[0].hashedPassword
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' };

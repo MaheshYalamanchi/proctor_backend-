@@ -31,7 +31,8 @@ let roomUserDetails = async (params) => {
                             "id": "$data._id",
                             "face": "$data.face",
                             "nickname": "$data.nickname",
-                            "username": "$data._id"
+                            "username": "$data._id",
+                            "password": "$data.password"
                         },
                         "distance": "$similar.distance"
                     }
@@ -172,7 +173,7 @@ let UserSave = async (params) => {
                     $match:{_id:params}
                 },
                 {
-                    $project:{"id":"$_id","username":"$_id",_id:0,createdAt:1,exclude:1,group:1,labels:1,lang:1,locked:1,nickname:1,role:1,secure:1,similar:1}
+                    $project:{"id":"$_id","username":"$_id",_id:0,createdAt:1,exclude:1,group:1,labels:1,lang:1,locked:1,nickname:1,role:1,secure:1,similar:1,face:1,passport:1}
                 }
             ]
         };
