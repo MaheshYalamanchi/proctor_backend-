@@ -102,7 +102,8 @@ let userInsertion = async (params) => {
             "useragent" : browser,
             "referer" : params.headers.referer,
             "createdAt" : new Date,
-            "similar" : []
+            "similar" : [],
+            "isActive" : true
         }
         var getdata = {
             url:process.env.MONGO_URI,
