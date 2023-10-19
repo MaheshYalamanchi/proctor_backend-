@@ -329,7 +329,8 @@ let getCandidateMessages = async (params) => {
                     {
                         "$match": {
                             "room": params.params.roomId,
-                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
                         }
                     },
                     {
@@ -374,12 +375,7 @@ let getCandidateMessages = async (params) => {
                                 }
                             },
                             "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
-                            "user": {
-                                "id": "$data._id",
-                                "nickname": "$data.nickname",
-                                "role": "$data.role",
-                                "username": "$data._id"
-                            }
+                            "user": 1
                         }
                     },
                     {
@@ -418,7 +414,8 @@ let getCandidateMessages = async (params) => {
                     {
                         "$match": {
                             "room": params.params.roomId,
-                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
                         }
                     },
                     /*{ "$sort": { "createdAt": -1 } },
@@ -465,12 +462,7 @@ let getCandidateMessages = async (params) => {
                                 }
                             },
                             "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
-                            "user": {
-                                "id": "$data._id",
-                                "nickname": "$data.nickname",
-                                "role": "$data.role",
-                                "username": "$data._id"
-                            }
+                            "user":1
                         }
                     },
                     {
