@@ -304,16 +304,12 @@ let usersDetailsUpdate = async (params) => {
             model: "users",
             docType: 0,
             query:{
-                "_id": params.decodeToken.id ,
-                verified: true 
+                filter: { "_id": params.decodeToken.id },
+                // update: { $set: { verified: params.verified} }
+                update: { $set: { verified: true } }
             }
-            // {
-            //     filter: { "_id": params.decodeToken.id },
-            //     // update: { $set: { verified: params.verified} }
-            //     update: { $set: { verified: true } }
-            // }
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "saveById", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
