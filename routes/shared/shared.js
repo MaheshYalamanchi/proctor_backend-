@@ -19,7 +19,7 @@ let getSessions = async (params) => {
         let response = await schedule.fetchdata(getdata.query)
         let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+            // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
             for (const iterator of response.data.statusMessage) {
                 let jsondata = {
                     pausetime : new Date(),
@@ -29,7 +29,7 @@ let getSessions = async (params) => {
             }
             return { success: true, message: 'Status updated successfully...' };
         } else {
-            let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+            // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
             return { success: false, message: 'Status not updated...' };
         }
     } catch (error) {
