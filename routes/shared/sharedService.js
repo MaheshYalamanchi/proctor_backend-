@@ -365,16 +365,17 @@ let proctorAuthCall = async (params) => {
             database:"proctor",
             model: "users",
             docType: 1,
-            query: [
-                { $match: { _id: decodeToken.id } }
-            ]
+            query: decodeToken.id
+            // [
+            //     { $match: { _id: decodeToken.id } }
+            // ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "findById", getdata);
         if (responseData && responseData.data) {
             var splitToken = params.authorization.split(" ");
             if (decodeToken && decodeToken.room && decodeToken.provider){
-                return {success: true, message: {exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage[0]._id,
-                        role: responseData.data.statusMessage[0].role,token: splitToken[1],provider:decodeToken.provider,room:decodeToken.room}
+                return {success: true, message: {exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage._id,
+                        role: responseData.data.statusMessage.role,token: splitToken[1],provider:decodeToken.provider,room:decodeToken.room}
                 }
             } else { 
                 return {
