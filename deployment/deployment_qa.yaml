@@ -58,10 +58,10 @@ spec:
                 name: proctor-qa-env
                 key: REPORTSERVICE
           - name: USERS_DATA_SERVICE_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: proctor-qa-env
-                  key: USERS_DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-qa-env
+                key: USERS_DATA_SERVICE_ENDPOINT
           - name: ROOMS_DATA_SERVICE_ENDPOINT
             valueFrom:
               secretKeyRef:
