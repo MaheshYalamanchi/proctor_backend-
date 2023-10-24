@@ -1369,7 +1369,7 @@ let getface = async (params) => {
                         update: { $set: jsonData }
                     }
                 };
-                let responseData = await invoke.makeGetCall_userDataService("post", "update", getdata);
+                let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
                 // console.log('before response ',responseData.data)
                 if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
                     // console.log('after response',responseData.data)
