@@ -68,32 +68,36 @@ let proctorMeCall = async (params) => {
                 database:"proctor",
                 model: "users",
                 docType: 1,
-                query: [
-                    {
-                        $match: { _id: decodeToken.id }
-                    },
-                    {
-                        $project: {
-                            id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
-                            ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
-                            nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id",provider:"$provider",referer:"$referer",face:"$face",passposrt:"$passport",
-                            verified:"$verified"
-                        }
-                    }
-                ]
+                query: decodeToken.id
+                // [
+                //     {
+                //         $match: { _id: decodeToken.id }
+                //     },
+                //     {
+                //         $project: {
+                //             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
+                //             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
+                //             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
+                //             useragent: "$useragent", username: "$_id",provider:"$provider",referer:"$referer",face:"$face",passposrt:"$passport",
+                //             verified:"$verified"
+                //         }
+                //     }
+                // ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data) {
-                if (responseData && responseData.data && responseData.data.statusMessage[0] && (responseData.data.statusMessage[0].similar>0)){
-                    let response = await schedule_Service.userInfo(decodeToken)
-                    if (response.success){
-                        responseData.data.statusMessage[0].similar = response.message
-                        return { success: true, message: responseData.data.statusMessage[0] }
-                    }
-                } else {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                }
+            let responseData = await invoke.makeHttpCall("post", "findById", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id
+                return { success: true, message: responseData.data.statusMessage }
+                // if (responseData && responseData.data && responseData.data.statusMessage[0] && (responseData.data.statusMessage[0].similar>0)){
+                //     let response = await schedule_Service.userInfo(decodeToken)
+                //     if (response.success){
+                //         responseData.data.statusMessage[0].similar = response.message
+                //         return { success: true, message: responseData.data.statusMessage[0] }
+                //     }
+                // } else {
+                //     return { success: true, message: responseData.data.statusMessage[0] }
+                // }
                 
             } else {
                 return { success: false, message: 'Data Not Found' }
