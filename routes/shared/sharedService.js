@@ -1369,7 +1369,7 @@ let getface = async (params) => {
                         update: { $set: jsonData }
                     }
                 };
-                let responseData = await invoke.makeHttpCall("post", "update", getdata);
+                let responseData = await invoke.makeGetCall_userDataService("post", "update", getdata);
                 // console.log('before response ',responseData.data)
                 if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
                     // console.log('after response',responseData.data)
@@ -1428,7 +1428,7 @@ let getPassport = async (params) => {
                     update: { $set: jsonData }
                 }
             };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            let responseData = await invoke.makeGetCall_userDataService("post", "update", getdata);
             if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
                 let response = await schedule_Service.getPassport(decodeToken)
                 if (response.success){
