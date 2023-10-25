@@ -187,7 +187,7 @@ let authCheckToken = async (req) => {
               { $match:{ "_id":req.room}}
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
         if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {
             let user = { "id": uuidv4(), "role": "student" ,"room":responseData.data.statusMessage[0]._id}
             let tokenArg = {
