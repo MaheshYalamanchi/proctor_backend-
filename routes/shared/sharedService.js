@@ -372,7 +372,7 @@ let proctorAuthCall = async (params) => {
             //     { $match: { _id: decodeToken.id } }
             // ]
         };
-        let responseData = await invoke.makeHttpCall("post", "findById", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "findById", getdata);
         if (responseData && responseData.data&&responseData.data.statusMessage&&responseData.data.statusMessage._id) {
             var splitToken = params.authorization.split(" ");
             if (decodeToken && decodeToken.room && decodeToken.provider){
