@@ -371,7 +371,7 @@ let proctorAuthCall = async (params) => {
             // ]
         };
         let responseData = await invoke.makeHttpCall("post", "findById", getdata);
-        if (responseData && responseData.data) {
+        if (responseData && responseData.data&&responseData.data.statusMessage._id) {
             var splitToken = params.authorization.split(" ");
             if (decodeToken && decodeToken.room && decodeToken.provider){
                 return {success: true, message: {exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage._id,
@@ -387,6 +387,7 @@ let proctorAuthCall = async (params) => {
                 }
             }
         } else {
+            console.log(responseData.data.statusMessage,'responseData.data.statusMessage')
             return { success: false, message: 'Data Not Found' }
         }
     } catch (error) {
