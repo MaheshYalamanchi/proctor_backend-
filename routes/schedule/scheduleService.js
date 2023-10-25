@@ -378,7 +378,7 @@ let getCandidateDetailsUpdate = async (params) => {
                     update: { $set: jsonData }
                 }
             };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
                 return { success: true, message: responseData.data.statusMessage}
             } else {
