@@ -387,7 +387,7 @@ let proctorAuthCall = async (params) => {
                 }
             }
         } else {
-            console.log(responseData.data.statusMessage,'responseData.data.statusMessage')
+            console.log(responseData.data,'responseData.data.statusMessage.............................................')
             return { success: false, message: 'Data Not Found' }
         }
     } catch (error) {
