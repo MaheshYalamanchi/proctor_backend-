@@ -83,7 +83,7 @@ module.exports = function (params) {
     app.post("/api/auth", async (req, res) => {
         "use strict";
         try {
-            console.log(JSON.stringify(req.body),'api/auth........')
+            // console.log(JSON.stringify(req.body),'api/auth........')
             let result = await sharedSevices.proctorAuthCall(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });

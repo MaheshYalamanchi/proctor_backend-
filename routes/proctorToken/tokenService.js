@@ -67,7 +67,7 @@ let generateToken = async (req) => {
             timeout : user.timeout,
             videoass : user.videoass
         };
-        user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
+        user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: '365d' });
         if (user.proctorToken){
             const data = {
                 "assessmentId": user.assessmentId,

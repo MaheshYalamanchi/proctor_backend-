@@ -343,9 +343,9 @@ let proctorFetchCall = async (params) => {
 };
 let proctorAuthCall = async (params) => {
     try {
-        console.log(params.authorization,'params.authorization')
+        // console.log(params.authorization,'params.authorization')
         var decodeToken = jwt_decode(params.authorization);
-        console.log(decodeToken,'decodeToken....................')
+        // console.log(decodeToken,'decodeToken....................')
         if(decodeToken.room=="check"){
             let response = await tokenService.authCheckToken(decodeToken);
             if(response){
