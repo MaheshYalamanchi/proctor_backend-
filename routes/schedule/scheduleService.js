@@ -336,7 +336,7 @@ let userDetails = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {

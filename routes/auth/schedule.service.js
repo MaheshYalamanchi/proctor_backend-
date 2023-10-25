@@ -97,7 +97,7 @@ let faceResponse = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "write", getdata);
         if (responseData && responseData.data.statusMessage._id) {
             if(params.decodeToken.role === "administrator"){
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
@@ -138,7 +138,7 @@ let passportResponse1 = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "write", getdata);
         if (responseData && responseData.data.statusMessage._id) {
             responseData.data.statusMessage.id = responseData.data.statusMessage._id;
             delete responseData.data.statusMessage._id;
@@ -175,7 +175,7 @@ let passportResponse2 = async (params) => {
                 update: { $set: jsonData }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "updateOne", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "updateOne", getdata);
         if (responseData && responseData.data.statusMessage.nModified>0) {
             return ({success: true, message: "record updated successfully"}) ;
         } else {
