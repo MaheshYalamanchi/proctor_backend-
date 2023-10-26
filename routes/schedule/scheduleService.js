@@ -3,6 +3,7 @@ const globalMsg = require('../../configuration/messages/message');
 const schedule = require("./schedule")
 var ObjectID = require('mongodb').ObjectID;
 const json = require('../json');
+const moment = require("moment")
 function getOperatingSystemInfo(browser) {
     try{
         const userAgent = browser;
@@ -352,22 +353,34 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
-        let roomsData = await schedule.getRoomDetails(params);
-        if(roomsData && roomsData.success){
-            let jsonData;
-            if (roomsData.message && (roomsData.message.startedAt == null)){
-                jsonData = {
-                    status : 'started',
-                    startedAt : new Date(),
-                    ipaddress: params.body.ipAddress
-                }
-            } else {
-                jsonData = {
-                    status : 'started',
-                    ipaddress: params.body.ipAddress,
-                    updatedAt: new Date()
-                }
-            }
+        // let roomsData = await schedule.getRoomDetails(params);
+        // if(roomsData && roomsData.success){
+        //     let jsonData;
+        //     if (roomsData.message && (roomsData.message.startedAt == null)){
+        //         jsonData = {
+        //             status : 'started',
+        //             startedAt : new Date(),
+        //             ipaddress: params.body.ipAddress
+        //         }
+        //     } else {
+        //         jsonData = {
+        //             status : 'started',
+        //             ipaddress: params.body.ipAddress,
+        //             updatedAt: new Date()
+        //         }
+        //     }
+        let jsonData = {
+            startedAt: {
+              $cond: {
+                if: { $eq: ["$startedAt", null] }, // Check if the field is null
+                then:{ $dateFromString: { dateString: new Date().toISOString() } },
+                else:"$startedAt" // Keep the existing value if it's not null
+              }
+            },
+            status : 'started',
+            updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
+            ipaddress: params.body.ipAddress
+          }
             var getdata = {   
                 url:process.env.MONGO_URI,
                 database:"proctor",
@@ -375,7 +388,12 @@ let getCandidateDetailsUpdate = async (params) => {
                 docType: 0,
                 query:{
                     filter: { "_id": params.query.id },
-                    update: { $set: jsonData }
+                    update: [
+                        {
+                          $set: jsonData
+                        }
+                    ]
+                      
                 }
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
@@ -384,9 +402,9 @@ let getCandidateDetailsUpdate = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
-        } else {
-            return { success: roomsData.success , message: roomsData.message };
-        }
+        // } else {
+        //     return { success: roomsData.success , message: roomsData.message };
+        // }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
