@@ -60,7 +60,7 @@ let getCandidateEventSend = async (params) => {
                 docType: 0,
                 query: jsonData
             };
-            let responseData = await invoke.makeHttpCall("post", "write", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
                 if (userResponse && userResponse.success){
