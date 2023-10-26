@@ -31,6 +31,7 @@ let getChatDetails = async (params) => {
             }
         }
     } catch (error) {
+        console.log("error=====",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -249,7 +250,7 @@ let getface = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -284,7 +285,7 @@ let getPassport = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -464,7 +465,7 @@ let getFacePassportResponse = async (params) => {
                 },
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -551,7 +552,7 @@ let getUserRoomsCount = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage }
         } else {
@@ -605,7 +606,7 @@ let GetPassportInsertionResponse = async (params) => {
                 update: { $set: {"passportArray":[{"passport": params}]} }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
             return { success: true, message: "record updated successfully" }
         } else {
