@@ -450,16 +450,9 @@ let chatDetails = async (params) => {
             database:"proctor",
             model: "chats",
             docType: 1,
-            query: [
-                { $match: { "_id": params.chatId } },
-                {
-                    "$project":{
-                        "_id":1,"type":"$type","room":"$room","user":"$user","createdAt":"$createdAt","metadata":"$metadata","attach":"$attach"
-                    }
-                }
-            ]
+            query: { "_id": params.chatId }
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {

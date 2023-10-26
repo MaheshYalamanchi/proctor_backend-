@@ -456,16 +456,9 @@ let getFacePassportResponse = async (params) => {
             database:"proctor",
             model: "attaches",
             docType: 1,
-            query:[
-                // {
-                //     "$addFields": { "test": { "$toString": "$_id" } }
-                // },
-                {
-                    "$match": { "_id": params }
-                },
-            ]
+            query:{ "_id": params }
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -546,13 +539,9 @@ let getUserRoomsCount = async (params) => {
             database: "proctor",
             model: "rooms",
             docType: 1,
-            query:[
-                {
-                    $match:{ student: params.id }
-                }
-            ]
+            query:{ student: params.id }
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage }
         } else {
