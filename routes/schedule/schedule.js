@@ -268,11 +268,12 @@ let getRoomDetails = async (params) => {
             database:"proctor",
             model: "rooms",
             docType: 1,
-            query: [
-                {$match:{_id: params.query.id}}
-        ]
+            query:{_id: params.query.id}
+            //  [
+            //     {$match:{_id: params.query.id}}
+            // ]
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage[0]}
         } else {
