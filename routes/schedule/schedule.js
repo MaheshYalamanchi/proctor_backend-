@@ -60,11 +60,9 @@ let updateScore = async (params) => {
             database:"proctor",
             model: "rooms",
             docType: 1,
-            query: [
-                {$match :{_id:params.room}}
-            ]
+            query: {_id:params.room}
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
             let c = roomsData.metrics;
