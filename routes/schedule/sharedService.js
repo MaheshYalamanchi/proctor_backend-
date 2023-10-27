@@ -335,36 +335,40 @@ let attachmentPostCall = async (params) => {
         let response = await invoke.makeHttpCall("post", "write", getdata);
         //console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
         if (response && response.data && response.data.statusMessage._id) {
+            response.data.statusMessage.id = response.data.statusMessage._id
+            delete response.data.statusMessage._id
+            delete response.data.statusMessage.attached
             // response.data.statusMessage.id = response.data.statusMessage._id
             // delete response.data.statusMessage._id
             // delete response.data.statusMessage.attached
             // delete response.data.statusMessage.__v
-            let getRecord = await shared.getRecord(decodeToken)
+            // let getRecord = await shared.getRecord(decodeToken)
             // console.log('before response of get record')
-            if (getRecord && getRecord.success){
+            // if (getRecord && getRecord.success){
                 // console.log(getRecord.message._id,'after response get record')
-                let updatedRecord= await shared.updateRecord(getRecord.message);
+                let updatedRecord= await shared.updateRecord(decodeToken);
                 console.log(updatedRecord,'updatedRecord.success')
                 if(updatedRecord && updatedRecord.message){
                     // console.log('before calling attachCall function')
-                    let responseData = await schedule.attachCall(response.data.statusMessage);
-                    // console.log('after calling attachCall function',responseData.data.statusMessage[0])
-                    if (responseData && responseData.data && responseData.data.statusMessage) {
-                        responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-                        delete responseData.data.statusMessage[0]._id
-                        return { success: true, message: responseData.data.statusMessage[0] }
-                    } else {
-                        return { success: false, message: 'Data Not Found' };
-                    }
+                    // let responseData = await schedule.attachCall(response.data.statusMessage);
+                    // // console.log('after calling attachCall function',responseData.data.statusMessage[0])
+                    // if (responseData && responseData.data && responseData.data.statusMessage) {
+                    //     responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+                    //     delete responseData.data.statusMessage[0]._id
+                    //     delete responseData.data.statusMessage[0].attached
+                        return { success: true, message: response.data.statusMessage }
+                    // } else {
+                    //     return { success: false, message: 'Data Not Found' };
+                    // }
                 } else {
                     return { success: false, message: updatedRecord.message }
                 }
             } else {
                 return { success: false, message: getRecord.message }
             }
-        } else {
-            return { success: false, message: 'Data Not Found' };
-        }
+        // } else {
+        //     return { success: false, message: 'Data Not Found' };
+        // }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
