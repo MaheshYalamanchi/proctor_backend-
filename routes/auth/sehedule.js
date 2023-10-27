@@ -392,7 +392,8 @@ let attachCall = async (params) => {
             database:"proctor",
             model: "attaches",
             docType: 1,
-            query:[
+            query:{ "_id": params._id }
+            //[
                 // { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params._id } ] } } },
                 // {
                 //     "$addFields": { "test": { "$toString": "$_id" } }
@@ -403,15 +404,15 @@ let attachCall = async (params) => {
                 // {
                 //     "$addFields": { "id": { "$toString": "$_id" } }
                 // },
-                {
-                    $match: { "_id": params._id }
-                },
-                {
-                    "$project":{"attached" : 0}
-                }
-            ]
+            //     {
+            //         $match: { "_id": params._id }
+            //     },
+            //     {
+            //         "$project":{"attached" : 0}
+            //     }
+            // ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if(responseData){
             return responseData;
         }else{
