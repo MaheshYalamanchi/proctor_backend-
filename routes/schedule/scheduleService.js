@@ -331,13 +331,9 @@ let userDetails = async (params) => {
             database:"proctor",
             model: "users",
             docType: 1,
-            query: [
-                {
-                    $match :{ _id : params.id}
-                }
-            ]
+            query: { _id : params.id}
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -396,8 +392,10 @@ let getCandidateDetailsUpdate = async (params) => {
                       
                 }
             };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id
                 return { success: true, message: responseData.data.statusMessage}
             } else {
                 return { success: false, message: 'Data Not Found' };

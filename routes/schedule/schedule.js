@@ -153,12 +153,13 @@ let updateScore = async (params) => {
             params.jsonData = jsonData
             let response = await shared_Service.roomsUpdate(params);
             if (response && response.success){
-                let score = await shared_Service.roomsInfo(params);
-                if (score && score.success){
-                    return { success: true, message:score.message[0].score}
-                }else {
-                    return { success: false, message: 'Data Not Found' };
-                }
+                return { success: true, message: response.message.score}
+                // let score = await shared_Service.roomsInfo(params);
+                // if (score && score.success){
+                //     return { success: true, message:score.message[0].score}
+                // }else {
+                //     return { success: false, message: 'Data Not Found' };
+                // }
             }else {
                 return { success: false, message: 'Data Not Found' };
             }

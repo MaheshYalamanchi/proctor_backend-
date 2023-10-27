@@ -167,51 +167,52 @@ let proctorMeCall = async (params) => {
 let proctorFetchCall = async (params) => {
     var decodeToken = jwt_decode(params.authorization);
     try {
-        if (decodeToken && decodeToken.room){
+        if (decodeToken && !(decodeToken.role == "administrator")){
             let getdata;
-            if(decodeToken && decodeToken.videoass == "VA"){
-                getdata = {
-                    url:process.env.MONGO_URI,
-                    database:"proctor",
-                    model: "rooms",
-                    docType: 1,
-                    query: [
-                        {
-                            "$match": { 
-                                "student": decodeToken.id ,
-                                "_id" : decodeToken.room
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                from: 'users',
-                                localField: 'student',
-                                foreignField: '_id',
-                                as: 'student',
-                            }
-                        },
-                        {
-                            "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
-                        },
-                        {
-                            "$project": {
-                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
-                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",
-                                error:"$error",integrator:"$integrator",os:"$os",platform:"$platform",template:"$template","student.createdAt":"$student.createdAt",
-                                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
-                                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
-                                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
-                                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
-                                "student.verified":"$student.verified"
-                            }
-                        }
-                    ]
-                }; 
-            } else if (decodeToken.room=="check"){
+            // if(decodeToken && decodeToken.videoass == "VA"){
+            //     getdata = {
+            //         url:process.env.MONGO_URI,
+            //         database:"proctor",
+            //         model: "rooms",
+            //         docType: 1,
+            //         query: [
+            //             {
+            //                 "$match": { 
+            //                     "student": decodeToken.id ,
+            //                     "_id" : decodeToken.room
+            //                 }
+            //             },
+            //             {
+            //                 "$lookup": {
+            //                     from: 'users',
+            //                     localField: 'student',
+            //                     foreignField: '_id',
+            //                     as: 'student',
+            //                 }
+            //             },
+            //             {
+            //                 "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
+            //             },
+            //             {
+            //                 "$project": {
+            //                     id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+            //                     concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+            //                     locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+            //                     scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
+            //                     tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+            //                     updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",
+            //                     error:"$error",integrator:"$integrator",os:"$os",platform:"$platform",template:"$template","student.createdAt":"$student.createdAt",
+            //                     "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
+            //                     "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
+            //                     "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
+            //                     "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
+            //                     "student.verified":"$student.verified"
+            //                 }
+            //             }
+            //         ]
+            //     }; 
+            // } 
+            if (decodeToken && decodeToken.room=="check"){
                 getdata = {
                     url:process.env.MONGO_URI,
                     database:"proctor",
@@ -238,8 +239,7 @@ let proctorFetchCall = async (params) => {
                         }
                     ]
                 };
-            }
-            else {
+            } else {
                 getdata = {
                     url:process.env.MONGO_URI,
                     database:"proctor",
@@ -1343,15 +1343,16 @@ let getface = async (params) => {
         if (faceResponse && faceResponse.success){
             // console.log(faceResponse.message[0],'faceResponse.message[0]')
             let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
-            if ( getCount.message.length>1 ){
+            if ( getCount.message.length >1 ){
                 let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params.face);
                 if(getFaceResponse && getFaceResponse.success){
-                    let response = await schedule_Service.getface(decodeToken)
-                    if (response.success){
-                        return { success: true, message: response.message[0] }
-                    } else {
-                        return { success: false, message: response.message }
-                    }
+                    return { success: true, message: getFaceResponse.message }
+                    // let response = await schedule_Service.getface(decodeToken)
+                    // if (response.success){
+                    //     return { success: true, message: response.message[0] }
+                    // } else {
+                    //     return { success: false, message: response.message }
+                    // }
                 } else {
                     return { success: false, message: getFaceResponse.message }
                 }
@@ -1366,23 +1367,30 @@ let getface = async (params) => {
                     url:process.env.MONGO_URI,
                     database:"proctor",
                     model: "users",
-                    docType: 0,
+                    docType: 1,
                     query: {
                         filter: { "_id": decodeToken.id },
-                        update: { $set: jsonData }
+                        update: { $set: jsonData },
+                        projection: {
+                            id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                            exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                            useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                            username:"$_id",
+                        }
                     }
                 };
-                let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
+                let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
                 // console.log('before response ',responseData.data)
-                if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
+                if (responseData && responseData.data.statusMessage ) {
+                    return { success: true, message: responseData.data.statusMessage }
                     // console.log('after response',responseData.data)
                     // console.log('before calling getface',decodeToken)
-                    let response = await schedule_Service.getface(decodeToken)
+                    // let response = await schedule_Service.getface(decodeToken)
                     // console.log('response before........................',response)
-                    if (response.success){
-                        // console.log('response after........................',response)
-                        return { success: true, message: response.message[0] }
-                    }
+                    // if (response.success){
+                    //     // console.log('response after........................',response)
+                    //     return { success: true, message: response.message[0] }
+                    // }
                 } else {
                     return { success: false, message: 'Data Not Found' }
                 }
@@ -1408,12 +1416,13 @@ let getPassport = async (params) => {
         if ( getCount.message.length>1 ){
             let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params.passport);
             if(getPassportResponse && getPassportResponse.success){
-                let response = await schedule_Service.getPassport(decodeToken)
-                if (response.success){
-                    return { success: true, message: response.message[0] }
-                } else {
-                    return { success: false, message: response.message }
-                }
+                return { success: true, message: getPassportResponse.message }
+                // let response = await schedule_Service.getPassport(decodeToken)
+                // if (response.success){
+                //     return { success: true, message: response.message[0] }
+                // } else {
+                //     return { success: false, message: response.message }
+                // }
             } else {
                 return { success: false, message: getPassportResponse.message }
             }
@@ -1425,18 +1434,25 @@ let getPassport = async (params) => {
                 url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "users",
-                docType: 0,
+                docType: 1,
                 query: {
                     filter: { "_id": decodeToken.id },
-                    update: { $set: jsonData }
+                    update: { $set: jsonData },
+                    projection: {
+                        id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                        exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                        useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                        username:"$_id",passport:"$passport",verified:"$verified"
+                    }
                 }
             };
-            let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
-            if (responseData && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-                let response = await schedule_Service.getPassport(decodeToken)
-                if (response.success){
-                    return { success: true, message: response.message[0] }
-                }
+            let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage }
+                // let response = await schedule_Service.getPassport(decodeToken)
+                // if (response.success){
+                //     return { success: true, message: response.message[0] }
+                // }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
