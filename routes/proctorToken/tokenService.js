@@ -183,11 +183,9 @@ let authCheckToken = async (req) => {
             database:"proctor",
             model: "rooms",
             docType: 1,
-            query:[
-              { $match:{ "_id":req.room}}
-            ]
+            query:{ "_id":req.room}
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {
             let user = { "id": uuidv4(), "role": "student" ,"room":responseData.data.statusMessage[0]._id}
             let tokenArg = {

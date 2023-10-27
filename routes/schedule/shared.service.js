@@ -13,8 +13,8 @@ let roomsUpdate = async (params) => {
                 update: { $set: params.jsonData }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+        let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
             return { success: false, message: 'Data Not Found' };

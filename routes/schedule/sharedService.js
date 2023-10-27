@@ -292,7 +292,7 @@ let getFaceResponse1 = async (params) => {
             // };
             // let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             // if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: response.message }
+            //    return { success: true, message: response.message }
             // } else {
             //     return { success: false, message: 'Data Not Found' };
             // }
@@ -550,27 +550,28 @@ let getCandidateDetails = async (params) => {
     try {
         let response = await scheduleService.getCandidateDetailsUpdate(params);
         if(response && response.success){
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "rooms",
-                docType: 1,
-                query: [
-                    {$match : { _id:params.query.id}},
-                    {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
-                                metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
-                                threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
-                                deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
-                                duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
-                                useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
-                    ]
-            };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
-            } else {
-                return { success: false, message: 'Data Not Found' };
-            }
+            return { success: true, message: response.message }
+            // var getdata = {
+            //     url:process.env.MONGO_URI,
+            //     database:"proctor",
+            //     model: "rooms",
+            //     docType: 1,
+            //     query: [
+            //         {$match : { _id:params.query.id}},
+            //         {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
+            //                     metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
+            //                     threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
+            //                     deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
+            //                     duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
+            //                     useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
+            //         ]
+            // };
+            // let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            // if (responseData && responseData.data && responseData.data.statusMessage) {
+                // return { success: true, message: responseData.data.statusMessage[0] }
+            // } else {
+            //     return { success: false, message: 'Data Not Found' };
+            // }
         } else {
             return { success: false, message: 'rooms updation error' };
         }

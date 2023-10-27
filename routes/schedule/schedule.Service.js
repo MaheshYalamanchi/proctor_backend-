@@ -8,28 +8,28 @@ const moment = require('moment');
 let getChatDetails = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
-        let userResponse = await scheduleService.chatDetails(params.params);
-        if (userResponse && userResponse.success){
+        // let userResponse = await scheduleService.chatDetails(params.params);
+        // if (userResponse && userResponse.success){
             var getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",
                 model: "chats",
                 docType: 0,
                 query:{
-                    filter: { "_id": userResponse.message[0]._id },
+                    filter: { "_id": params.params.chatId },
                     update: { $push:{attach: params.body.body.attach[0] }}
                 }
             };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
-                    userResponse.message[0].attach = params.body.body.attach
-                    userResponse.message[0].id = userResponse.message[0]._id
-                    delete userResponse.message[0]._id
-                    return { success: true, message:userResponse.message[0]}
+            let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                    responseData.data.statusMessage.attach = params.body.body.attach
+                    responseData.data.statusMessage.id = responseData.data.statusMessage._id
+                    delete responseData.data.statusMessage._id
+                    return { success: true, message:responseData.data.statusMessage}
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
-        }
+        // }
     } catch (error) {
         console.log("error=====",error)
         if (error && error.code == 'ECONNREFUSED') {
@@ -562,15 +562,21 @@ let GetFaceInsertionResponse = async (params) => {
             url:process.env.MONGO_URI,
             database: "proctor",
             model: "users",
-            docType: 0,
+            docType: 1,
             query:{
                 filter: { "_id": decodeToken.id },
-                update: { $set: {"faceArray":[{"face": params}]} }
+                update: { $set: {"faceArray":[{"face": params}]} },
+                projection: {
+                    id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                    exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                    useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                    username:"$_id",
+                }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-            return { success: true, message: "record updated successfully" }
+        let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage ) {
+            return { success: true, message: responseData.data.statusMessage }
         } else {
             return { success: false, message: 'record updation failed' }
         }
@@ -589,15 +595,21 @@ let GetPassportInsertionResponse = async (params) => {
             url:process.env.MONGO_URI,
             database: "proctor",
             model: "users",
-            docType: 0,
+            docType: 1,
             query:{
                 filter: { "_id": decodeToken.id },
-                update: { $set: {"passportArray":[{"passport": params}]} }
+                update: { $set: {"passportArray":[{"passport": params}]} },
+                projection: {
+                    id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                    exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                    useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                    username:"$_id",passport:"$passport",verified:"$verified"
+                }
             }
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified>0) {
-            return { success: true, message: "record updated successfully" }
+        let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage ) {
+            return { success: true, message: responseData.data.statusMessage }
         } else {
             return { success: false, message: 'record updation failed' }
         }
