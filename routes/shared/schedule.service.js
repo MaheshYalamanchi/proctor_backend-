@@ -533,6 +533,8 @@ let getCandidateMessages = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
