@@ -170,7 +170,7 @@ let getCandidateFcaeSend = async (params) => {
                 docType: 0,
                 query: jsonData
             };
-            let responseData = await invoke.makeHttpCall("post", "write", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 let chatResponse = await schedule.faceInfo(responseData.data.statusMessage._id);
                 if (chatResponse && chatResponse.success){
