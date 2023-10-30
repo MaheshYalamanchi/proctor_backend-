@@ -39,7 +39,7 @@ let eventInfo = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -62,7 +62,7 @@ let updateScore = async (params) => {
             docType: 1,
             query: {_id:params.room}
         };
-        let responseData = await invoke.makeHttpCall("post", "read", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
             let c = roomsData.metrics;
