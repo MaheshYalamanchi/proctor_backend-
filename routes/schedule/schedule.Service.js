@@ -8,28 +8,32 @@ const moment = require('moment');
 let getChatDetails = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
-        // let userResponse = await scheduleService.chatDetails(params.params);
-        // if (userResponse && userResponse.success){
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "chats",
-                docType: 0,
-                query:{
-                    filter: { "_id": params.params.chatId },
-                    update: { $push:{attach: params.body.body.attach[0] }}
+        if (decodeToken){
+            // let userResponse = await scheduleService.chatDetails(params.params);
+            // if (userResponse && userResponse.success){
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "chats",
+                    docType: 0,
+                    query:{
+                        filter: { "_id": params.params.chatId },
+                        update: { $push:{attach: params.body.body.attach[0] }}
+                    }
+                };
+                let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                        responseData.data.statusMessage.attach = params.body.body.attach
+                        responseData.data.statusMessage.id = responseData.data.statusMessage._id
+                        delete responseData.data.statusMessage._id
+                        return { success: true, message:responseData.data.statusMessage}
+                } else {
+                    return { success: false, message: 'Data Not Found' };
                 }
-            };
-            let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                    responseData.data.statusMessage.attach = params.body.body.attach
-                    responseData.data.statusMessage.id = responseData.data.statusMessage._id
-                    delete responseData.data.statusMessage._id
-                    return { success: true, message:responseData.data.statusMessage}
-            } else {
-                return { success: false, message: 'Data Not Found' };
-            }
-        // }
+            // }
+        } else {
+            return { success: false, message: 'Invalid Token Error' };
+        } 
     } catch (error) {
         console.log("error=====",error)
         if (error && error.code == 'ECONNREFUSED') {
@@ -135,7 +139,7 @@ let getCandidateEventSend = async (params) => {
                 return { success: false, message: 'Data Not Found' };
             }
         }else{
-            return { success: false, message: 'Data Not Found' };
+            return { success: false, message: 'Invalid Token Error' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -148,37 +152,41 @@ let getCandidateEventSend = async (params) => {
 let getCandidateFcaeSend = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
-        jsonData = {
-            "type" : params.body.type,
-            "attach" :[ 
-                params.body.attach[0]
-            ],
-            "room" : params.params.roomId,
-            "user" : decodeToken.id,
-            "createdAt" : new Date(),
-            "metadata" : params.body.metadata
-        }
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "chats",
-            docType: 0,
-            query: jsonData
-        };
-        let responseData = await invoke.makeHttpCall("post", "write", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage._id) {
-            let chatResponse = await schedule.faceInfo(responseData.data.statusMessage._id);
-            if (chatResponse && chatResponse.success){
-                // let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
-                // if (attatchResponse.success){
-                    // chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
-                    return { success: true, message:chatResponse.message[0]}
-                // } else  {
-                //     return { success: true, message:"data not found"}
-                // }
+        if (decodeToken){
+            jsonData = {
+                "type" : params.body.type,
+                "attach" :[ 
+                    params.body.attach[0]
+                ],
+                "room" : params.params.roomId,
+                "user" : decodeToken.id,
+                "createdAt" : new Date(),
+                "metadata" : params.body.metadata
+            }
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "write", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                let chatResponse = await schedule.faceInfo(responseData.data.statusMessage._id);
+                if (chatResponse && chatResponse.success){
+                    // let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
+                    // if (attatchResponse.success){
+                        // chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
+                        return { success: true, message:chatResponse.message[0]}
+                    // } else  {
+                    //     return { success: true, message:"data not found"}
+                    // }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' };
             }
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: false, message: 'Invalid Token Error' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
