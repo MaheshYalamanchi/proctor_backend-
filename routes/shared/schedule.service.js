@@ -47,7 +47,7 @@ let getCandidateMessages = async (params) => {
                     { "$limit": limit }
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage}
             } else {
@@ -133,7 +133,7 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -222,7 +222,7 @@ let getCandidateMessages = async (params) => {
                         {"$project":{"data":"$data","total":"$total_count.count"}}
                         ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -309,7 +309,7 @@ let getCandidateMessages = async (params) => {
                         {"$project":{"data":"$data","total":"$total_count.count"}}
                         ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -395,7 +395,7 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -481,7 +481,7 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -527,7 +527,7 @@ let getCandidateMessages = async (params) => {
                     },
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage }
             } else {
