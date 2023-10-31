@@ -338,7 +338,7 @@ let attachmentPostCall = async (params) => {
                 query: jsonData
             };
             //console.log(jsonData,'jsonData')
-            let response = await invoke.makeHttpCall("post", "write", getdata);
+            let response = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
             //console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
             if (response && response.data && response.data.statusMessage._id) {
                 response.data.statusMessage.id = response.data.statusMessage._id
