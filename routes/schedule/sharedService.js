@@ -647,7 +647,7 @@ let mobilecheck = async (params) => {
                 { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             if(!responseData.data.statusMessage[0].averages){
                 responseData.data.statusMessage[0].averages = {
