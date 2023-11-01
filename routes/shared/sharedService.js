@@ -58,8 +58,6 @@ let proctorLoginCall = async (params) => {
 let proctorMeCall = async (params) => {
     try {
         var decodeToken = jwt_decode(params.authorization);
-        console.log(decodeToken.id,'decodeToken.id 1')
-        console.log(decodeToken.role,'decodeToken.role 2')
         if(decodeToken && decodeToken.room == "check"){
             return { success: true, message: "null" }
         }else if(decodeToken && decodeToken.role == "student"){
@@ -1423,8 +1421,6 @@ let getface = async (params) => {
 let getPassport = async (params) => {
     try {
         var decodeToken = jwt_decode(params.authorization);
-        console.log(decodeToken.id,'decodeToken.id 1')
-        console.log(params.passport,'params.passport 2')
         if (decodeToken){
             let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
             if ( getCount.message.length>1 ){
