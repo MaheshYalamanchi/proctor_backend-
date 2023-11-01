@@ -185,7 +185,6 @@ module.exports = function (params) {
                 let result = await sharedService.attachmentPostCall(req.body);
                 if (result && result.success) {
                     // console.log(result,'result')
-                    console.log(result.message,'result.message')
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                 } else {

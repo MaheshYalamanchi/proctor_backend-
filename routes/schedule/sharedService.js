@@ -316,7 +316,6 @@ let getFaceResponse1 = async (params) => {
 let attachmentPostCall = async (params) => {
    
     try {
-        console.log(params.headers,'header token................')
         decodeToken = jwt_decode(params.headers)
         // console.log(decodeToken,'decodetoken...............')
         if (decodeToken) {
@@ -353,7 +352,6 @@ let attachmentPostCall = async (params) => {
                 // if (getRecord && getRecord.success){
                     // console.log(getRecord.message._id,'after response get record')
                     let updatedRecord= await shared.updateRecord(decodeToken);
-                    console.log(updatedRecord,'updatedRecord.success')
                     if(updatedRecord && updatedRecord.message){
                         // console.log('before calling attachCall function')
                         // let responseData = await schedule.attachCall(response.data.statusMessage);
@@ -388,14 +386,12 @@ let attachmentPostCall = async (params) => {
 };
 let tokenValidation = async(params)=> {
     try {
-        console.log(params.body,'body....................jwt')
         const token =params.body.authorization.authorization.split(" ");
         if (!token) {
             return {success:false,message:"A token is required for authentication"+token[1]};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
             if(!decodedToken){
-                console.log(decodedToken,'decodedToken................')
                 return {success:false,message:"A token is required for authentication"};
             }
             decodedToken.headers = params.body.authorization;
