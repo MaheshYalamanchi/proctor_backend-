@@ -60,7 +60,7 @@ let updateRecord = async (params) => {
         let responseData = await invoke.makeHttpCall_roomDataService("post", "saveById", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             //console.log(JSON.stringify(getdata.query,'update api success'))
-            return { success: true, message: 'Status updated successfully...' };
+            return { success: true, message: responseData.data.statusMessage };
         } else {
             //console.log(JSON.stringify(getdata.query,'update api false'))
             return { success: false, message: 'Status not updated...' };

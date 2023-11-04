@@ -543,6 +543,33 @@ let fetchdata = async (params) => {
         }
     }
 };
+let logtimeupdate = async (params) => {
+    try {
+        const date = new Date()
+        var postdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
+            docType: 0,
+            query: {
+                filter :{"_id": params.student.id},
+                update: {$set: { loggedAt: date}},
+              }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", postdata);
+        if (responseData) {
+            return responseData
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     roomUserDetails,
@@ -558,5 +585,6 @@ module.exports = {
     getTemplate,
     updateTemplate,
     chatincidents,
-    fetchdata
+    fetchdata,
+    logtimeupdate
 }

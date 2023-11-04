@@ -360,6 +360,7 @@ let attachmentPostCall = async (params) => {
                         //     responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
                         //     delete responseData.data.statusMessage[0]._id
                         //     delete responseData.data.statusMessage[0].attached
+                            response.data.statusMessage.status = updatedRecord.message.status
                             return { success: true, message: response.data.statusMessage }
                         // } else {
                         //     return { success: false, message: 'Data Not Found' };
@@ -615,6 +616,11 @@ let getCandidateDetailsStop = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                const data= {
+                    userID : responseData.data.statusMessage,
+                    ipadress : params.body.ipAddress
+                }
+                let result = await scheduleService.userDetailsUpdate(data)
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' };
@@ -714,6 +720,7 @@ let stoppedAt = async (params) => {
         if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
             let status = await shared.stoped(params.id);
             if (status && status.success){
+                let result = await schedule.logtimeupdate(status.message)
                 let violatedResponse = await shared.getViolated(status.message);
                 if(violatedResponse && violatedResponse.success){
                     try {

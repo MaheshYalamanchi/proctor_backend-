@@ -2,6 +2,7 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 const crypto =require("crypto");
+var bowser = require("bowser");
 // const logger =require('../../logger/logger')
 let proctorRoomUserEdit = async (params) => {
     try {
@@ -63,22 +64,17 @@ let proctorDeleteSaveCall = async (params) => {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
-            docType: 1,
-            query:[
-                {$match:{_id: params.UserId}}
-            ] 
-            
+            docType: 0,
+            query:{
+                filter :{"_id": params.UserId},
+                update: {$set: { isActive : false}},
+            }
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let response = await schedule.roomUserDelete(responseData.data.statusMessage[0]);
-        }
-        if (responseData && responseData.data) {
-            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0]._id;
-            return { success: true, message: responseData.data.statusMessage[0] }
+            return { success: true, message: "User Deleted Sucessfully..."};
         } else {
-            return { success: false, message: 'delete feature not at integrated...' }
+            return { uccess: false, message: 'Data Not Found' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -362,6 +358,11 @@ let UserEdit = async (params) => {
         }
         params.hashedPassword = hasspassword
         params.salt = salt
+        if(params.face == null){
+            params.verified = null
+        }else if(params.passport == null){
+            params.verified = null
+        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -395,8 +396,8 @@ let UserEdit = async (params) => {
 let proctorUserSaveCall = async (params) => {
     var buffer = crypto.randomBytes(32);
     const salt = buffer.toString('base64')
-    var password = params.password
-    const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
+    const hasspassword =crypto.createHmac("sha1", salt).update(params.password).digest("hex");
+    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     var locked = Boolean(params.locked);
     var secure = Boolean(params.secure);
     if(params.labels === null){ 
@@ -405,10 +406,12 @@ let proctorUserSaveCall = async (params) => {
     if ( params.face &&  params.passport  ) {
         params.verified = true
     }
+    var g = bowser;
+    const B = g.parse(params.bower)
     try{
         var createdAt = new Date()
         var jsonData = { 
-            "_id" : params.username,
+            "_id" : username,
             "role" :params.role,
             "labels" :params.labels,
             "exclude" : [],
@@ -425,7 +428,10 @@ let proctorUserSaveCall = async (params) => {
             "face" : params.face,
             "passport" : params.passport,
             "verified" : params.verified || null,
-            "isActive" : true
+            "isActive" : true,
+            "browser" : B.browser,
+            "os" : B.os,
+            "platform" : B.platform
         }
         var getdata = {
             url:process.env.MONGO_URI,

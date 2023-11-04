@@ -194,5 +194,5 @@ module.exports = {
     getAttach,
     faceResponse,
     passportResponse1,
-    passportResponse2
+    passportResponse2,
 }

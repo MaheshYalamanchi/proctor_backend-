@@ -335,15 +335,15 @@ module.exports = function (params) {
     app.delete("/api/room/:UserId", async (req, res) => {
         "use strict";
         try {
-            app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
-            // let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
-            // if (result && result.success) {
-            //     app.logger.info({ success: true, message: result.message });
-            //     app.http.customResponse(res, result.message, 200);
-            // } else {
-            //     app.logger.info({ success: false, message: result.message });
-            //     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-            // }
+            // app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
+            let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
         } catch(error) {
             app.logger.error({ success: false, message: error });
             if (error && error.message) {

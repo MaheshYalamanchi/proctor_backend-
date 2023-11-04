@@ -65,6 +65,11 @@ let updateScore = async (params) => {
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
+            if (roomsData.duration >= roomsData.timeout && roomsData.timeout !== null) {
+                params.status = "stopped";
+            }else{
+                params.status = roomsData.status
+            }
             let c = roomsData.metrics;
             let timestamp = new Date(params.timestamp || new Date());
                 metrics = params.metrics || {};
@@ -151,6 +156,10 @@ let updateScore = async (params) => {
                 (!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
             }
             params.jsonData = jsonData
+            if (params.status === "stopped"){
+                jsonData.duration = roomsData.duration
+            }
+            params.jsonData.status = params.status
             let response = await shared_Service.roomsUpdate(params);
             if (response && response.success){
                 return { success: true, message: response.message.score}
