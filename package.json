@@ -20,6 +20,7 @@
     "axios-cookiejar-support": "^1.0.0",
     "azure-storage": "^2.10.3",
     "bcryptjs": "^2.4.3",
+    "bowser": "^2.11.0",
     "btoa": "^1.2.1",
     "chai": "^4.2.0",
     "connect-redis": "^4.0.4",
