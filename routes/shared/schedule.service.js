@@ -3,6 +3,7 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const shared = require('../shared/shared');
 const logger = require('../../logger/logger');
+const jwt_decode = require('jwt-decode');
 let getCandidateMessages = async (params) => {
     try {
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
@@ -44,7 +45,12 @@ let getCandidateMessages = async (params) => {
                     },
                     {$sort:{createdAt:-1}},
                     { "$skip": start },
-                    { "$limit": limit }
+                    { "$limit": limit },
+                    {
+                        "$addFields": {
+                            "data": true
+                        }
+                    }
                 ]
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
@@ -614,15 +620,22 @@ let getCandidateMessagesDetails = async (params) => {
 
 let SubmitSaveCall = async (params) => {
     try{ 
-        if(params.body.conclusion=="null"){
-            params.body.conclusion=null;
-            params.body.status='stopped';
-        } else if (params.body.conclusion=="negative"){
-            params.body.status='rejected';
-        } else if (params.body.conclusion=="positive"){
-            params.body.status='accepted';
+        var decodeToken = jwt_decode(params.body.authorization);
+        if(params.body.status == "stopped"){
+            if(params.body.conclusion=="null"){
+                params.body.conclusion=null;
+                params.body.status='stopped';
+            } else if (params.body.conclusion=="negative"){
+                params.body.status='rejected';
+            } else if (params.body.conclusion=="positive"){
+                params.body.status='accepted';
+            }
+        }else if (params.body.status == "paused"){
+            params.body.status ='paused';
         }
         params.body.stoppedAt = new Date()
+        params.body.proctor = decodeToken.id
+        delete params.body.authorization
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -637,6 +650,7 @@ let SubmitSaveCall = async (params) => {
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
             let getData = await schedule.roomSubmitSave(params);
             if(getData && getData.data && getData.data.statusMessage){
+                let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
                 let violatedResponse = await shared.getViolated(params.query)
                 if(violatedResponse && violatedResponse.success){
                     try {

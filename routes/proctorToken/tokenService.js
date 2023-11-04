@@ -47,10 +47,10 @@ let generateToken = async (req) => {
         let timeout = typeof req.timeout != 'undefined' ? req.timeout : 90
         let template = typeof req.template != 'undefined' ? req.template : "default"
         let user = {"assessmentId": req.assessmentId,"username": req.username,"nickname": req.nickname, "template": template,"subject":req.subject,"timeout":timeout}
-        if (!req.roomId){
+        if (!req.id){
             user.id = uuid()
         }else{
-            user.id = req.roomId
+            user.id = req.id
         }
         user.tags = [req.nickname,req.assessmentId, req.taskId];
         user.taskId = req.taskId

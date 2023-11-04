@@ -286,7 +286,20 @@ let proctorFetchCall = async (params) => {
             }
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.length) {
-                return { success: true, message: responseData.data.statusMessage[0] }
+                const providedDate =new Date(responseData.data.statusMessage[0].scheduledAt);
+                const currentDate = new Date();
+                const timeDifferenceMs = currentDate - providedDate;
+                const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
+                const deadline = new Date(responseData.data.statusMessage[0].deadline);
+                if(minutesDifference <= responseData.data.statusMessage[0].lifetime  || responseData.data.statusMessage[0].lifetime == null ){
+                    if(providedDate <= deadline || responseData.data.statusMessage[0].deadline == null ){
+                        return { success: true, message: responseData.data.statusMessage[0] }
+                    }else{
+                        return {success:false, message : 'Data Not Found'};
+                    }
+                }else{
+                    return {success:false, message : 'Data Not Found'};
+                }
             } else {
                 return { success: false, message: "Data not Found" }
             }
@@ -428,10 +441,9 @@ let proctorLimitCall = async (params) => {
                     model: "rooms",
                     docType: 1,
                     query: [ 
+                        { $match: { isActive: true } },
                         {$match: {
-                        
                         members:decodeToken.id 
-                        
                     }
                     },
                         {
@@ -500,6 +512,7 @@ let proctorLimitCall = async (params) => {
                 model: "rooms",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     { "$sort":sort },
                     { "$skip": start },
                     { "$limit": limit },
@@ -566,6 +579,7 @@ let proctorLimitCall = async (params) => {
                 model: "rooms",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     { "$sort": { createdAt: sort } },
                     { "$skip": start },
                     { "$limit": limit },
@@ -612,7 +626,7 @@ let proctorLimitCall = async (params) => {
                     }
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data) {
                 var getdata = {
                     url:process.env.MONGO_URI,
@@ -663,6 +677,7 @@ let proctorSearchCall = async (params) => {
                         model: "rooms",
                         docType: 1,
                         query: [
+                            { $match: { isActive: true } },
                             {$match: {
                                 $and: [
                                      { members:decodeToken.id } ,
@@ -751,6 +766,7 @@ let proctorSearchCall = async (params) => {
                                     delete iterator.student._id;
                             } 
                         }
+                        
                         return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     } else {
                         return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total} };
@@ -776,6 +792,7 @@ let proctorSearchCall = async (params) => {
                         model: "rooms",
                         docType: 1,
                         query: [
+                            { $match: { isActive: true } },
                             {
                                 $match: {
                                     $or: [
@@ -1136,7 +1153,6 @@ let proctorUserDetailsCall = async (params) => {
                 responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
                 responseData.data.statusMessage[0].username = responseData.data.statusMessage[0]._id
                 delete responseData.data.statusMessage[0]._id;
-                responseData.data.statusMessage[0].password = responseData.data.statusMessage[0].hashedPassword
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' };
@@ -1209,7 +1225,7 @@ let proctorRoomDetails = async (params) => {
                 {
                     $project: {
                         id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                        members: "members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                        members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                         subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                         updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
                         stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
