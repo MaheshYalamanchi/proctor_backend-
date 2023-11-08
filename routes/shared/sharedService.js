@@ -85,7 +85,10 @@ let proctorMeCall = async (params) => {
             let responseData = await invoke.makeHttpCall("post", "findById", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
-                delete responseData.data.statusMessage._id
+                delete responseData.data.statusMessage._id;
+                if (responseData.data.statusMessage.rep){
+                    delete responseData.data.statusMessage.rep
+                }
                 return { success: true, message: responseData.data.statusMessage }
                 // if (responseData && responseData.data && responseData.data.statusMessage[0] && (responseData.data.statusMessage[0].similar>0)){
                 //     let response = await schedule_Service.userInfo(decodeToken)
