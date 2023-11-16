@@ -1371,7 +1371,8 @@ let getface = async (params) => {
                 // console.log(faceResponse.message[0],'faceResponse.message[0]')
                 let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
                 if ( getCount.message.length >1 ){
-                    let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params.face);
+                    params.decodeToken = decodeToken
+                    let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params);
                     if(getFaceResponse && getFaceResponse.success){
                         return { success: true, message: getFaceResponse.message }
                         // let response = await schedule_Service.getface(decodeToken)

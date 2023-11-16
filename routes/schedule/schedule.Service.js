@@ -572,8 +572,8 @@ let GetFaceInsertionResponse = async (params) => {
             model: "users",
             docType: 1,
             query:{
-                filter: { "_id": decodeToken.id },
-                update: { $set: {"faceArray":[{"face": params}]} },
+                filter: { "_id": params.decodeToken.id },
+                update: { $set: {"faceArray":[{"face": params.face}]} },
                 projection: {
                     id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
                     exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
@@ -582,7 +582,7 @@ let GetFaceInsertionResponse = async (params) => {
                 }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage ) {
             return { success: true, message: responseData.data.statusMessage }
         } else {
