@@ -36,10 +36,27 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
-                    
+                    {
+                        $unwind: "$attach"
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'data1',
+                        }
+                    },
+                    { "$unwind": { "path": "$data1", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": "$attach", "createdAt": "$createdAt", "id": "$_id", "message": "$message", "room": "$room", "type": "$type", "_id": 0,"meatadata":"$metadata",
+                            "attach":[
+                                {
+                                    "filename":"$data1.filename",
+                                    "mimetype":"$data1.mimetype",
+                                    "id":"$data1._id"
+                                }
+                             ], "createdAt": "$createdAt", "id": "$_id", "message": "$message", "room": "$room", "type": "$type", "_id": 0,"meatadata":"$metadata",
                              "user.id":"$data._id","user.nickname":"$data.nickname","user.role":"$data.role","user.username":"$data._id"
                         }
                     },
