@@ -579,7 +579,14 @@ let getCandidateMessagesDetails = async (params) => {
                 [
                     {
                         "$match": {
-                            "room": params.params.roomId
+                            "room": params.params.roomId,
+                            "$and": [
+                                { "attach": { "$ne": [] } },
+                                { "$or": [
+                                    { "type": "face" },
+                                    { "type": { "$exists": true } }  // If type doesn't exist, it's considered a match
+                                ]}
+                            ]
                         }
                     },
                     {
@@ -622,6 +629,11 @@ let getCandidateMessagesDetails = async (params) => {
                 //     let response = await shared.getChatDetails(data)
                 //     data.attach = response.message
                 // }
+                // responseData.data.statusMessage.forEach(data => {    
+                // if (_.isEmpty(data.attach)) {         
+                //     delete data.attach;     
+                // } 
+                // });
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }
