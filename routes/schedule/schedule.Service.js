@@ -46,8 +46,19 @@ let getChatDetails = async (params) => {
 
 let getCandidateEventSend = async (params) => {
     try {
+        let violation = []
         if(params.body.authorization){
             decodeToken = jwt_decode(params.body.authorization)
+            if (params.body.peak){
+                for(let i= 0;i< params.body.peak.length;i++){
+                    let data = {
+                        "image": params.body.filename[i],
+                        "peak": params.body.peak[i],
+                        "createdAt": new Date(params.body.createdAt[i])
+                    }
+                    violation.push(data)
+                }
+            }
             jsonData = {
                 "type" : params.body.type,
                 "attach" : [],
@@ -55,7 +66,7 @@ let getCandidateEventSend = async (params) => {
                 "user" : decodeToken.id,
                 "createdAt" : new Date(),
                 "metadata" : params.body.metadata,
-                "violation" : params.body.violation
+                "violation" : violation || []
             }
             var getdata = {
                 url:process.env.MONGO_URI,
