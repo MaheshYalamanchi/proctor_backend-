@@ -26,7 +26,7 @@ let getChatDetails = async (params) => {
                         responseData.data.statusMessage.attach = params.body.body.attach
                         responseData.data.statusMessage.id = responseData.data.statusMessage._id
                         delete responseData.data.statusMessage._id
-                        console.log("chatPut====>>>",params.params.chatId+"      "+responseData.data.statusMessage.id)
+                        console.log("chatPut====>>>",params.params.chatId+"      "+params.body.body.attach[0])
                         return { success: true, message:responseData.data.statusMessage}
                 } else {
                     return { success: false, message: 'Data Not Found' };
