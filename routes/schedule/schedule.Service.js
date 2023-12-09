@@ -29,6 +29,7 @@ let getChatDetails = async (params) => {
                         console.log("chatPut====>>>",params.params.chatId+"      "+params.body.body.attach[0])
                         return { success: true, message:responseData.data.statusMessage}
                 } else {
+                    console.log("chatFalsePut====>>>",params.params.chatId+"      "+params.body.body.attach[0])
                     return { success: false, message: 'Data Not Found' };
                 }
             // }
