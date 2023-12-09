@@ -21,11 +21,12 @@ let getChatDetails = async (params) => {
                         update: { $push:{attach: params.body.body.attach[0] }}
                     }
                 };
-                let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
+                let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
                 if (responseData && responseData.data && responseData.data.statusMessage) {
                         responseData.data.statusMessage.attach = params.body.body.attach
                         responseData.data.statusMessage.id = responseData.data.statusMessage._id
                         delete responseData.data.statusMessage._id
+                        console.log("chatPut====>>>",params.params.chatId+"      "+responseData.data.statusMessage.id)
                         return { success: true, message:responseData.data.statusMessage}
                 } else {
                     return { success: false, message: 'Data Not Found' };
