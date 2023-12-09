@@ -37,12 +37,15 @@ module.exports = function (params) {
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else if(req && req.body && req.body.type && req.body.type == 'event') {
+                console.log("chatBody=====>>>",JSON.stringify(req.body))
                 let result = await schedule_Service.getCandidateEventSend(req);
                 if (result && result.success) {
+                    console.log("chatResponse=====>>>",JSON.stringify(result.message))
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
                 } else {
+                    console.log("ChatFalseResponse=====>>>",JSON.stringify(result.message))
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
