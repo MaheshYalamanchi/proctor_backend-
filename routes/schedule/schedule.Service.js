@@ -6,7 +6,6 @@ const schedule = require('./schedule');
 var ObjectID = require('mongodb').ObjectID;
 const moment = require('moment');
 let getChatDetails = async (params) => {
-    console.log("chatputBody=====>>>",JSON.stringify(params))
     decodeToken = jwt_decode(params.body.authorization)
     try {
         if (decodeToken){
@@ -22,6 +21,7 @@ let getChatDetails = async (params) => {
                         update: { $push:{attach: params.body.body.attach[0] }}
                     }
                 };
+                console.log("chatputBody=====>>>",JSON.stringify(getdata.query))
                 let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
                 if (responseData && responseData.data && responseData.data.statusMessage) {
                         responseData.data.statusMessage.attach = params.body.body.attach
