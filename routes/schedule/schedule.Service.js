@@ -6,6 +6,7 @@ const schedule = require('./schedule');
 var ObjectID = require('mongodb').ObjectID;
 const moment = require('moment');
 let getChatDetails = async (params) => {
+    console.log("chatputBody=====>>>",JSON.stringify(params))
     decodeToken = jwt_decode(params.body.authorization)
     try {
         if (decodeToken){
