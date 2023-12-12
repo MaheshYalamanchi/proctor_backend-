@@ -67,7 +67,7 @@ let getCandidateEventSend = async (params) => {
                 "attach" : [],
                 "room" : params.params.roomId,
                 "user" : decodeToken.id,
-                "createdAt" : new Date(),
+                "createdAt" :new Date(params.body.createdAt),
                 "metadata" : params.body.metadata,
                 "violation" : violation || []
             }
