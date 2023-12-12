@@ -3,6 +3,7 @@ let socketService=require('../shared/socketService');
 var Minio = require("minio");
 const tokenService = require('../../routes/proctorToken/tokenService');
 const schedule_Service = require('../schedule/schedule.Service');
+const schedule = require('./schedule');
 var minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ENDPOINT,
     port: 443,
@@ -41,8 +42,9 @@ module.exports = function (params) {
                 let result = await schedule_Service.getCandidateEventSend(req);
                 if (result && result.success) {
                     console.log("chatResponse=====>>>",JSON.stringify(result.message))
-                    app.logger.info({ success: true, message: result.message });
-                    app.http.customResponse(res, result.message, 200);
+                    app.logger.info({ success: true, message: result.message.data });
+                    app.http.customResponse(res, result.message.data, 200);
+                    let score = await schedule.updateScore(result.message.json)
                     //await socketService.messageTrigger(result.message)
                 } else {
                     console.log("ChatFalseResponse=====>>>",JSON.stringify(result.message))

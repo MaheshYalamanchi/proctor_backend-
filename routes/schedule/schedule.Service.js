@@ -53,14 +53,16 @@ let getCandidateEventSend = async (params) => {
         if(params.body.authorization){
             decodeToken = jwt_decode(params.body.authorization)
             if (params.body.peak){
-                for(let i= 0;i< params.body.peak.length;i++){
+                var i=0
+                params.body.peak.forEach(element => {
                     let data = {
                         "image": params.body.filename[i],
                         "peak": params.body.peak[i],
                         "createdAt": new Date(params.body.createdAt[i])
                     }
                     violation.push(data)
-                }
+                    i++
+                 });
             }
             jsonData = {
                 "type" : params.body.type,
@@ -80,8 +82,18 @@ let getCandidateEventSend = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
-                if (userResponse && userResponse.success){
+                let user = {
+                    "id": decodeToken.id,
+                    "nickname": decodeToken.id,
+                    "role": decodeToken.role,
+                    "username": decodeToken.id
+                }
+                delete responseData.data.statusMessage._id
+                delete responseData.data.statusMessage.violation
+                responseData.data.statusMessage.user = user
+                // let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
+                // if (userResponse && userResponse.success){
+                    
                     if (params.body.metadata.peak == "m3"){
                         json = {
                             timestamp:new Date(),
@@ -96,17 +108,18 @@ let getCandidateEventSend = async (params) => {
                             metrics : params.body.metadata.metrics
                         }
                     }
-                    let score = await schedule.updateScore(json)
-                    if (score.success){
-                        userResponse.message[0].metadata.score = score.message;
-                        return { success: true, message:userResponse.message[0]}
-                    } else  {
-                        return { success: true, message:"data not found"}
-                    }
+                    return { success: true, message:{data:responseData.data.statusMessage,json:json}}
+                    // let score = await schedule.updateScore(json)
+                    // if (score.success){
+                    //     responseData.data.statusMessage.metadata.score = score.message;
+                    //     return { success: true, message:responseData.data.statusMessage}
+                    // } else  {
+                    //     return { success: true, message:"data not found"}
+                    // }
                 }
-            } else {
-                return { success: false, message: 'Data Not Found' };
-            }
+            // } else {
+            //     return { success: false, message: 'Data Not Found' };
+            // }
         }else if(params.body){
             jsonData = {
                 "type" : params.body.type,
