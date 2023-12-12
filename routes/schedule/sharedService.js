@@ -15,7 +15,7 @@ let getCandidateMessageSend = async (params) => {
     try {
         var decodeToken = jwt_decode(params.headers.authorization);
         if (decodeToken){
-            params.body.createdAt = new Date();
+           console.log("......................createAt="+params.body.createdAt);
             params.body.room = params.params.roomId;
             params.body.user = decodeToken.id;
             delete params.body.headers;
