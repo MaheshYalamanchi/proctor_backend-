@@ -53,16 +53,24 @@ let getCandidateEventSend = async (params) => {
         if(params.body.authorization){
             decodeToken = jwt_decode(params.body.authorization)
             if (params.body.peak){
-                var i=0
-                params.body.peak.forEach(element => {
+                for(let i= 0;i< params.body.peak.length;i++){
                     let data = {
                         "image": params.body.filename[i],
                         "peak": params.body.peak[i],
                         "createdAt": new Date(params.body.createdAt[i])
                     }
                     violation.push(data)
-                    i++
-                 });
+                }
+                // var i=0
+                // params.body.peak.forEach(element => {
+                    // let data = {
+                    //     "image": params.body.filename[i],
+                    //     "peak": params.body.peak[i],
+                    //     "createdAt": new Date(params.body.createdAt[i])
+                    // }
+                    // violation.push(data)
+                //     i++
+                //  });
             }
             jsonData = {
                 "type" : params.body.type,
@@ -84,7 +92,7 @@ let getCandidateEventSend = async (params) => {
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 let user = {
                     "id": decodeToken.id,
-                    "nickname": decodeToken.id,
+                    "nickname": decodeToken.nickname,
                     "role": decodeToken.role,
                     "username": decodeToken.id
                 }
@@ -120,52 +128,53 @@ let getCandidateEventSend = async (params) => {
             // } else {
             //     return { success: false, message: 'Data Not Found' };
             // }
-        }else if(params.body){
-            jsonData = {
-                "type" : params.body.type,
-                "attach" : [],
-                "room" : params.params.roomId,
-                "createdAt" : new Date(),
-                "metadata" : params.body.metadata,
-                "violation" : params.body.violation
-            }
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "chats",
-                docType: 0,
-                query: jsonData
-            };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
-                if (userResponse && userResponse.success){
-                    if (params.body.metadata.peak == "m3"){
-                        json = {
-                            timestamp:new Date(),
-                            room :params.params.roomId,
-                            metrics : params.body.metadata.metrics,
-                            peak : params.body.metadata.peak
-                        }
-                    } else {
-                        json = {
-                            timestamp:new Date(),
-                            room :params.params.roomId,
-                            metrics : params.body.metadata.metrics
-                        }
-                    }
-                    let score = await schedule.updateScore(json)
-                    if (score.success){
-                        userResponse.message[0].metadata.score = score.message;
-                        return { success: true, message:userResponse.message[0]}
-                    } else  {
-                        return { success: true, message:"data not found"}
-                    }
-                }
-            } else {
-                return { success: false, message: 'Data Not Found' };
-            }
-        }else{
+        }
+        // else if(params.body){
+        //     jsonData = {
+        //         "type" : params.body.type,
+        //         "attach" : [],
+        //         "room" : params.params.roomId,
+        //         "createdAt" : new Date(),
+        //         "metadata" : params.body.metadata,
+        //         "violation" : params.body.violation
+        //     }
+        //     var getdata = {
+        //         url:process.env.MONGO_URI,
+        //         database:"proctor",
+        //         model: "chats",
+        //         docType: 0,
+        //         query: jsonData
+        //     };
+        //     let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+        //     if (responseData && responseData.data && responseData.data.statusMessage._id) {
+        //         let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
+        //         if (userResponse && userResponse.success){
+        //             if (params.body.metadata.peak == "m3"){
+        //                 json = {
+        //                     timestamp:new Date(),
+        //                     room :params.params.roomId,
+        //                     metrics : params.body.metadata.metrics,
+        //                     peak : params.body.metadata.peak
+        //                 }
+        //             } else {
+        //                 json = {
+        //                     timestamp:new Date(),
+        //                     room :params.params.roomId,
+        //                     metrics : params.body.metadata.metrics
+        //                 }
+        //             }
+        //             let score = await schedule.updateScore(json)
+        //             if (score.success){
+        //                 userResponse.message[0].metadata.score = score.message;
+        //                 return { success: true, message:userResponse.message[0]}
+        //             } else  {
+        //                 return { success: true, message:"data not found"}
+        //             }
+        //         }
+        //     } else {
+        //         return { success: false, message: 'Data Not Found' };
+        //     }
+        else{
             return { success: false, message: 'Invalid Token Error' };
         }
     } catch (error) {
