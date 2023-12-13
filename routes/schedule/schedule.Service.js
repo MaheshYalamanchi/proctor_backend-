@@ -18,7 +18,7 @@ let getChatDetails = async (params) => {
                     docType: 0,
                     query:{
                         filter: { "_id": params.params.chatId },
-                        update: { $push:{attach: params.body.body.attach[0] }}
+                        update: { $push:{attach: params.body.body.attach[0]},createdAt:new Date() }
                     }
                 };
                 console.log("chatputBody=====>>>",JSON.stringify(getdata.query))
