@@ -65,7 +65,7 @@ let updateScore = async (params) => {
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
-            if (roomsData.duration >= roomsData.timeout && roomsData.timeout !== null) {
+            if (roomsData.duration >= roomsData.lifetime && roomsData.lifetime !== null) {
                 params.status = "stopped";
             }else{
                 params.status = roomsData.status

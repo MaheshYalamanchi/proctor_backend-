@@ -37,42 +37,64 @@ let getCandidateMessages = async (params) => {
                     },
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
-                        $unwind: "$attach"
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                            
+                        }
                     },
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
                     {
                         "$lookup": {
                             "from": 'attaches',
                             "localField": 'attach',
                             "foreignField": '_id',
-                            "as": 'data1',
+                            "as": 'attaches',
                         }
                     },
-                    { "$unwind": { "path": "$data1", "preserveNullAndEmptyArrays": true } },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
+                            "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
+                            "user": {
+                                        "id": "$user.id",
+                                        "nickname": "$user.nickname",
+                                        "role": "$user.role",
+                                        "username": "$user.id"
+                                    },
                             "attach":[
-                                {
-                                    "filename":"$data1.filename",
-                                    "mimetype":"$data1.mimetype",
-                                    "id":"$data1._id"
-                                }
-                             ], "createdAt": "$createdAt", "id": "$_id", "message": "$message", "room": "$room", "type": "$type", "_id": 0,"meatadata":"$metadata",
-                             "user.id":"$data._id","user.nickname":"$data.nickname","user.role":"$data.role","user.username":"$data._id"
+                                        {
+                                            "filename":"$attaches.filename",
+                                            "mimetype":"$attaches.mimetype",
+                                            "id":"$attaches._id"
+                                        }
+                                     ]
                         }
                     },
-                    {$sort:{createdAt:-1}},
-                    { "$skip": start },
-                    { "$limit": limit },
                     {
-                        "$addFields": {
-                            "data": true
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
                         }
-                    }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data"}}
                 ]
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage}
+                return { success: true, message: responseData.data.statusMessage[0].data}
             } else {
                 return { success: false, message: 'Data Not Found' }
             }

@@ -103,7 +103,7 @@ let faceResponse = async (params) => {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage.attached;
-                delete responseData.data.statusMessage.metadata;
+                // delete responseData.data.statusMessage.metadata;
                 delete responseData.data.statusMessage.__v;
                 return ({success:true,message :responseData.data.statusMessage}) ;
             }else{
