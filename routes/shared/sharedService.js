@@ -6,6 +6,7 @@ const jwt_decode = require('jwt-decode');
 const schedule = require("../auth/sehedule");
 const { v4: uuidv4 } = require('uuid');
 const schedule_Service = require('../schedule/schedule.Service');
+const shared = require('../../routes/schedule/sharedService')
 const search = require('../../routes/search');
 const logger =require('../../logger/logger')
 const _ = require('lodash');
@@ -290,17 +291,18 @@ let proctorFetchCall = async (params) => {
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.length) {
                 const providedDate =new Date(responseData.data.statusMessage[0].scheduledAt);
-                const currentDate = new Date();
-                const timeDifferenceMs = currentDate - providedDate;
+                const timeDifferenceMs = new Date() - new Date(responseData.data.statusMessage[0].updatedAt);
                 const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
+                // const timeOut = minutesDifference - responseData.data.statusMessage[0].timeout
                 const deadline = new Date(responseData.data.statusMessage[0].deadline);
-                if(minutesDifference <= responseData.data.statusMessage[0].lifetime  || responseData.data.statusMessage[0].lifetime == null ){
+                if(minutesDifference <= responseData.data.statusMessage[0].timeout  || responseData.data.statusMessage[0].timeout == null ){
                     if(providedDate <= deadline || responseData.data.statusMessage[0].deadline == null ){
                         return { success: true, message: responseData.data.statusMessage[0] }
                     }else{
                         return {success:false, message : 'Data Not Found'};
                     }
                 }else{
+                    let result = await shared.stoppedAt(responseData.data.statusMessage[0]);
                     return {success:false, message : 'Data Not Found'};
                 }
             } else {

@@ -433,6 +433,60 @@ let proctorUserSaveCall = async (params) => {
             "os" : B.os,
             "platform" : B.platform
         }
+        if(params.role = "administrator"){
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database: "proctor",
+                model: "attaches",
+                docType: 1,
+                query: [
+                  {
+                    "$match": { _id: params.face }
+                  },
+                  {
+                    $project: { _id:0, metadata:1}
+                  }
+                ]
+              };
+              let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+              jsonData.rep = response.data.statusMessage[0].metadata.rep
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database: "proctor",
+            model: "users",
+            docType: 1,
+            query: [
+              {
+                "$match": { _id: params.username }
+              },
+              {
+                $project: { _id:1, isActive:1}
+              }
+            ]
+          };
+          let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+          if (response && response.data.statusMessage.length !=0) {
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database: "proctor",
+                model: "users",
+                docType: 0,
+                query: {
+                  filter :{"_id": params.username},
+                  update: {$set: jsonData},
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            let getData = await schedule.UserSave(response.data.statusMessage[0]._id);
+            if (getData && getData.data && getData.data.statusMessage) {
+                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+                delete getData.data.statusMessage[0]._id;
+                return { success: true, message: getData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+          } 
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -440,7 +494,6 @@ let proctorUserSaveCall = async (params) => {
             docType: 0,
             query: jsonData
         };
-
         let responseData = await invoke.makeHttpCall("post", "insert", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage._id) {
             let getData = await schedule.UserSave(responseData.data.statusMessage._id);
