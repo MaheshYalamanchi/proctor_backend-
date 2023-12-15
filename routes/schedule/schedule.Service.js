@@ -52,12 +52,21 @@ let getCandidateEventSend = async (params) => {
         let violation = []
         if(params.body.authorization){
             decodeToken = jwt_decode(params.body.authorization)
-            if (params.body.peak){
-                for(let i= 0;i< params.body.peak.length;i++){
-                    let data = {
-                        "image": params.body.filename[i],
-                        "peak": params.body.peak[i],
-                        "createdAt": new Date(params.body.createdAt[i])
+            if (params.body.filename){
+                for(let i= 0;i< params.body.filename.length;i++){
+                    let data;
+                    if("string" == typeof params.body.peak ){
+                        data = {
+                            "image": params.body.filename[i],
+                            "peak": params.body.peak,
+                            "createdAt": new Date(params.body.createdAt)
+                        }
+                    } else {
+                        data = {
+                            "image": params.body.filename[i],
+                            "peak": params.body.peak[i],
+                            "createdAt": new Date(params.body.createdAt[i])
+                        }
                     }
                     violation.push(data)
                 }
@@ -97,7 +106,6 @@ let getCandidateEventSend = async (params) => {
                     "username": decodeToken.id
                 }
                 delete responseData.data.statusMessage._id
-                delete responseData.data.statusMessage.violation
                 responseData.data.statusMessage.user = user
                 // let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
                 // if (userResponse && userResponse.success){
