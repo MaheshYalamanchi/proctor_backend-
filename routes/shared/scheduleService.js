@@ -433,7 +433,7 @@ let proctorUserSaveCall = async (params) => {
             "os" : B.os,
             "platform" : B.platform
         }
-        if(params.role = "administrator"){
+        if(params.role = "administrator"  && params.face != undefined){
             var getdata = {
                 url:process.env.MONGO_URI,
                 database: "proctor",
@@ -466,7 +466,7 @@ let proctorUserSaveCall = async (params) => {
             ]
           };
           let response = await invoke.makeHttpCall("post", "aggregate", getdata);
-          if (response && response.data.statusMessage.length !=0) {
+          if (response && response.data.statusMessage.length>0) {
             var getdata = {
                 url:process.env.MONGO_URI,
                 database: "proctor",
@@ -486,27 +486,28 @@ let proctorUserSaveCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-          } 
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "users",
-            docType: 0,
-            query: jsonData
-        };
-        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage._id) {
-            let getData = await schedule.UserSave(responseData.data.statusMessage._id);
-            if (getData && getData.data && getData.data.statusMessage) {
-                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
-                delete getData.data.statusMessage[0]._id;
-                return { success: true, message: getData.data.statusMessage[0] }
+          } else{
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "users",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                let getData = await schedule.UserSave(responseData.data.statusMessage._id);
+                if (getData && getData.data && getData.data.statusMessage) {
+                    getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+                    delete getData.data.statusMessage[0]._id;
+                    return { success: true, message: getData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else {
-            return { success: false, message: 'Data Not Found' }
-        }
+          }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
