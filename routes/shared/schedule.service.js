@@ -605,6 +605,7 @@ let getCandidateMessagesDetails = async (params) => {
                             "room": params.params.roomId,
                             "$and": [
                                 { "attach": { "$ne": [] } },
+                                { "attach": { "$ne": [null] } },
                                 { "$or": [
                                     { "type": "face" },
                                     { "type": { "$exists": true } }  // If type doesn't exist, it's considered a match
