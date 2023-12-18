@@ -80,7 +80,8 @@ let getCandidateMessages = async (params) => {
                         "$facet": {
                             "data": [
                                 { "$sort": { "createdAt": sort } },
-                                { "$limit": limit }
+                                { "$skip": start },
+                                { "$limit": limit }, 
                             ],
                             "total_count": [
                                 { "$group": { _id: null, "count": { "$sum": 1 } } },
@@ -89,7 +90,7 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
-                    {"$project":{"data":"$data"}}
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
@@ -180,7 +181,7 @@ let getCandidateMessages = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
+                return { success: true, message: responseData.data.statusMessage[0].data }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
