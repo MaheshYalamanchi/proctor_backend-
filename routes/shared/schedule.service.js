@@ -685,6 +685,10 @@ let SubmitSaveCall = async (params) => {
             }
         }else if (params.body.status == "paused"){
             params.body.status ='paused';
+        }else if(params.body.conclusion=="positive"){
+            params.body.status='accepted';
+        }else if(params.body.conclusion=="negative"){
+            params.body.status='rejected';
         }
         params.body.stoppedAt = new Date()
         params.body.proctor = decodeToken.id
