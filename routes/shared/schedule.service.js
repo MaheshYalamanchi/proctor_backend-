@@ -700,58 +700,58 @@ let SubmitSaveCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
-            if(!(status == "paused")){
                 let getData = await schedule.roomSubmitSave(params);
                 if(getData && getData.data && getData.data.statusMessage){
-                    let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
-                    let violatedResponse = await shared.getViolated(params.query)
-                    if(violatedResponse && violatedResponse.success){
-                        try {
-                            let roomData = getData.data.statusMessage[0]
-                            let jsonData = {
-                                    "score": roomData.score,
-                                    "student": roomData.student.nickname,
-                                    "email": roomData.tags[0],
-                                    "labels": roomData.labels ||"-",
-                                    "verified": "yes",
-                                    "id": roomData.id,
-                                    "face": roomData.student.face,
-                                    "passport": roomData.student.passport,
-                                    "subject": roomData.subject,
-                                    "startedAt": roomData.startedAt,
-                                    "stoppedAt": roomData.stoppedAt ||new Date() ,
-                                    "credibility" :"0%",
-                                    "conclusion": roomData.conclusion || "-",
-                                    "proctor": roomData.members,
-                                    "comment": roomData.comment,
-                                    "averages": roomData.averages,
-                                    "xaxis": roomData.timesheet.xaxis,
-                                    "yaxis": roomData.timesheet.yaxis,
-                                    "metrics": roomData.metrics,
-                                    "screen" : violatedResponse.message,
-                                    "browser": roomData.student.browser,
-                                    "os": roomData.student.os,
-                                    "ipaddress": roomData.ipaddress,
-                                    "duration": roomData.duration,
-                                    "status": roomData.status
+                    let roomData = getData.data.statusMessage[0]
+                    if(!(roomData.status == "paused")){
+                        let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
+                        let violatedResponse = await shared.getViolated(params.query)
+                        if(violatedResponse && violatedResponse.success){
+                            try {
+                                let jsonData = {
+                                        "score": roomData.score,
+                                        "student": roomData.student.nickname,
+                                        "email": roomData.tags[0],
+                                        "labels": roomData.labels ||"-",
+                                        "verified": "yes",
+                                        "id": roomData.id,
+                                        "face": roomData.student.face,
+                                        "passport": roomData.student.passport,
+                                        "subject": roomData.subject,
+                                        "startedAt": roomData.startedAt,
+                                        "stoppedAt": roomData.stoppedAt ||new Date() ,
+                                        "credibility" :"0%",
+                                        "conclusion": roomData.conclusion || "-",
+                                        "proctor": roomData.members,
+                                        "comment": roomData.comment,
+                                        "averages": roomData.averages,
+                                        "xaxis": roomData.timesheet.xaxis,
+                                        "yaxis": roomData.timesheet.yaxis,
+                                        "metrics": roomData.metrics,
+                                        "screen" : violatedResponse.message,
+                                        "browser": roomData.student.browser,
+                                        "os": roomData.student.os,
+                                        "ipaddress": roomData.ipaddress,
+                                        "duration": roomData.duration,
+                                        "status": roomData.status
+                                    }
+                                let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
+                                if (generateReport) {
+                                    logger.info({ success: true, message: "pdf report generated successfully..." });
+                                } else {
+                                    logger.info({ success: false, message: "pdf report not generated..." });
                                 }
-                            let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
-                            if (generateReport) {
-                                logger.info({ success: true, message: "pdf report generated successfully..." });
-                            } else {
+                            }catch(error){
                                 logger.info({ success: false, message: "pdf report not generated..." });
                             }
-                        }catch(error){
-                            logger.info({ success: false, message: "pdf report not generated..." });
                         }
+                        return { success: true, message: getData.data.statusMessage[0] }
+                    } else {
+                        return { success: true, message: getData.data.statusMessage[0] }
                     }
-                    return { success: true, message: getData.data.statusMessage[0] }
                 } else {
                     return { success: false, message: 'Data Not Found' }
                 }
-            } else {
-                return { success: true, message: "Session paused." }
-            }
         } else {
             return { success: false, message: 'Data Not Found' }
         }
