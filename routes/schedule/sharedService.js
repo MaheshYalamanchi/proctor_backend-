@@ -772,6 +772,28 @@ let stoppedAt = async (params) => {
     }
 };
 
+let fetchMetrics = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: {
+                _id: params
+            }
+        };
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return {success:false,message:err};
+    }
+};
+
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
@@ -789,5 +811,6 @@ module.exports = {
     mobilecheck,
     headphonecheck,
     stoppedAt,
-    getFaceResponse1
+    getFaceResponse1,
+    fetchMetrics
 }
