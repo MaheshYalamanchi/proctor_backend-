@@ -548,11 +548,8 @@ let fetchTemplate =async(params)=>{
 }
 let errorupdate =async(params)=>{
     try {
-        const date = new Date()
-        const object = {
-            error : params.body,
-            "createdAt": date
-          }
+        let errorCounter = params.error
+        errorCounter++;
         data = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -561,8 +558,8 @@ let errorupdate =async(params)=>{
             query: {
                 filter: { "_id": params.id },
                 update: { 
-                    $push: { "errorlog" : object},
-                    $set: { error : params.body}
+                    $push: { "errorlog" :  params.body },
+                    $set: { error : errorCounter}
                 }
             }
         };

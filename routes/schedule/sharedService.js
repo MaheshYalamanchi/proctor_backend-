@@ -39,6 +39,7 @@ let getCandidateMessageSend = async (params) => {
                     }
                     let responseData = await schedule.chatincidents(jsonData)
                     if (responseData && responseData.data && responseData.data.statusMessage) {
+                        // let result = await schedule.MessageSend(responseData.data.statusMessage._id);
                         return { success: true, message: responseData.data.statusMessage }
                     } else {
                         return { success: false, message: 'Data Not Found' };
@@ -454,13 +455,6 @@ let getDatails = async (params) => {
                 query: {_id:params.query.id}
             };
         } else {
-            if(params.body.body.error !== null){
-                data = {
-                    id : params.query.id,
-                    body : params.body.body.error
-                }
-                let responsemessage = await scheduleService.errorupdate(data)
-            }
             getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",
@@ -469,9 +463,17 @@ let getDatails = async (params) => {
                 query: {_id:params.query.id}
             };
         }
-        
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
+            if(params.body.body !== null){
+                params.body.body.createdAt = new Date()
+                const data = {
+                    id : params.query.id,
+                    body : params.body.body,
+                    error : responseData.data.statusMessage[0].error
+                }
+                let responsemessage = await scheduleService.errorupdate(data)
+            }
             responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
             delete responseData.data.statusMessage[0]._id
             return { success: true, message: responseData.data.statusMessage[0] }
