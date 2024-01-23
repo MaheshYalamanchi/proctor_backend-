@@ -26,7 +26,7 @@ module.exports = function (params) {
                     app.http.customResponse(res, result.message, 200);
                 } else {
                     app.logger.info({ success: false, message: result.message });
-                    app.http.customResponse(res, { success: false, message: 'Unauthorized' }, 200);
+                    app.http.customResponse(res, { success: false, message: 'Username or Password is incorrect' }, 200);
                 }
             }
         } catch (error) {
