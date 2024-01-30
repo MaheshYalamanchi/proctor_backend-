@@ -50,6 +50,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log(error,"userError1=======>>>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
@@ -70,6 +71,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log(error,"fetchError1=======>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
@@ -81,6 +83,7 @@ module.exports = function (params) {
     app.post("/api/auth", async (req, res) => {
         "use strict";
         try {
+            // console.log(JSON.stringify(req.body),'api/auth........')
             let result = await sharedSevices.proctorAuthCall(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
@@ -90,6 +93,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log(error,"authError1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
@@ -139,6 +143,15 @@ module.exports = function (params) {
                 }
             } else if (req && req.query && req.query.limit || req.query.limit && req.query.start && req.query.count && req.query.continue) {
                 let result = await sharedSevices.proctorLimitCall(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                let result = await sharedSevices.proctorSuggestSaveCall(req.body)
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -275,26 +288,26 @@ module.exports = function (params) {
             }
         }
     });
-    app.post("/api/room", async (req, res) => {
-        "use strict";
-        try {
-            let result = await sharedSevices.proctorSuggestSaveCall(req.body)
-            if (result && result.success) {
-                app.logger.info({ success: true, message: result.message });
-                app.http.customResponse(res, result.message, 200);
-            } else {
-                app.logger.info({ success: false, message: result.message });
-                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-            }
-        }catch(error){
-            app.logger.error({ success: false, message: error });
-            if (error && error.message) {
-                app.http.customResponse(res, { success: false, message: error.message }, 400)
-            } else {
-                app.http.customResponse(res, { success: false, message: error }, 400)
-            }
-        }
-    });
+    // app.post("/api/room", async (req, res) => {
+    //     "use strict";
+    //     try {
+    //         let result = await sharedSevices.proctorSuggestSaveCall(req.body)
+    //         if (result && result.success) {
+    //             app.logger.info({ success: true, message: result.message });
+    //             app.http.customResponse(res, result.message, 200);
+    //         } else {
+    //             app.logger.info({ success: false, message: result.message });
+    //             app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //         }
+    //     }catch(error){
+    //         app.logger.error({ success: false, message: error });
+    //         if (error && error.message) {
+    //             app.http.customResponse(res, { success: false, message: error.message }, 400)
+    //         } else {
+    //             app.http.customResponse(res, { success: false, message: error }, 400)
+    //         }
+    //     }
+    // });
     app.put("/api/room/:userId", async (req, res) => {
         "use strict";
         try {
@@ -322,15 +335,15 @@ module.exports = function (params) {
     app.delete("/api/room/:UserId", async (req, res) => {
         "use strict";
         try {
-            app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
-            // let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
-            // if (result && result.success) {
-            //     app.logger.info({ success: true, message: result.message });
-            //     app.http.customResponse(res, result.message, 200);
-            // } else {
-            //     app.logger.info({ success: false, message: result.message });
-            //     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
-            // }
+            // app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
+            let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
         } catch(error) {
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -361,11 +374,53 @@ module.exports = function (params) {
             }
         }
     });
-    app.put("/api/user/me", async (req, res) => {
+    app.put("/api/user/me1", async (req, res) => {
         "use strict";
         try {
-            // req.body.authorization = req.headers.authorization;
-            let result = await sharedSevices.getfacePassport(req.body)
+            // console.log(req.body,'body data...............')
+            let result = await sharedSevices.getface(req.body)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
+        } catch (error) {
+            console.log(error,"putme1====>>>>putme1")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.put("/api/user/me2", async (req, res) => {
+        "use strict";
+        try {
+            let result = await sharedSevices.getPassport(req.body)
+            if (result && result.success) {
+                app.logger.info({ success: true, message: result.message });
+                app.http.customResponse(res, result.message, 200);
+            } else {
+                app.logger.info({ success: false, message: result.message });
+                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+            }
+        } catch (error) {
+            console.log(error,"putme2====>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.get("/api/check", async (req, res) => {
+        "use strict";
+        try {
+            let result = await sharedSevices.getCheck()
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
@@ -379,6 +434,30 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400)
             } else {
                 app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.get("/api/room/notification/:userId", async (req, res) => {
+        "use strict";
+        try {
+            if (req.params) {
+                let result = await sharedSevices.notificationupdate(req.params);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, { success: true, message: result.message }, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: result.message }, 200);
+                }
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
             }
         }
     });

@@ -7,32 +7,71 @@ const TOKEN_KEY ="eime6Daeb2xanienojaefoh4";
 const tokenService = require('../../routes/proctorToken/tokenService');
 const scheduleservice = require('../auth/schedule.service');
 const scheduleService = require('../schedule/scheduleService');
-const shared = require("../../routes/shared/shared")
+const shared = require("../../routes/shared/shared");
+const logger = require('../../logger/logger');
+const _ = require('lodash');
 
 let getCandidateMessageSend = async (params) => {
     try {
         var decodeToken = jwt_decode(params.headers.authorization);
-        params.body.createdAt = new Date();
-        params.body.room = params.params.roomId;
-        params.body.user = decodeToken.id;
-        delete params.body.headers;
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "chats",
-            docType: 0,
-            query: params.body
-        };
-        let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.statusMessage._id) {
-            let responseData = await schedule.MessageSend(response.data.statusMessage._id);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
-            } else {
-                return { success: false, message: 'Data Not Found' };
+        if (decodeToken){
+            params.body.createdAt = new Date();
+            params.body.room = params.params.roomId;
+            params.body.user = decodeToken.id;
+            delete params.body.headers;
+            if(params.params.roomId == "sendToAll"){
+                var data = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "rooms",
+                    docType: 1,
+                    query: [
+                        { $match: { "members": "defaultproctor" }},
+                        { $group: {_id: params.params.roomId, count: { $sum: 1 }}},
+                        {$project: {_id: 1,count: 1 }}
+                    ]
+                };
+                let response = await invoke.makeHttpCall("post", "aggregate", data)
+                if(response && response.data && response.data.statusMessage[0].count){
+                    jsonData = {
+                        count : response.data.statusMessage[0].count,
+                        data : params
+                    }
+                    let responseData = await schedule.chatincidents(jsonData)
+                    if (responseData && responseData.data && responseData.data.statusMessage) {
+                        // let result = await schedule.MessageSend(responseData.data.statusMessage._id);
+                        return { success: true, message: responseData.data.statusMessage }
+                    } else {
+                        return { success: false, message: 'Data Not Found' };
+                    }
+                }else{
+                    return { success: false, message: 'Data Not Found' }
+                }
+            }else{
+                params.body.notification = "unread"
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database:"proctor",
+                    model: "chats",
+                    docType: 0,
+                    query: params.body
+                };
+                let response = await invoke.makeHttpCall("post", "write", getdata);
+                if (response && response.data && response.data.statusMessage._id) {
+                    let responseData = await schedule.MessageSend(response.data.statusMessage._id);
+                    if (responseData && responseData.data && responseData.data.statusMessage) {
+                        let messageData=responseData.data.statusMessage[0]
+                        messageData.attach = messageData.attach.filter(obj => Object.keys(obj).length !== 0);
+                        return { success: true, message: messageData }
+                    } else {
+                        return { success: false, message: 'Data Not Found' };
+                    }
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
             }
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: false, message: 'Invalid Token Error' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -135,94 +174,139 @@ let getNewChatMessagesV2 = async (params) => {
     }
 };
 let getFaceResponse = async (params) => {
-    decodeToken = jwt_decode(params.authorization)
+    
     try {
-        let userResponse = await scheduleService.userDetails(decodeToken);
-        if (userResponse && userResponse.success){
-            var thresold = params.thresold || 0.25;
-            var distance = 0;
-            if (userResponse.message[0].rep.length === params.rep.length){
-                for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                            const B = userResponse[0].rep[A] - params.rep[A];
-                            distance += B * B;
-                        }
+        decodeToken = jwt_decode(params.authorization);
+        if (decodeToken){
+            let takePhotoThreshHold,validationVal;
+            let userResponse = await scheduleService.userDetails(decodeToken);
+            if (userResponse && userResponse.success){
+                // var threshold = userResponse.message[0].threshold || 0.25;
+            
+                var distance = 0;
+                if (userResponse.message[0].rep.length === params.rep.length){
+                    /*for (let A = 0; A < userResponse.message[0].rep.length; A++) {
+                        const B = userResponse.message[0].rep[A] - params.rep[A];
+                        distance += B * B;
+                    }*/
+                    var A=0
+                    _.map(userResponse.message[0].rep, (item) => {
+                        const B = item - params.rep[A];
+                        A++
+                        return distance += B * B;
+                    });
+                    takePhotoThreshHold=0.25
+                    verified = distance <= takePhotoThreshHold
+                }else{
+                    /*for (let A = 0; A < params.rep.length; A++) {
+                        const B = -0 - params.rep[A];
+                        distance += B * B;
+                    }*/
+                    _.map(params.rep, (item) => {
+                        const B = -0 - item;
+                        distance += B * B;
+                    });
+                    takePhotoThreshHold=(Math.round(distance)+1)/10
+                    verified = 0 <= takePhotoThreshHold
+                }
+            
+                // var getData = {
+                //     url: process.env.MONGO_URI,
+                //     client: "users",
+                //     docType: 0,
+                //     query : {
+                //         "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
+                //         "scope":{
+                //             "c":0,
+                //             "e":[userResponse.message[0]._id],
+                //             "n":10,
+                //             "s":params.rep,
+                //             "t":0.15
+                //         },
+                //         "out":"myCollections",
+                //         "sort":{ "loggedAt": -1 },
+                //         "limit":1000
+                //     }
+                // }
+                // var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
+                // if (similarfaces && similarfaces.data.success){
+                    // similarfaces.data.distance = distance;
+                    // similarfaces.data.verified = verified;
+                    // similarfaces.data.threshold = takePhotoThreshHold;
+                    // similarfaces.data.decodeToken = decodeToken;
+                    // similarfaces.data.originalFilename = params.myfile.originalFilename;
+                    // similarfaces.data.mimetype = params.myfile.mimetype;
+                    // similarfaces.data.size = params.myfile.size;
+                    // similarfaces.data.rep = params.rep;
+                    let data = {
+                        distance: distance,
+                        verified: verified,
+                        threshold: takePhotoThreshHold,
+                        decodeToken: decodeToken,
+                        originalFilename: params.myfile.originalFilename,
+                        mimetype: params.myfile.mimetype,
+                        size: params.myfile.size,
+                        rep: params.rep,
                     }
-            var verified = distance <= thresold
-            var getData = {
-                url: process.env.MONGO_URI,
-                client: "users",
-                docType: 0,
-                query : {
-                    "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
-                    "scope":{
-                        "c":0,
-                        "e":[userResponse.message[0]._id],
-                        "n":10,
-                        "s":params.rep,
-                        "t":0.15
-                    },
-                    "out":"myCollections",
-                    "sort":{ "loggedAt": -1 },
-                    "limit":1000
-                }
-            }
-            var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-            if (similarfaces && similarfaces.data.success){
-                var jsonData = {
-                    thresold : thresold,
-                    distance : distance,
-                    // verified : verified,
-                    similar : similarfaces.data.message,
-                    userId : decodeToken.id,
-                    rep : params.rep
-                }
-                let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
-                if (getDetails.success){
-                    let userData = await scheduleService.userDetails(decodeToken);
-                    if (userData && userData.success){
-                        params.message = userData.message[0];
-                        let response = await scheduleservice.faceResponse(params);
-                        if (response.success){
-                            var getdata = {
-                                url:process.env.MONGO_URI,
-                                database:"proctor",
-                                model: "attaches",
-                                docType: 1,
-                                query: [
-                                        {
-                                            "$addFields": { "test": { "$toString": "$_id" } }
-                                        },
-                                        {
-                                            "$match": { "test": response.message }
-                                        },
-                                        {
-                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                        metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
-                                        }
-                                    ]
-                            };
-                            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                            if (responseData && responseData.data && responseData.data.statusMessage) {
-                                return { success: true, message: responseData.data.statusMessage[0] }
-                            } else {
-                                return { success: false, message: 'Data Not Found' };
-                            }
-                        } else {
-                            return { success: false, message: response.message };
-                        } 
-                    } else {
-                        return { success: false, message: userData.message };
-                    } 
-                }else {
-                    return { success: false, message: getDetails.message}
-                }
+                    return { success: true, message: data }
             } else {
-                return { success: false, message: 'similarfaces error' };
-            }    
+                return { success: false, message: userResponse.message };
+            }
         } else {
-            return { success: false, message: userResponse.message };
+            return { success: false, message: "Invalid Token Error" };
         }
     } catch (error) {
+        console.log(error,"face2====>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getFaceResponse1 = async (params) => {
+    try {
+        let response = await scheduleservice.faceResponse(params);
+        if (response.success){
+            if(params.decodeToken.role == "student"){
+                let updatedRecord= await shared.updateRecord(params.decodeToken);
+                if (updatedRecord && updatedRecord.success){
+                    return { success: true, message: response.message }
+                } else {
+                    return { success: false, message: updatedRecord.message }
+                }
+            } else {
+                return { success: true, message: response.message }
+            }
+            // var getdata = {
+            //     url:process.env.MONGO_URI,
+            //     database:"proctor",
+            //     model: "attaches",
+            //     docType: 1,
+            //     query: [
+            //             {
+            //                 "$addFields": { "test": { "$toString": "$_id" } }
+            //             },
+            //             {
+            //                 "$match": { "test": response.message }
+            //             },
+            //             {
+            //                 "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
+            //                             metadata:"$metadata",createdAt:"$createdAt",attached:"$attached"}
+            //             }
+            //         ]
+            // };
+            // let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            // if (responseData && responseData.data && responseData.data.statusMessage) {
+            //    return { success: true, message: response.message }
+            // } else {
+            //     return { success: false, message: 'Data Not Found' };
+            // }
+        } else {
+            return { success: false, message: response.message };
+        }  
+    } catch (error) {
+        console.log(error,"face4====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -231,45 +315,68 @@ let getFaceResponse = async (params) => {
     }
 };
 let attachmentPostCall = async (params) => {
-    decodeToken = jwt_decode(params.headers)
-    var createdAt = new Date()
+   
     try {
-        var jsonData = {
-            "createdAt":createdAt,
-            "storagefilename":params.myfile.newFilename,
-            "filename":params.myfile.originalFilename,
-            "mimetype":params.myfile.mimetype,
-            "size":params.myfile.size,
-            "user":decodeToken.id,
-            "attached" : true
-        }
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "attaches",
-            docType: 0,
-            query: jsonData
-        };
-        let response = await invoke.makeHttpCall("post", "write", getdata);
-        if (response && response.data && response.data.statusMessage._id) {
-            let getRecord = await shared.getRecord(decodeToken)
-            if (getRecord && getRecord.success){
-                let updatedRecord= await shared.updateRecord(getRecord.message);
-                if(updatedRecord && updatedRecord.success){
-                    let responseData = await schedule.attachCall(response.data.statusMessage);
-                    if (responseData && responseData.data && responseData.data.statusMessage) {
-                        return { success: true, message: responseData.data.statusMessage[0] }
+        decodeToken = jwt_decode(params.headers)
+        // console.log(decodeToken,'decodetoken...............')
+        if (decodeToken) {
+            var createdAt = new Date()
+            var jsonData = {
+                "createdAt":createdAt,
+                "storagefilename":params.myfile.newFilename,
+                "filename":params.myfile.originalFilename,
+                "mimetype":params.myfile.mimetype,
+                "size":params.myfile.size,
+                "user":decodeToken.id,
+                "attached" : true
+            }
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "attaches",
+                docType: 0,
+                query: jsonData
+            };
+            //console.log(jsonData,'jsonData')
+            let response = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+            //console.log(response.data.statusMessage._id,'response.data.statusMessage._id')
+            if (response && response.data && response.data.statusMessage._id) {
+                response.data.statusMessage.id = response.data.statusMessage._id
+                delete response.data.statusMessage._id
+                delete response.data.statusMessage.attached
+                // response.data.statusMessage.id = response.data.statusMessage._id
+                // delete response.data.statusMessage._id
+                // delete response.data.statusMessage.attached
+                // delete response.data.statusMessage.__v
+                // let getRecord = await shared.getRecord(decodeToken)
+                // console.log('before response of get record')
+                // if (getRecord && getRecord.success){
+                    // console.log(getRecord.message._id,'after response get record')
+                    let updatedRecord= await shared.updateRecord(decodeToken);
+                    if(updatedRecord && updatedRecord.message){
+                        // console.log('before calling attachCall function')
+                        // let responseData = await schedule.attachCall(response.data.statusMessage);
+                        // // console.log('after calling attachCall function',responseData.data.statusMessage[0])
+                        // if (responseData && responseData.data && responseData.data.statusMessage) {
+                        //     responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+                        //     delete responseData.data.statusMessage[0]._id
+                        //     delete responseData.data.statusMessage[0].attached
+                            response.data.statusMessage.status = updatedRecord.message.status
+                            return { success: true, message: response.data.statusMessage }
+                        // } else {
+                        //     return { success: false, message: 'Data Not Found' };
+                        // }
                     } else {
-                        return { success: false, message: 'Data Not Found' };
+                        return { success: false, message: updatedRecord.message }
                     }
                 } else {
-                    return { success: false, message: updatedRecord.message }
+                    return { success: false, message: getRecord.message }
                 }
-            } else {
-                return { success: false, message: getRecord.message }
-            }
+            // } else {
+            //     return { success: false, message: 'Data Not Found' };
+            // }
         } else {
-            return { success: false, message: 'Data Not Found' };
+
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -279,13 +386,16 @@ let attachmentPostCall = async (params) => {
         }
     }
 };
-let tokenValidation = async(params,req)=> {
-    const token =params.body.authorization.authorization.split(" ");
+let tokenValidation = async(params)=> {
     try {
+        const token =params.body.authorization.authorization.split(" ");
         if (!token) {
-            return {success:false,message:"A token is required for authentication"};
+            return {success:false,message:"A token is required for authentication"+token[1]};
         }else{
             const decodedToken = jwt.verify(token[1],TOKEN_KEY);
+            if(!decodedToken){
+                return {success:false,message:"A token is required for authentication"};
+            }
             decodedToken.headers = params.body.authorization;
             let username = decodedToken.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
             if(decodedToken){
@@ -323,6 +433,8 @@ let tokenValidation = async(params,req)=> {
             }
         }
     }catch(error){
+        console.log('jwtapicallfailed')
+        console.log(error,"jwtError2===>>>>")
         if(error){
             return {success:false, message:"TokenExpiredError"}
         }else{
@@ -340,22 +452,7 @@ let getDatails = async (params) => {
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
-                query: [
-                        {
-                            $match:{_id:params.query.id}
-                        },
-                        {
-                            $project:{
-                                addons:"$addons",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",concurrent:"$concurrent",
-                                createdAt:"$createdAt",deadline:"$deadline",error:"$error",integrator:"$integrator",
-                                invites:"$invites",lifetime:"$lifetime",locale:"$locale",members:"$members",metrics:"$metrics",
-                                proctor:"$proctor",quota:"$quota",rules:"$rules",scheduledAt:"$scheduledAt",
-                                status:"$status",stoppedAt:"$stoppedAt",student:"$student",subject:"$subject",tags:"$tags",
-                                template:"$template",threshold:"$threshold",timeout:"$timeout",timesheet:"$timesheet",timezone:"$timezone",updatedAt:"$updatedAt",
-                                url:"$url",weights:"$weights",id:"$_id",_id:0
-                            }
-                        }
-                    ]
+                query: {_id:params.query.id}
             };
         } else {
             getdata = {
@@ -363,27 +460,22 @@ let getDatails = async (params) => {
                 database:"proctor",
                 model: "rooms",
                 docType: 1,
-                query: [
-                        {
-                            $match:{_id:params.query.id}
-                        },
-                        {
-                            $project:{
-                                addons:"$addons",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",concurrent:"$concurrent",
-                                createdAt:"$createdAt",deadline:"$deadline",duration:"$duration",error:"$error",incidents:"$incidents",integrator:"$integrator",
-                                invites:"$invites",ipaddress:"$ipaddress",lifetime:"$lifetime",locale:"$locale",members:"$members",metrics:"$metrics",
-                                proctor:"$proctor",quota:"$quota",rules:"$rules",scheduledAt:"$scheduledAt",score:"$score",signedAt:"$signedAt",
-                                startedAt:"$startedAt",status:"$status",stoppedAt:"$stoppedAt",student:"$student",subject:"$subject",tags:"$tags",
-                                template:"$template",threshold:"$threshold",timeout:"$timeout",timesheet:"$timesheet",timezone:"$timezone",updatedAt:"$updatedAt",
-                                url:"$url",useragent:"$useragent",weights:"$weights",id:"$_id",_id:0
-                            }
-                        }
-                    ]
+                query: {_id:params.query.id}
             };
         }
-        
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
+            if(params.body.body !== null){
+                params.body.body.createdAt = new Date()
+                const data = {
+                    id : params.query.id,
+                    body : params.body.body,
+                    error : responseData.data.statusMessage[0].error
+                }
+                let responsemessage = await scheduleService.errorupdate(data)
+            }
+            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0]._id
             return { success: true, message: responseData.data.statusMessage[0] }
         } else {
             return { success: false, message: 'Data Not Found' };
@@ -396,133 +488,67 @@ let getDatails = async (params) => {
         }
     }
 };
-let getPassportPhotoResponse = async (params) => {
+let getPassportPhotoResponse1 = async (params) => {
     decodeToken = jwt_decode(params.authorization)
     try {
         if (decodeToken){
-            let userResponse = await scheduleService.userDetails(decodeToken);
-            if (userResponse && userResponse.success){
-                var thresold = params.thresold || 0.25;
-                var distance = 0;
-                if (userResponse.message[0].rep.length === params.rep.length){
-                    for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
-                                const B = userResponse[0].rep[A] - params.rep[A];
-                                distance += B * B;
-                            }
-                        }
-                var verified = distance <= thresold
-                var getData = {
-                    url: process.env.MONGO_URI,
-                    client: "users",
-                    docType: 0,
-                    query : {
-                        "query":{"locked":{"$ne":true},"rep":{"$ne":null},"role":"student"},
-                        "scope":{
-                            "c":0,
-                            "e":[userResponse.message[0]._id],
-                            "n":10,
-                            "s":params.rep,
-                            "t":0.15
-                        },
-                        "out":"myCollections",
-                        "sort":{ "loggedAt": -1 },
-                        "limit":1000
-                    }
-                }
-                var similarfaces = await invoke.makeHttpCallmapReduce('post','/mapReduce',getData);
-                if (similarfaces && similarfaces.data.success){
-                    var jsonData = {
-                        verified : verified,
-                        similar : similarfaces.data.message,
-                        userId : decodeToken.id,
-                        rep : params.rep
-                    }
-                    let getDetails = await scheduleService.usersDetailsUpdate(jsonData);
-                    if (getDetails.success){
-                        let userData = await scheduleService.userDetails(decodeToken);
-                        if (userData && userData.success){
-                            params.message = userData.message[0];
-                            let response = await scheduleservice.passportResponse(params);
-                            if (response.success){
-                                var getdata = {
-                                    url:process.env.MONGO_URI,
-                                    database:"proctor",
-                                    model: "attaches",
-                                    docType: 1,
-                                    query: [
-                                        {
-                                            "$addFields": { "test": { "$toString": "$_id" } }
-                                        },
-                                        {
-                                            "$match": { "test": response.message }
-                                        },
-                                        {
-                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                                        }
-                                    ]
-                                };
-                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                                if (responseData && responseData.data && responseData.data.statusMessage) {
-                                    return { success: true, message: responseData.data.statusMessage[0] }
-                                } else {
-                                    return { success: false, message: 'Data Not Found' };
-                                }
-                            } else {
-                                return { success: false, message: 'faceDetails insertion error' }
-                            }
-                        } else {
-                            return { success: false, message: userData.message }
-                        }
-                    }else {
-                        let userData = await scheduleService.userDetails(decodeToken);
-                        if (userData && userData.success){
-                            params.message = userData.message[0];
-                            let response = await scheduleservice.passportResponse(params);
-                            if (response.success){
-                                var getdata = {
-                                    url:process.env.MONGO_URI,
-                                    database:"proctor",
-                                    model: "attaches",
-                                    docType: 1,
-                                    query: [
-                                        {
-                                            "$addFields": { "test": { "$toString": "$_id" } }
-                                        },
-                                        {
-                                            "$match": { "test": response.message }
-                                        },
-                                        {
-                                            "$project": { "id": "$_id","_id":0,user:"$user",filename:"$filename",mimetype:"$mimetype",size:"$size",
-                                                        "metadata.distance":"$metadata.distance","metadata.threshold":"$metadata.threshold",
-                                                        "metadata.verified":"$metadata.verified","metadata.objectnew":"$metadata.objectnew", 
-                                                        "metadata.rep":"$metadata.rep",createdAt:"$createdAt"}
-                                        }
-                                    ]
-                                };
-                                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                                if (responseData && responseData.data && responseData.data.statusMessage) {
-                                    return { success: true, message: responseData.data.statusMessage[0] }
-                                } else {
-                                    return { success: false, message: 'Data Not Found' };
-                                }
-                            } else {
-                                return { success: false, message: 'faceDetails insertion error' }
-                            }
-                        } else {
-                            return { success: false, message: userData.message }
-                        }
-                    }
-                } else {
-                    return { success: false, message: 'similar face error' }
-                }
-            } else {
-                return { success: false, message: userResponse.message }
+            params.decodeToken = decodeToken;
+            let response = await scheduleservice.passportResponse1(params);
+            if (response && response.success){
+                // response.rep = params.rep;
+                response.decodeToken = decodeToken
+                return { success: response.success, message: response }
+            }  else {
+                return { success: response.success, message: response.message};
             }
+        } else {
+            return { success: false, message: "Invalid Token Error" }
         }
     } catch (error) {
+        console.log(error,"passport2====>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getPassportPhotoResponse2 = async (params) => {
+    try {
+        // let userResponse = await scheduleService.userDetails(params.decodeToken);
+        // if (userResponse && userResponse.success){
+        //     var thresold = params.thresold || 0.45;
+        //     var distance = 0;
+        //     if (userResponse.message[0].rep.length === params.rep.length){
+        //         for (let A = 0; A < userResponse.message[0].rep[0].length; A++) {
+        //                 const B = userResponse[0].rep[A] - params.rep[A];
+        //                 distance += B * B;
+        //             }
+        //         }
+        //         var verified = distance <= thresold;
+        //         params.verified = verified;
+        //         params.user = params.message
+                let getDetails = await scheduleService.usersDetailsUpdate(params);
+                if (getDetails.success){
+                    let response = await scheduleservice.passportResponse2(params);
+                    if (response.success){
+                        return { success: true, message:  response.message}
+                    } else {
+                        return { success: false, message: response.message }
+                    }
+                }else {
+                    let response = await scheduleservice.passportResponse2(params);
+                    if (response.success){
+                        return { success: true, message: response.message }
+                    } else {
+                        return { success: false, message: response.message }
+                    }
+                }
+        // } else {
+        //     return { success: false, message: userResponse.message }
+        // }
+    } catch (error) {
+        console.log(error,"passport4====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -532,31 +558,36 @@ let getPassportPhotoResponse = async (params) => {
 };
 let getCandidateDetails = async (params) => {
     try {
-        let response = await scheduleService.getCandidateDetailsUpdate(params);
-        if(response && response.success){
-            var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "rooms",
-                docType: 1,
-                query: [
-                    {$match : { _id:params.id}},
-                    {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
-                                metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
-                                threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
-                                deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
-                                duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
-                                useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
-                    ]
-            };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0] }
+        if (params && params.query && params.query.id) {
+            let response = await scheduleService.getCandidateDetailsUpdate(params);
+            if(response && response.success){
+                return { success: true, message: response.message }
+                // var getdata = {
+                //     url:process.env.MONGO_URI,
+                //     database:"proctor",
+                //     model: "rooms",
+                //     docType: 1,
+                //     query: [
+                //         {$match : { _id:params.query.id}},
+                //         {$project:{ id:"$_id",_id:0,timesheet:"$timesheet",invites:"$invites",quota:"$quota",concurrent:"$concurrent",members:"$members",addons:"$addons",
+                //                     metrics:"$metrics",weights:"$weights",status:"$status",tags:"$tags",subject:"$subject",locale:"$locale",timeout:"$timeout",rules:"$rules",
+                //                     threshold:"$threshold",createdAt:"$createdAt",updatedAt:"$updatedAt",api:"$api",comment:"$comment",complete:"$complete",conclusion:"$conclusion",
+                //                     deadline:"$deadline",stoppedAt:"$stoppedAt",timezone:"$timezone",url:"$url",lifetime:"$lifetime",error:"$error",scheduledAt:"$scheduledAt",
+                //                     duration:"$duration",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",score:"$score",signedAt:"$signedAt",startedAt:"$startedAt",
+                //                     useragent:"$useragent",proctor:"$proctor",student:"$student",template:"$template",browser:"$browser",os:"$os",platform:"$platform"}}
+                //         ]
+                // };
+                // let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                // if (responseData && responseData.data && responseData.data.statusMessage) {
+                    // return { success: true, message: responseData.data.statusMessage[0] }
+                // } else {
+                //     return { success: false, message: 'Data Not Found' };
+                // }
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: 'rooms updation error' };
             }
         } else {
-            return { success: false, message: 'rooms updation error' };
+            return { success: false, message: 'Invalid Params Error' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -587,6 +618,11 @@ let getCandidateDetailsStop = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                const data= {
+                    userID : responseData.data.statusMessage,
+                    ipadress : params.body.ipAddress
+                }
+                let result = await scheduleService.userDetailsUpdate(data)
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' };
@@ -602,6 +638,163 @@ let getCandidateDetailsStop = async (params) => {
         }
     }
 };
+let mobilecheck = async (params) => {
+    var decodeToken = jwt_decode(params.bearer)
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match : { "_id" : decodeToken.room } },
+                { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            if(!responseData.data.statusMessage[0].averages){
+                responseData.data.statusMessage[0].averages = {
+                    "b1" : 0,
+                    "b2" : 0,
+                    "b3" : 0,
+                    "c1" : 0,
+                    "c2" : 0,
+                    "c3" : 0,
+                    "c4" : 0,
+                    "c5" : 0,
+                    "k1" : 0,
+                    "m1" : 0,
+                    "m2" : 0,
+                    "m3" : 0,
+                    "n1" : 0,
+                    "n2" : 0,
+                    "s1" : 0,
+                    "s2" : 0,
+                    "h1" : 0
+                }
+            }
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return {success:false,message:err};
+    }
+};
+let headphonecheck = async (params) => {
+    var decodeToken = jwt_decode(params.bearer)
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match : { "_id" : decodeToken.room } },
+                { $project : { _id : 0 , id:"$_id" , averages : 1 ,weights:1 , metrics :1} }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return {success:false,message:err};
+    }
+};
+let stoppedAt = async (params) => {
+    try {
+        var date = new Date()
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.id },
+                update: { $set: { stoppedAt: date ,status : "stopped"} }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+            let status = await shared.stoped(params.id);
+            if (status && status.success){
+                let result = await schedule.logtimeupdate(status.message)
+                let violatedResponse = await shared.getViolated(status.message);
+                if(violatedResponse && violatedResponse.success){
+                    try {
+                        let roomData = status.message;
+                        let jsonData = {
+                                "score": roomData.score,
+                                "student": roomData.student.nickname,
+                                "email": roomData.tags[0],
+                                "labels": roomData.labels ||"-",
+                                "verified": "yes",
+                                "id": roomData.id,
+                                "face": roomData.student.face,
+                                "passport": roomData.student.passport,
+                                "subject": roomData.subject,
+                                "startedAt": roomData.startedAt,
+                                "stoppedAt": roomData.stoppedAt ||new Date() ,
+                                "credibility" :"0%",
+                                "conclusion": roomData.conclusion || "-",
+                                "proctor": roomData.members,
+                                "comment": roomData.comment,
+                                "averages": roomData.averages,
+                                "xaxis": roomData.timesheet.xaxis,
+                                "yaxis": roomData.timesheet.yaxis,
+                                "metrics": roomData.metrics,
+                                "screen" : violatedResponse.message,
+                                "browser": roomData.student.browser,
+                                "os": roomData.student.os,
+                                "ipaddress": roomData.ipaddress,
+                                "duration": roomData.duration,
+                                "status": roomData.status
+                            }
+                        let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
+                        if (generateReport) {
+                            logger.info({ success: true, message: "pdf report generated successfully..." });
+                        } else {
+                            logger.info({ success: false, message: "pdf report not generated..." });
+                        }
+                    }catch(error){
+                        logger.info({ success: false, message: "pdf report not generated..." });
+                    }
+                }
+            }
+            return { success: true, message: status.message }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return {success:false,message:err};
+    }
+};
+
+let fetchMetrics = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: {
+                _id: params
+            }
+        };
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage[0] }
+        }else{
+            return {success: false, message:'Data not found...'};
+        }
+    } catch (err) {
+        return {success:false,message:err};
+    }
+};
 
 module.exports = {
     getCandidateMessageSend,
@@ -613,7 +806,13 @@ module.exports = {
     attachmentPostCall,
     tokenValidation,
     getDatails,
-    getPassportPhotoResponse,
+    getPassportPhotoResponse2,
+    getPassportPhotoResponse1,
     getCandidateDetails,
-    getCandidateDetailsStop
+    getCandidateDetailsStop,
+    mobilecheck,
+    headphonecheck,
+    stoppedAt,
+    getFaceResponse1,
+    fetchMetrics
 }

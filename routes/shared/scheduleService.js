@@ -2,7 +2,8 @@ const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
 const globalMsg = require('../../configuration/messages/message');
 const crypto =require("crypto");
-const logger =require('../../logger/logger')
+var bowser = require("bowser");
+// const logger =require('../../logger/logger')
 let proctorRoomUserEdit = async (params) => {
     try {
         var updatedAt = new Date();
@@ -30,9 +31,11 @@ let proctorRoomUserEdit = async (params) => {
                         }
                         let updateTemplate = await schedule.updateTemplate(jsonData);
                         if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
-                            logger.info({ success: true, message: updateTemplate.data.statusMessage });
+                            console.log('nModified true')
+                            //logger.info({ success: true, message: updateTemplate.data.statusMessage });
                         } else {
-                            logger.info({ success: false, message: "records updated not successfully..." });
+                            console.log('nModified false')
+                            //logger.info({ success: false, message: "records updated not successfully..." });
                         }
                     } else {
                         return { success: false, message: templateResponse };
@@ -61,22 +64,17 @@ let proctorDeleteSaveCall = async (params) => {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "rooms",
-            docType: 1,
-            query:[
-                {$match:{_id: params.UserId}}
-            ] 
-            
+            docType: 0,
+            query:{
+                filter :{"_id": params.UserId},
+                update: {$set: { isActive : false}},
+            }
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            let response = await schedule.roomUserDelete(responseData.data.statusMessage[0]);
-        }
-        if (responseData && responseData.data) {
-            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0]._id;
-            return { success: true, message: responseData.data.statusMessage[0] }
+            return { success: true, message: "User Deleted Sucessfully..."};
         } else {
-            return { success: false, message: 'delete feature not at integrated...' }
+            return { uccess: false, message: 'Data Not Found' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -95,7 +93,14 @@ let UserLimitCall = async (params) => {
                 ("1" !== B && "asc" !== B) || (Y[A] = 1), 
                 ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
-            let sort = Y
+            var sort;
+            if(Y.id){
+                sort = Y
+                sort._id = sort.id;
+                delete sort.id;
+            }else{
+                sort = Y
+            }
             var limit = parseInt(params.query.limit);
             var start = parseInt(params.query.start);
             var getdata = {
@@ -104,6 +109,7 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
                     { "$sort": sort },
                     { "$skip": start },
                     { "$limit": limit },
@@ -148,6 +154,10 @@ let UserLimitCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
+                    { $match: { isActive: true } },
+                    {
+                        $sort: { createdAt: -1 } 
+                    },
                     { $skip: start },
                     { "$limit": limit },
                     {
@@ -204,9 +214,7 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
-                    { "$sort": sort },
-                    { "$skip": start },
-                    { "$limit": limit },
+                    { $match: { isActive: true } },
                     {
                         $match: {
                             $or: [
@@ -225,7 +233,10 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    }
+                    },
+                    { "$sort": sort },
+                    { "$skip": start },
+                    { "$limit": limit },
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
@@ -236,6 +247,7 @@ let UserSearchCall = async (params) => {
                     model: "users",
                     docType: 1,
                     query:[
+                        { $match: { isActive: true } },
                         {
                             $match: {
                                 $or: [
@@ -270,8 +282,7 @@ let UserSearchCall = async (params) => {
                 model: "users",
                 docType: 1,
                 query: [
-                    { "$skip": start },
-                    { "$limit": limit },
+                    { $match: { isActive: true } },
                     {
                         $match: {
                             $or: [
@@ -290,7 +301,9 @@ let UserSearchCall = async (params) => {
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
                             passport:"$passport",verified:"$verified"
                         }
-                    }
+                    },
+                    { "$limit": limit },
+                    { "$skip": start },
                 ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
@@ -332,7 +345,24 @@ let UserSearchCall = async (params) => {
 };
 let UserEdit = async (params) => {
     try {
-        delete params.id;
+        // delete params.id;
+        // if(params.labels === null){
+        //     params.labels = []
+        // }
+        var buffer = crypto.randomBytes(32);
+        const salt = buffer.toString('base64')
+        var password = params.password
+        const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
+        if ( params.face &&  params.passport  ) {
+            params.verified = true
+        }
+        params.hashedPassword = hasspassword
+        params.salt = salt
+        if(params.face == null){
+            params.verified = null
+        }else if(params.passport == null){
+            params.verified = null
+        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -366,39 +396,89 @@ let UserEdit = async (params) => {
 let proctorUserSaveCall = async (params) => {
     var buffer = crypto.randomBytes(32);
     const salt = buffer.toString('base64')
-    var password = params.password
-    const hasspassword =crypto.createHmac("sha1", salt).update(password).digest("hex");
+    const hasspassword =crypto.createHmac("sha1", salt).update(params.password).digest("hex");
+    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     var locked = Boolean(params.locked);
     var secure = Boolean(params.secure);
+    if(params.labels === null){ 
+        params.labels = []
+    }
+    if ( params.face &&  params.passport  ) {
+        params.verified = true
+    }
+    var g = bowser;
+    const B = g.parse(params.bower)
     try{
         var createdAt = new Date()
         var jsonData = { 
-            "_id" : params.username,
+            "_id" : username,
             "role" :params.role,
             "labels" :params.labels,
             "exclude" : [],
             "rep" : [],
             "salt" : salt,
             "hashedPassword" : hasspassword,
-            "nickname" : params.username,
+            "nickname" : params.nickname,
             "group" : params.group,
             "lang" : params.lang,
             "locked" : locked,
             "secure" : secure,
             "createdAt" : createdAt,
-            "similar" : []
+            "similar" : [],
+            "face" : params.face,
+            "passport" : params.passport,
+            "verified" : params.verified || null,
+            "isActive" : true,
+            "browser" : B.browser,
+            "os" : B.os,
+            "platform" : B.platform
+        }
+        if(params.role = "administrator"  && params.face != undefined){
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database: "proctor",
+                model: "attaches",
+                docType: 1,
+                query: [
+                  {
+                    "$match": { _id: params.face }
+                  },
+                  {
+                    $project: { _id:0, metadata:1}
+                  }
+                ]
+              };
+              let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+              jsonData.rep = response.data.statusMessage[0].metadata.rep
         }
         var getdata = {
             url:process.env.MONGO_URI,
-            database:"proctor",
+            database: "proctor",
             model: "users",
-            docType: 0,
-            query: jsonData
-        };
-
-        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage._id) {
-            let getData = await schedule.UserSave(responseData.data.statusMessage._id);
+            docType: 1,
+            query: [
+              {
+                "$match": { _id: params.username }
+              },
+              {
+                $project: { _id:1, isActive:1}
+              }
+            ]
+          };
+          let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+          if (response && response.data.statusMessage.length>0) {
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database: "proctor",
+                model: "users",
+                docType: 0,
+                query: {
+                  filter :{"_id": params.username},
+                  update: {$set: jsonData},
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            let getData = await schedule.UserSave(response.data.statusMessage[0]._id);
             if (getData && getData.data && getData.data.statusMessage) {
                 getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
                 delete getData.data.statusMessage[0]._id;
@@ -406,9 +486,28 @@ let proctorUserSaveCall = async (params) => {
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else {
-            return { success: false, message: 'Data Not Found' }
-        }
+          } else{
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "users",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                let getData = await schedule.UserSave(responseData.data.statusMessage._id);
+                if (getData && getData.data && getData.data.statusMessage) {
+                    getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+                    delete getData.data.statusMessage[0]._id;
+                    return { success: true, message: getData.data.statusMessage[0] }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+          }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -423,12 +522,14 @@ let proctorUserDeleteCall = async (params) => {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
-            docType: 1,
+            docType: 0,
             query: {
-                _id: params.UserId
+                // _id: params.UserId
+                filter :{"_id": params.UserId},
+                update: {$set: { isActive : false}},
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "readData", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let response = await schedule.UserDelete(responseData.data.statusMessage[0]);
         }

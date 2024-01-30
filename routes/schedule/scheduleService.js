@@ -1,25 +1,96 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
+const schedule = require("./schedule")
 var ObjectID = require('mongodb').ObjectID;
 const json = require('../json');
-
+const moment = require("moment")
+function getOperatingSystemInfo(browser) {
+    try{
+        const userAgent = browser;
+        let osName = 'Unknown';
+        let osVersion = 'Unknown';
+      
+        // Check for Windows
+        if (userAgent.indexOf('Win') !== -1) {
+          osName = 'Windows';
+          if (userAgent.indexOf('Windows NT 10.0') !== -1) osVersion = 'Windows 10';
+          else if (userAgent.indexOf('Windows NT 6.3') !== -1) osVersion = 'Windows 8.1';
+          else if (userAgent.indexOf('Windows NT 6.2') !== -1) osVersion = 'Windows 8';
+          else if (userAgent.indexOf('Windows NT 6.1') !== -1) osVersion = 'Windows 7';
+          else if (userAgent.indexOf('Windows NT 6.0') !== -1) osVersion = 'Windows Vista';
+          else if (userAgent.indexOf('Windows NT 5.1') !== -1) osVersion = 'Windows XP';
+        }
+        // Check for macOS
+        else if (userAgent.indexOf('Mac') !== -1) {
+          osName = 'macOS';
+          const regex = /Mac OS X (\d+[._]\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+        // Check for Linux
+        else if (userAgent.indexOf('Linux') !== -1) {
+          osName = 'Linux';
+        }
+        // Check for Android
+        else if (userAgent.indexOf('Android') !== -1) {
+          osName = 'Android';
+          const regex = /Android (\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+        // Check for iOS
+        else if (userAgent.indexOf('iPhone') !== -1 || userAgent.indexOf('iPad') !== -1) {
+          osName = 'iOS';
+          const regex = /OS (\d+[._]\d+[._]\d+)/;
+          const match = userAgent.match(regex);
+          if (match) osVersion = match[1].replace(/_/g, '.');
+        }
+      
+        return { name: osName, version: osVersion };
+    }catch(error){
+        console.log(error,'while capturing os')
+    }
+  }
+function getBrowserInfo(userAgent){
+   try {
+    if (userAgent.includes('Firefox/')) {
+        console.log(`Firefox v${userAgent.split('Firefox/')[1]}`)
+        return (`Firefox v${userAgent.split('Firefox/')[1]}`)
+    } else if (userAgent.includes('Edg/')) {
+        console.log(`Edg v${userAgent.split('Edg/')[1]}`)
+        return (`Edg v${userAgent.split('Edg/')[1]}`)
+    } else if (userAgent.includes('Chrome/')) {
+        console.log(`Chrome v${userAgent.split('Chrome/')[1]}`)
+        return (`Chrome v${userAgent.split('Chrome/')[1]}`)
+    } else if (userAgent.includes('Safari/')) {
+        // Safari
+    }
+   } catch (error) {
+    console.log(error,'while capturing browser')
+   }
+}
+  
 let userInsertion = async (params) => {
     try {
         var browser = params.headers["user-agent"];
+        const osInfo = getOperatingSystemInfo(browser);
+        const browserInfo = getBrowserInfo(browser);
+
+
         let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
         jsonData = {
             "_id" : username,
             "browser" : {
-                "name" : browser,
-                "version" : browser
+                "name" : browserInfo,
+                "version" : browserInfo
             },
             "os" : {
-                "name" : browser,
-                "version" : browser,
-                "versionName" : browser
+                "name" : osInfo.name,
+                "version" : osInfo.version,
+                "versionName" : osInfo.version
             },
             "platform" : {
-                "type" : browser
+                "type" : osInfo.version
             },
             "role" : "student",
             "labels" : [],
@@ -32,7 +103,8 @@ let userInsertion = async (params) => {
             "useragent" : browser,
             "referer" : params.headers.referer,
             "createdAt" : new Date,
-            "similar" : []
+            "similar" : [],
+            "isActive" : true
         }
         var getdata = {
             url:process.env.MONGO_URI,
@@ -56,8 +128,8 @@ let userInsertion = async (params) => {
     }
 };
 let userFetch = async (params) => {
-    let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
     try {
+        let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_');
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -114,25 +186,57 @@ let userUpdate = async (params) => {
 };
 let roomInsertion = async (params) => {
     try {
-        let jsonData;
-        if (params && params.videoass == "VA"){
-            jsonData = await json.videoassData(params);
-        }else if (params && params.videoass == "QUE"){
-            jsonData = await json.videoassData(params); 
-        }
-        else {
-            jsonData = await json.roomsData(params);
-        }
+        //create read function 
+        //get date from db searching is db.getCollection('rooms').find({template:"default"})
+        //bind the addons key
+        //let jsonData;
         var getdata = {
             url:process.env.MONGO_URI,
-            database:"proctor",
+            database: "proctor",
             model: "rooms",
-            docType: 0,
-            query: jsonData
+            docType: 1,
+            query: {_id:params.template}
         };
-        let responseData = await invoke.makeHttpCall("post", "insert", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message:responseData.data.statusMessage}
+        let response = await invoke.makeHttpCall("post", "read", getdata);
+        if (response && response.data && response.data.statusMessage) {
+            let jsonData;
+            if (params && params.videoass == "VA"){
+                jsonData = await json.videoassData(params);
+                jsonData.members = response.data.statusMessage[0].members
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
+                
+            }else if (params && params.videoass == "QUE"){
+                jsonData = await json.videoassData(params); 
+                jsonData.members = response.data.statusMessage[0].members 
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
+            }
+            else {
+                jsonData = await json.roomsData(params);
+                jsonData.addons=response.data.statusMessage[0].addons
+                jsonData.threshold=response.data.statusMessage[0].threshold
+                jsonData.rules=response.data.statusMessage[0].rules
+                jsonData.members = response.data.statusMessage[0].members
+                jsonData.metrics=response.data.statusMessage[0].metrics
+                jsonData.weights=response.data.statusMessage[0].weights
+                jsonData.addons=response.data.statusMessage[0].addons
+            }
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "rooms",
+                docType: 0,
+                query: jsonData
+            };
+            let responseData = await invoke.makeHttpCall("post", "insert", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message:responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
         } else {
             return { success: false, message: 'Data Not Found' };
         }
@@ -146,17 +250,23 @@ let roomInsertion = async (params) => {
 };
 let roomUpdate = async (params) => {
     try {
+        let fetchTemplateData=await fetchTemplate(params)
         var browser = params.headers["user-agent"];
+        const osInfo = getOperatingSystemInfo(browser);
+        const browserInfo = getBrowserInfo(browser);
         var jsonData = {
+            "metrics":fetchTemplateData.message.metrics,
+            "weights":fetchTemplateData.message.weights,
+            "addons":fetchTemplateData.message.addons,
             "loggedAt" : new Date(),
             "browser" : {
-                "name" : browser,
-                "version" : browser
+                "name" : browserInfo,
+                "version" : browserInfo
             },
             "os" : {
-                "name" : browser,
-                "version" : browser,
-                "versionName" : browser
+                "name" : osInfo.name,
+                "version" : osInfo.version,
+                "versionName" : osInfo.version
             },
             "platform" : {
                 "type" : browser
@@ -189,30 +299,18 @@ let roomUpdate = async (params) => {
 };
 let usersDetailsUpdate = async (params) => {
     try {
-        var objectId = new ObjectID();
-        if (params && !params.verified){
-            var jsonData = {
-                similar : params.similar,
-                rep : params.rep,
-                // face : objectId   it should get insert after me api
-            }
-        } else if(params && params.verified) {
-            var jsonData = {
-                verified : params.verified,
-                // passport : objectId it should get insert after me api
-            }
-        }
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
             model: "users",
             docType: 0,
             query:{
-                filter: { "_id": params.userId },
-                update: { $set: jsonData }
+                filter: { "_id": params.decodeToken.id },
+                // update: { $set: { verified: params.verified} }
+                update: { $set: { verified: true } }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
@@ -233,13 +331,9 @@ let userDetails = async (params) => {
             database:"proctor",
             model: "users",
             docType: 1,
-            query: [
-                {
-                    $match :{ _id : params.id}
-                }
-            ]
+            query: { _id : params.id}
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_userDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -255,26 +349,86 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
-        jsonData = {
+        // let roomsData = await schedule.getRoomDetails(params);
+        // if(roomsData && roomsData.success){
+        //     let jsonData;
+        //     if (roomsData.message && (roomsData.message.startedAt == null)){
+        //         jsonData = {
+        //             status : 'started',
+        //             startedAt : new Date(),
+        //             ipaddress: params.body.ipAddress
+        //         }
+        //     } else {
+        //         jsonData = {
+        //             status : 'started',
+        //             ipaddress: params.body.ipAddress,
+        //             updatedAt: new Date()
+        //         }
+        //     }
+        let jsonData = {
+            startedAt: {
+              $cond: {
+                if: { $eq: ["$startedAt", null] }, // Check if the field is null
+                then:{ $dateFromString: { dateString: new Date().toISOString() } },
+                else:"$startedAt" // Keep the existing value if it's not null
+              }
+            },
             status : 'started',
-            startedAt : new Date()
-        }
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "rooms",
-            docType: 0,
-            query:{
-                filter: { "_id": params.id },
-                update: { $set: jsonData }
+            updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
+            ipaddress: params.body.ipAddress
+          }
+            var getdata = {   
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "rooms",
+                docType: 0,
+                query:{
+                    filter: { "_id": params.query.id },
+                    update: [
+                        {
+                          $set: jsonData
+                        }
+                    ]
+                      
+                }
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id
+                return { success: true, message: responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
             }
-        };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
-            return { success: true, message: responseData.data.statusMessage}
+        // } else {
+        //     return { success: roomsData.success , message: roomsData.message };
+        // }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
-            return { success: false, message: 'Data Not Found' };
+            return { success: false, message: error }
         }
+    }
+};
+let userDetailsUpdate = async (params) => {
+    try {
+            var getdata = {   
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "users",
+                docType: 0,
+                query:{
+                    filter: { "_id": params.userID[0].student },
+                    update: { $set: { ipaddress : params.ipadress} }
+                }
+            };
+            let responseData = await invoke.makeHttpCall("post", "update", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+                return { success: true, message: responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -320,27 +474,16 @@ let chatDetails = async (params) => {
             database:"proctor",
             model: "chats",
             docType: 1,
-            query: [
-                { 
-                    "$addFields": {"test": { "$toString": "$_id" }} 
-                },
-                {
-                    "$match":{"test":params.chatId}
-                },
-                {
-                    "$project":{
-                        "_id":1,"type":"$type","room":"$room","user":"$user","createdAt":"$createdAt","metadata":"$metadata","attach":"$attach"
-                    }
-                }
-            ]
+            query: { "_id": params.chatId }
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
+        console.log("error.......",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -376,6 +519,64 @@ let roomFetch = async (params) => {
     }
 };
 
+let fetchTemplate =async(params)=>{
+    try {
+        let F = params.template
+        data = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match: { _id: F, "status" : "template"} },
+                { $project: { weights: 1,metrics:1 } },
+            ]
+        };
+        let result = await invoke.makeHttpCall("post", "aggregate", data)
+        if (result && result.data && result.data.statusMessage.length) {
+            return { success: true, message: result.data.statusMessage[0] }
+        } else {
+            return { success: true, message: 'Data Not Found' }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+}
+let errorupdate =async(params)=>{
+    try {
+        let errorCounter = params.error
+        errorCounter++;
+        data = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.id },
+                update: { 
+                    $push: { "errorlog" :  params.body },
+                    $set: { error : errorCounter}
+                }
+            }
+        };
+        let result = await invoke.makeHttpCall("post", "update", data)
+        if (result && result.data && result.data.statusMessage) {
+            return { success: true, message: result.data.statusMessage }
+        } else {
+            return { success: true, message: 'Data Not Found'  }
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+}
 module.exports = {
     userInsertion,
     userFetch,
@@ -387,5 +588,7 @@ module.exports = {
     getCandidateDetailsUpdate,
     chatDetails,
     roomFetch,
-    getCandidateDetailsUpdateStop
+    getCandidateDetailsUpdateStop,
+    errorupdate,
+    userDetailsUpdate
 }

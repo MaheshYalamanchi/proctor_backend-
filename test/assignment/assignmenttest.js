@@ -135,7 +135,6 @@ describe('Assignment Test Cases', function () {
             }
             
             var body = await axios.post('http://localhost:3001/learnerUploadVideo', input);
-            console.log("body",body.data)
             if (body.data.success == true) {
                 expect(body.data.success).to.equal(true);
             }

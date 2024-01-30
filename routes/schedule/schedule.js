@@ -11,12 +11,7 @@ let eventInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: { "_id": params  } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -28,9 +23,12 @@ let eventInfo = async (params) => {
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
@@ -41,7 +39,7 @@ let eventInfo = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -62,92 +60,115 @@ let updateScore = async (params) => {
             database:"proctor",
             model: "rooms",
             docType: 1,
-            query: [
-                {$match :{_id:params.room}}
-            ]
+            query: {_id:params.room}
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
-            let c=roomsData.metrics;
+            if (roomsData.duration >= roomsData.lifetime && roomsData.lifetime !== null) {
+                params.status = "stopped";
+            }else{
+                params.status = roomsData.status
+            }
+            let c = roomsData.metrics;
             let timestamp = new Date(params.timestamp || new Date());
                 metrics = params.metrics || {};
                 timesheet = roomsData.timesheet || (roomsData.timesheet = {});
-            // roomsData.duration || (roomsData.duration = 0);
-            // roomsData.duration || (roomsData.duration + 1);
-            var newduration =   roomsData.duration + 1 ;
+            if(!params.peak){
+                roomsData.duration || (roomsData.duration = 0);
+                var newduration =   roomsData.duration + 1 ;
+            } else {
+                var newduration = roomsData.duration
+            }
             var jsonData = {
                 timesheet : {
                     firstAt : timesheet.firstAt || (timesheet.firstAt = timestamp),
                     lastAt  : timesheet.lastAt = timestamp,
                     sum : timesheet.sum || (timesheet.sum = {}),
-                    xaxis:[],
-                    yaxis:[],  
+                    xaxis: timesheet.xaxis || [],
+                    yaxis: timesheet.yaxis || [],  
                 },
                 duration : newduration,
                 score:null,
                 averages : {
-                    "b1" : null,
-                    "b2" : null,
-                    "b3" : null,
-                    "c1" : null,
-                    "c2" : null,
-                    "c3" : null,
-                    "c4" : null,
-                    "c5" : null,
-                    "k1" : null,
-                    "m1" : null,
-                    "m2" : null,
-                    "n1" : null,
-                    "n2" : null,
-                    "s1" : null,
-                    "s2" : null
+                    "b1" : 0,
+                    "b2" : 0,
+                    "b3" : 0,
+                    "c1" : 0,
+                    "c2" : 0,
+                    "c3" : 0,
+                    "c4" : 0,
+                    "c5" : 0,
+                    "k1" : 0,
+                    "m1" : 0,
+                    "m2" : 0,
+                    "m3" : 0,
+                    "n1" : 0,
+                    "n2" : 0,
+                    "s1" : 0,
+                    "s2" : 0,
+                    "h1" : 0
                 }
-                // averages :roomsData.metrics{}
             };
-            var length = Object.keys(metrics).length;
-            for(let A =0; A<length;A++){
+            var length = Object.keys(c).length;
+            for(let A = 0; A < length;A++){
                 let B = c[A];
                 timesheet.sum[B]||(timesheet.sum[B]=0),(timesheet.sum[B] += metrics[B]||0)
                 // timesheet.xaxis.sum[A]||(timesheet.sum[B]=0)
             };
-            for(let A =1; A<length;A++){
-                jsonData.timesheet.xaxis.push(A),
-                jsonData.timesheet.yaxis.push(metrics)
-            };
-            for (const key in metrics) {
-                if (Object.hasOwnProperty.call(metrics, key)) {
-                    const element = metrics[key];
-                    metrics[key]=Math.round(timesheet.sum[key]/length)
+            if (jsonData.timesheet.xaxis.length< length){
+                let x = jsonData.timesheet.xaxis.length
+                jsonData.timesheet.xaxis.push(x+1)
+                jsonData.timesheet.yaxis.push(metrics);
+            }else{
+                for (const key in metrics) {
+                    let data = jsonData.timesheet.yaxis[0][ key] + metrics[key]
+                    jsonData.timesheet.yaxis[0][ key] = data
                 }
             }
-            jsonData.averages=metrics
+            let i = 0;
+            for (const key in metrics) {
+                if (Object.hasOwnProperty.call(metrics, key)) {
+                    // const element = metrics[key];
+                    var avgCal=(timesheet.sum[key] * roomsData.weights[i])/jsonData.duration || 0
+                    if(avgCal<=100){
+                        jsonData.averages[key]= Math.round(avgCal)
+                    }else{
+                        jsonData.averages[key]= 100
+                    }
+                    i = i+1
+                }
+            }
             TotalTime = ~~(new Date(roomsData.timesheet.lastAt).getTime() / 6e4) - ~~(new Date(roomsData.timesheet.firstAt).getTime() / 6e4 - 1);
             if (((isNaN(TotalTime) || TotalTime < 0) && (TotalTime = 0), TotalTime > 0 || roomsData.stoppedAt)) {
                 let A =roomsData.metrics;
                 const w = {};
                 let scoreValue = 100;
                 for (let g = 0; g < A.length; g++) {
-                    const I = A[g],
-                        D = roomsData.weights[g] || 1,
-                        Y = jsonData.timesheet.sum[I] || 0;
+                    const I = A[g];
                     let F = 0;
                     if ("n1" === I) {
-                        F = ~~(100 * (1 - (jsonData.duration ? (jsonData.duration > TotalTime ? TotalTime : jsonData.duration) / TotalTime : 0)));
-                    } else F = jsonData.duration > 0 ? ~~((Y / jsonData.duration) * D) : 0;
+                        F = jsonData.averages[I];
+                        //F = ~~(100 * (1 - (jsonData.duration ? (jsonData.duration > TotalTime ? TotalTime : jsonData.duration) / TotalTime : 0)));
+                    } else F = jsonData.averages[I];
                     (!F || isNaN(F) || F < 0) && (F = 0), F > 100 && (F = 100), (w[I] = F), (scoreValue -= F);
                 }
-                (jsonData.averages = w),(!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
+                (!scoreValue || isNaN(scoreValue) || scoreValue < 0) && (scoreValue = 0), scoreValue > 100 && (scoreValue = 100), (jsonData.score = scoreValue);
             }
             params.jsonData = jsonData
+            if (params.status === "stopped"){
+                jsonData.duration = roomsData.duration
+            }
+            params.jsonData.status = params.status
             let response = await shared_Service.roomsUpdate(params);
             if (response && response.success){
-                let score = await shared_Service.roomsInfo(params);
-                if (score && score.success){
-                    return { success: true, message:score.message[0].score}
-                }else {
-                    return { success: false, message: 'Data Not Found' };
-                }
+                return { success: true, message: response.message.score}
+                // let score = await shared_Service.roomsInfo(params);
+                // if (score && score.success){
+                //     return { success: true, message:score.message[0].score}
+                // }else {
+                //     return { success: false, message: 'Data Not Found' };
+                // }
             }else {
                 return { success: false, message: 'Data Not Found' };
             }
@@ -170,12 +191,7 @@ let faceInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: { '_id' : params  } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -187,9 +203,12 @@ let faceInfo = async (params) => {
                 {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
@@ -200,7 +219,7 @@ let faceInfo = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -250,9 +269,37 @@ let attachInsertion = async (params) => {
     }
 };
 
+let getRoomDetails = async (params) => {
+    try {
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query:{_id: params.query.id}
+            //  [
+            //     {$match:{_id: params.query.id}}
+            // ]
+        };
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message:responseData.data.statusMessage[0]}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 module.exports = {
     eventInfo,
     updateScore,
     faceInfo,
-    attachInsertion
+    attachInsertion,
+    getRoomDetails
+    
 }

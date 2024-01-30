@@ -1,7 +1,9 @@
 const { off } = require("npm");
 const invoke = require("../../lib/http/invoke");
 const schedule = require("../auth/sehedule");
-const shared = require('../shared/shared')
+const shared = require('../shared/shared');
+const logger = require('../../logger/logger');
+const jwt_decode = require('jwt-decode');
 let getCandidateMessages = async (params) => {
     try {
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
@@ -34,20 +36,66 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
-                    
                     {
                         "$project": {
-                            "attach": "$attach", "createdAt": "$createdAt", "id": "$_id", "message": "$message", "room": "$room", "type": "$type", "_id": 0,"meatadata":"$metadata",
-                             "user.id":"$data._id","user.nickname":"$data.nickname","user.role":"$data.role","user.username":"$data._id"
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                            
                         }
                     },
-                    { "$skip": start },
-                    { "$limit": limit }
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attaches',
+                        }
+                    },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
+                            "user": {
+                                        "id": "$user.id",
+                                        "nickname": "$user.nickname",
+                                        "role": "$user.role",
+                                        "username": "$user.id"
+                                    },
+                            "attach":[
+                                        {
+                                            "filename":"$attaches.filename",
+                                            "mimetype":"$attaches.mimetype",
+                                            "id":"$attaches._id"
+                                        }
+                                     ]
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$skip": start },
+                                { "$limit": limit }, 
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage}
+                return { success: true, message: responseData.data.statusMessage[0].data}
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -131,13 +179,102 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0].data }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query && params.query.skip && params.query.filter && params.query.filter.type == 'face') {
+            var limit = parseInt(params.query.limit);
+            var start = parseInt(params.query.skip);
+            var sort = -1;
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 1,
+                query:[
+                        {
+                            "$match": {
+                                "room": params.params.roomId,
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'users',
+                                "localField": 'user',
+                                "foreignField": '_id',
+                                "as": 'data',
+                            }
+                        },
+                        { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "user": {
+                                    "id": "$data._id",
+                                    "nickname": "$data.nickname",
+                                    "role": "$data.role",
+                                    "username": "$data._id"
+                                }
+                                
+                            }
+                        },
+                        { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$lookup": {
+                                "from": 'attaches',
+                                "localField": 'attach',
+                                "foreignField": '_id',
+                                "as": 'attaches',
+                            }
+                        },
+                        { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id",
+                                "user": {
+                                            "id": "$user.id",
+                                            "nickname": "$user.nickname",
+                                            "role": "$user.role",
+                                            "username": "$user.id"
+                                        },
+                                "attach":[
+                                            {
+                                                "filename":"$attaches.filename",
+                                                "mimetype":"$attaches.mimetype",
+                                                "id":"$attaches._id"
+                                            }
+                                         ]
+                            }
+                        },
+                        {
+                            "$facet": {
+                                "data": [
+                                    { "$sort": { "createdAt": sort } },
+                                    { "$skip" : start},
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                    { "$project" : {_id:0 }}
+                                ]
+                            }
+                        },
+                        { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                        {"$project":{"data":"$data","total":"$total_count.count"}}
+                        ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        }else if (params.query && params.query.filter && params.query.filter.type == 'face') {
+        } else if (params.query && params.query.filter && params.query.filter.type == 'face') {
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
@@ -149,7 +286,8 @@ let getCandidateMessages = async (params) => {
                         {
                             "$match": {
                                 "room": params.params.roomId,
-                                "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
                             }
                         },
                         {
@@ -217,7 +355,93 @@ let getCandidateMessages = async (params) => {
                         {"$project":{"data":"$data","total":"$total_count.count"}}
                         ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query && params.query.skip && params.query.filter && params.query.filter.type == 'event') {
+            var limit = parseInt(params.query.limit);
+            var start = parseInt(params.query.skip);
+            var sort = -1;
+            var getdata = {
+                url:process.env.MONGO_URI,
+                database:"proctor",
+                model: "chats",
+                docType: 1,
+                query: 
+                [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attachesData',
+                        }
+                    },
+                    {
+                        $project:{
+                            attach:{
+                                $map:{
+                                    "input":"$attachesData",
+                                    as:"sec",
+                                    in:{
+                                        "id":"$$sec._id",
+                                        "filename":"$$sec.filename",
+                                        "mimetype":"$$sec.mimetype",
+                                    }
+                                }
+                            },
+                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "user": 1
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                {"$skip":start},
+                                { "$limit": limit },
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
+                ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -236,7 +460,8 @@ let getCandidateMessages = async (params) => {
                     {
                         "$match": {
                             "room": params.params.roomId,
-                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
                         }
                     },
                     /*{ "$sort": { "createdAt": -1 } },
@@ -270,17 +495,20 @@ let getCandidateMessages = async (params) => {
                         }
                     },
                     {
-                        "$project": {
-                            "attach.id": { $arrayElemAt: ["$attachesData._id", 0] },
-                            "attach.filename": { $arrayElemAt: ["$attachesData.filename", 0] },
-                            "attach.mimetype": { $arrayElemAt: ["$attachesData.mimetype", 0] },
+                        $project:{
+                            attach:{
+                                $map:{
+                                    "input":"$attachesData",
+                                    as:"sec",
+                                    in:{
+                                        "id":"$$sec._id",
+                                        "filename":"$$sec.filename",
+                                        "mimetype":"$$sec.mimetype",
+                                    }
+                                }
+                            },
                             "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
-                            "user": {
-                                "id": "$data._id",
-                                "nickname": "$data.nickname",
-                                "role": "$data.role",
-                                "username": "$data._id"
-                            }
+                            "user":1
                         }
                     },
                     {
@@ -299,7 +527,7 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
             } else {
@@ -343,15 +571,16 @@ let getCandidateMessages = async (params) => {
                     {
                         $sort: { createdAt: sort }
                     },
-                    { "$limit": limit }
                 ]
             };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
@@ -369,10 +598,19 @@ let getCandidateMessagesDetails = async (params) => {
                 database:"proctor",
                 model: "chats",
                 docType: 1,
-                query:[
+                query:
+                [
                     {
                         "$match": {
-                            "room": params.params.roomId
+                            "room": params.params.roomId,
+                            "$and": [
+                                { "attach": { "$ne": [] } },
+                                { "attach": { "$ne": [null] } },
+                                { "$or": [
+                                    { "type": "face" },
+                                    { "type": { "$exists": true } }  // If type doesn't exist, it's considered a match
+                                ]}
+                            ]
                         }
                     },
                     {
@@ -384,6 +622,16 @@ let getCandidateMessagesDetails = async (params) => {
                         }
                     },
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attach',
+                        }
+                    },
+                    { "$unwind": { "path": "$attacheData", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
@@ -401,10 +649,15 @@ let getCandidateMessagesDetails = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                for (const data of responseData.data.statusMessage) {
-                    let response = await shared.getChatDetails(data)
-                    data.attach = response.message
-                }
+                // for (const data of responseData.data.statusMessage) {
+                //     let response = await shared.getChatDetails(data)
+                //     data.attach = response.message
+                // }
+                // responseData.data.statusMessage.forEach(data => {    
+                // if (_.isEmpty(data.attach)) {         
+                //     delete data.attach;     
+                // } 
+                // });
                 return { success: true, message: responseData.data.statusMessage }
             } else {
                 return { success: false, message: 'Data Not Found' }
@@ -420,9 +673,21 @@ let getCandidateMessagesDetails = async (params) => {
 
 let SubmitSaveCall = async (params) => {
     try{ 
-        if(params.body.conclusion=="null"){
-            params.body.conclusion=null
+        var decodeToken = jwt_decode(params.body.authorization);
+        let status = params.body.status
+        if (params.body.status == "paused"){
+            params.body.status ='paused';
+        }else if(params.body.conclusion=="null"){
+            params.body.conclusion=null;
+            params.body.status='stopped';
+        } else if (params.body.conclusion=="negative"){
+            params.body.status='rejected';
+        } else if (params.body.conclusion=="positive"){
+            params.body.status= 'accepted';
         }
+        params.body.stoppedAt = new Date()
+        params.body.proctor = decodeToken.id
+        delete params.body.authorization
         var getdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -435,12 +700,58 @@ let SubmitSaveCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
-            let getData = await schedule.roomSubmitSave(params);
-            if(getData && getData.data && getData.data.statusMessage){
-                return { success: true, message: getData.data.statusMessage[0] }
-            } else {
-                return { success: false, message: 'Data Not Found' }
-            }
+                let getData = await schedule.roomSubmitSave(params);
+                if(getData && getData.data && getData.data.statusMessage){
+                    let roomData = getData.data.statusMessage[0]
+                    if(!(roomData.status == "paused")){
+                        let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
+                        let violatedResponse = await shared.getViolated(params.query)
+                        if(violatedResponse && violatedResponse.success){
+                            try {
+                                let jsonData = {
+                                        "score": roomData.score,
+                                        "student": roomData.student.nickname,
+                                        "email": roomData.tags[0],
+                                        "labels": roomData.labels ||"-",
+                                        "verified": "yes",
+                                        "id": roomData.id,
+                                        "face": roomData.student.face,
+                                        "passport": roomData.student.passport,
+                                        "subject": roomData.subject,
+                                        "startedAt": roomData.startedAt,
+                                        "stoppedAt": roomData.stoppedAt ||new Date() ,
+                                        "credibility" :"0%",
+                                        "conclusion": roomData.conclusion || "-",
+                                        "proctor": roomData.members,
+                                        "comment": roomData.comment,
+                                        "averages": roomData.averages,
+                                        "xaxis": roomData.timesheet.xaxis,
+                                        "yaxis": roomData.timesheet.yaxis,
+                                        "metrics": roomData.metrics,
+                                        "screen" : violatedResponse.message,
+                                        "browser": roomData.student.browser,
+                                        "os": roomData.student.os,
+                                        "ipaddress": roomData.ipaddress,
+                                        "duration": roomData.duration,
+                                        "status": roomData.status
+                                    }
+                                let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
+                                if (generateReport) {
+                                    logger.info({ success: true, message: "pdf report generated successfully..." });
+                                } else {
+                                    logger.info({ success: false, message: "pdf report not generated..." });
+                                }
+                            }catch(error){
+                                logger.info({ success: false, message: "pdf report not generated..." });
+                            }
+                        }
+                        return { success: true, message: getData.data.statusMessage[0] }
+                    } else {
+                        return { success: true, message: getData.data.statusMessage[0] }
+                    }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
         } else {
             return { success: false, message: 'Data Not Found' }
         }
