@@ -88,6 +88,7 @@ let proctorMeCall = async (params) => {
                 return { success: false, message: 'Data Not Found' }
             }
         } else if (decodeToken && decodeToken.role == "administrator") {
+            console.log(process.env.MONGO_URI)
             var getdata = {
                 url:process.env.MONGO_URI,
                 database:"proctor",

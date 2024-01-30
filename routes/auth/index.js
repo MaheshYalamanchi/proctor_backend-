@@ -41,6 +41,7 @@ module.exports = function (params) {
     app.post("/api/user/me", async (req, res) => {
         "use strict";
         try {
+            console.log(JSON.stringify(req.body))
             let result = await sharedSevices.proctorMeCall(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
