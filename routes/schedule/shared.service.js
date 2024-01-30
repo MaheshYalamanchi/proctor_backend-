@@ -13,8 +13,8 @@ let roomsUpdate = async (params) => {
                 update: { $set: params.jsonData }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
             return { success: false, message: 'Data Not Found' };
@@ -34,11 +34,9 @@ let roomsInfo = async (params) => {
             database:"proctor",
             model: "rooms",
             docType: 1,
-            query:[{
-                $match :{_id:params.room}
-            }]
+            query:{_id:params.room}
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage}
         } else {
@@ -60,11 +58,11 @@ let attachInfo = async (params) => {
             model: "attaches",
             docType: 1,
             query:[
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
                 {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
+                    "$match": { "_id": params }
                 },
                 {
                     $project:{id:"$_id",_id:0,filename:"$filename",mimetype:"$mimetype"}

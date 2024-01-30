@@ -31,7 +31,8 @@ let roomUserDetails = async (params) => {
                             "id": "$data._id",
                             "face": "$data.face",
                             "nickname": "$data.nickname",
-                            "username": "$data._id"
+                            "username": "$data._id",
+                            "password": "$data.password"
                         },
                         "distance": "$similar.distance"
                     }
@@ -172,7 +173,7 @@ let UserSave = async (params) => {
                     $match:{_id:params}
                 },
                 {
-                    $project:{"id":"$_id","username":"$_id",_id:0,createdAt:1,exclude:1,group:1,labels:1,lang:1,locked:1,nickname:1,role:1,secure:1,similar:1}
+                    $project:{"id":"$_id","username":"$_id",_id:0,createdAt:1,exclude:1,group:1,labels:1,lang:1,locked:1,nickname:1,role:1,secure:1,similar:1,face:1,passport:1}
                 }
             ]
         };
@@ -223,12 +224,7 @@ let MessageSend = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                {
-                    "$addFields": { "test": { "$toString": "$_id" } }
-                },
-                {
-                    "$match": { "test": params }
-                },
+                { $match: {"_id": params }  },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -238,11 +234,30 @@ let MessageSend = async (params) => {
                     }
                 },
                 {
+                    "$lookup": {
+                        "from": 'attaches',
+                        "localField": 'attach',
+                        "foreignField": '_id',
+                        "as": 'attach',
+                    }
+                },
+                {
                     "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
                 },
                 {
+                    "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true }
+                },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
+                {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$test", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach":[{
+                            "id":"$attach._id",
+                            "filename":"$attach.filename",
+                            "mimetype":"$attach.mimetype"
+                        }],
+                        "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
@@ -261,6 +276,17 @@ let MessageSend = async (params) => {
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
                     let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
+                    var getdata = {
+                        url:process.env.MONGO_URI,
+                        database:"proctor",
+                        model: "rooms",
+                        docType: 0,
+                        query: {
+                                filter: { "_id": responseData.data.statusMessage[0].room },
+                                update: {$set: { incidents:  response.data.statusMessage[0].incidents}}
+                        }
+                    };
+                    let Data = await invoke.makeHttpCall("post", "update", getdata)
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
                             responseData.data.statusMessage[0].metadata={}
@@ -269,14 +295,11 @@ let MessageSend = async (params) => {
                     }else{
                         response.data.statusMessage[0].incidents=0
                     }
-                    
                     return responseData;
             //     } 
             // }else{
             //     return responseData
             // }
-            
-           
         } else {
             return "Data Not Found";
         }
@@ -320,14 +343,35 @@ let roomSubmitSave = async (params) => {
                 "proctor.locked":"$proctor.locked","proctor.loggedAt":"$proctor.loggedAt","proctor.nickname":"$proctor.nickname","proctor.os":"$proctor.os","proctor.platform":"$proctor.platform",
                 "proctor.role":"$proctor.role","proctor.secure":"$proctor.secure","proctor.similar":"$proctor.similar","proctor.useragent":"$proctor.useragent","proctor.username":"$proctor.username",
                 "quota":"$quota","rules":"$rules","scheduledAt":"$scheduledAt","score":"$score","signedAt":"$signedAt","startedAt":"$startedAt","status":"$status","stoppedAt":"$stoppedAt","student.id":"$student._id",
-                "student.browser":"$student.browser","student.createdAt":"$student.createdAt","student.exclude":"$student.exclude","student.face":"$student.face","student.ipaddress":"$student.ipaddress",
+                "student.browser":"$student.browser","student.createdAt":"$student.createdAt","student.exclude":"$student.exclude","student.face":"$student.face","student.ipaddress":"$student.ipaddress","student.passport":"$student.passport",
                 "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os","student.platform":"$student.platform","student.provider":"$student.provider",
                 "student.referer":"$student.referer","student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id","subject":"$subject",
-                "tags":"$tags","template":"$template","threshold":"$threshold","timeout":"$timeout","timesheet":"$timesheet","timezone":"$timezone","updatedAt":"$updatedAt","url":"$url","useragent":"$useragent","weights":"$weights"}}
+                "tags":"$tags","template":"$template","threshold":"$threshold","timeout":"$timeout","timesheet":"$timesheet","timezone":"$timezone","updatedAt":"$updatedAt","url":"$url","useragent":"$useragent","weights":"$weights","student.rating":"$student.rating"}}
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
         if (responseData) {
+            if(responseData.data.statusMessage[0].conclusion != null){
+                data = responseData.data.statusMessage[0].student.username
+                ratingdata = responseData.data.statusMessage[0].student.rating
+                if(responseData.data.statusMessage[0].conclusion === "positive"){
+                    var B = 100 
+                }else if (responseData.data.statusMessage[0].conclusion === "negative"){
+                    var B =0
+                }
+                "number" == typeof ratingdata? (ratingdata= Math.ceil((ratingdata+ B) / 2)) : (ratingdata = B)
+                var getdata = {
+                    url:process.env.MONGO_URI,
+                    database: "proctor",
+                    model: "users",
+                    docType: 0,
+                    query: {
+                    filter :{ "_id": data},
+                    update: {$set: { rating: ratingdata}},
+                    }
+                };
+                let result = await invoke.makeHttpCall("post", "update", getdata);
+            }
             return responseData;
         } else {
             return "Data Not Found";
@@ -347,20 +391,27 @@ let attachCall = async (params) => {
             database:"proctor",
             model: "attaches",
             docType: 1,
-            query:[
-                {
-                    "$addFields": { "id": { "$toString": "$_id" } }
-                },
-                {
-                    $match: { "id": params._id }
-                },
-                {
-                    "$project":{"_id" : 0,"attached" : 0}
-                }
-
-            ] 
+            query:{ "_id": params._id }
+            //[
+                // { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: params._id } ] } } },
+                // {
+                //     "$addFields": { "test": { "$toString": "$_id" } }
+                // },
+                // {
+                //     "$project":{"_id" : 0,"id": "$test" ,"createdAt":1,"filename":1,"mimetype":1,"size":1,"user":1 }
+                // }
+                // {
+                //     "$addFields": { "id": { "$toString": "$_id" } }
+                // },
+            //     {
+            //         $match: { "_id": params._id }
+            //     },
+            //     {
+            //         "$project":{"attached" : 0}
+            //     }
+            // ]
         };
-        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "read", getdata);
         if(responseData){
             return responseData;
         }else{
@@ -436,6 +487,89 @@ let updateTemplate = async(params) => {
         }
     }
 }
+let chatincidents = async(params) => {
+    try{
+        jsonData = {
+            "type" : params.data.body.type,
+            "metadata" : {
+                "incidents" : params.count
+            },
+            "user" : params.data.body.user,
+            "room" : params.data.body.room,
+            "message" : params.data.body.message,
+            "createdAt" : new Date(),
+        }
+        var getdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "chats",
+            docType: 0,
+            query: jsonData
+        };
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
+        if(responseData){
+            return responseData;
+        }else{
+            return "Data Not Found";
+        }
+    }catch(error){
+        if(error && error.code=='ECONNREFUSED'){
+            return {success:false, message:globalMsg[0].MSG000,status:globalMsg[0].status}
+        }else{
+            return {success:false, message:error}
+        }
+    }
+}
+let fetchdata = async (params) => {
+    try {
+        var userdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "rooms",
+            docType: 1,
+            query: params.filter
+        }
+        let response = await invoke.makeHttpCall("post", "read", userdata);
+        if (response) {
+            return response;
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let logtimeupdate = async (params) => {
+    try {
+        const date = new Date()
+        var postdata = {
+            url:process.env.MONGO_URI,
+            database:"proctor",
+            model: "users",
+            docType: 0,
+            query: {
+                filter :{"_id": params.student.id},
+                update: {$set: { loggedAt: date}},
+              }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", postdata);
+        if (responseData) {
+            return responseData
+        } else {
+            return "Data Not Found";
+        }
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 
 module.exports = {
     roomUserDetails,
@@ -449,5 +583,8 @@ module.exports = {
     roomSubmitSave,
     attachCall,
     getTemplate,
-    updateTemplate
+    updateTemplate,
+    chatincidents,
+    fetchdata,
+    logtimeupdate
 }

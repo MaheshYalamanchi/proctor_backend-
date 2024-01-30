@@ -27,15 +27,19 @@ let videoassData = async (params) => {
             "c3",
             "c4",
             "c5",
+            "h1",
             "k1",
             "m1",
             "m2",
+            "m3",
             "n1",
             "n2",
             "s1",
             "s2"
         ],
         "weights" : [
+            1,
+            1,
             1,
             1,
             1,
@@ -85,7 +89,8 @@ let videoassData = async (params) => {
         "proctor" : null,
         "student" : username,
         "template" : params.template,
-        "averages" : {}
+        "averages" : {},
+        "isActive" : true
     }
     return videoassData;
     
@@ -113,9 +118,11 @@ let roomsData =  async (params) => {
             "c3",
             "c4",
             "c5",
+            "h1",
             "k1",
             "m1",
             "m2",
+            "m3",
             "n1",
             "n2",
             "s1",
@@ -171,7 +178,8 @@ let roomsData =  async (params) => {
         "proctor" : null,
         "student" : username,
         "template" : params.template,
-        "averages" : {}
+        "averages" : {},
+        "isActive" : true
     }
     return getrooms;
     

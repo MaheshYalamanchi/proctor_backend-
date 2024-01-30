@@ -265,5 +265,77 @@ module.exports = function (params) {
             }
         }
     });
-
+    app.post("/api/auth/qrcode", async (req, res) => {
+        "use strict";
+        try {
+            if (req && req.body){
+                let result = await schedule.getQRcode(req.body)
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: result.message }, 200);
+                }
+            } else {
+                app.http.customResponse(res, "request body is missing" , 200);
+            }
+            
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400)
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400)
+            }
+        }
+    });
+    app.post("/api/Paused", async (req, res) => {
+        "use strict";
+        try {
+            if (req && req.body) {
+                let result = await schedule.roomstatusUpdate(req.body);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+    app.put("/api/room/timeoutupdate/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if (req ) {
+                let result = await schedule.timeoutupdate(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, {success: true, message: result.message}, 200);
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
 }
