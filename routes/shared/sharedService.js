@@ -51,6 +51,7 @@ let proctorLoginCall = async (params) => {
             return { success: false, message: 'Please check username' }
         }
     } catch (error) {
+        console.log(error,'llllllllllll')
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
