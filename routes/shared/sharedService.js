@@ -12,7 +12,6 @@ const logger =require('../../logger/logger')
 const _ = require('lodash');
 let proctorLoginCall = async (params) => {
     try {
-        console.log(JSON.stringify(params))
         var postdata = {
             url:process.env.MONGO_URI,
             database:"proctor",
@@ -23,7 +22,6 @@ let proctorLoginCall = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
-        console.log(responseData.data,';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
         if (responseData && responseData.data) {
             if(responseData.data.statusMessage[0].locked === false || responseData.data.statusMessage[0].locked === 0 ){
             let salt = responseData.data.statusMessage[0].salt;
