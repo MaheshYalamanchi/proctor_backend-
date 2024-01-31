@@ -21,6 +21,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
             } else {
                 let result = await sharedSevices.proctorLoginCall(req.body)
+                console.log(result,'result..........')
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
