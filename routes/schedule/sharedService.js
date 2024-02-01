@@ -465,7 +465,7 @@ let getDatails = async (params) => {
         }
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            if(params.body.body !== null){
+            if(params.body.body.error !== null){
                 params.body.body.createdAt = new Date()
                 const data = {
                     id : params.query.id,
