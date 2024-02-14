@@ -1010,8 +1010,10 @@ let proctorSearchCall = async (params) => {
                             ]
                         }
                         let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        if (getCount && getCount.data){
+                        if (getCount && getCount.data && getCount.data.statusMessage.length != 0){
                             return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
+                        }else{
+                            return { success: true, message: { data: responseData.data.statusMessage, pos: start ,total_count: 0 } }
                         }
                     } else {
                         return { success: false, message: 'Data Not Found' }
