@@ -179,8 +179,8 @@ let checkToken = async (req) => {
 let authCheckToken = async (req) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: req.tenantResponse.message.connectionString+'/'+req.tenantResponse.message.databaseName,
+            database: req.tenantResponse.message.databaseName,
             model: "rooms",
             docType: 1,
             query:{ "_id":req.room}

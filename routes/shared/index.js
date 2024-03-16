@@ -121,6 +121,7 @@ module.exports = function (params) {
     app.delete("/api/user/:UserId", async (req, res) => {
         "use strict";
         try {
+            req.params.tenantId = req.query.tenantId;
             let result = await scheduleSevice.proctorUserDeleteCall(req.params)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });

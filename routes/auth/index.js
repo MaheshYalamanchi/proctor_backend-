@@ -201,6 +201,7 @@ module.exports = function (params) {
                 app.logger.info({ success: false, message: validateSchema.errors });
                 app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
             } else {
+                req.params.tenantId = req.query.tenantId;
                 let result = await sharedSevices.proctorUserDetailsCall(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -270,7 +271,8 @@ module.exports = function (params) {
                     }
                 }
             } else if (req.params.userId) {
-                let result = await shared.roomUserDatails(req.params.userId);
+                req.params.tenantId = req.query.tenantId;
+                let result = await shared.roomUserDatails(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -336,6 +338,7 @@ module.exports = function (params) {
         "use strict";
         try {
             // app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
+            req.params.tenantId = req.query.tenantId;
             let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
@@ -441,6 +444,7 @@ module.exports = function (params) {
         "use strict";
         try {
             if (req.params) {
+                req.params.tenantId = req.query.tenantId; 
                 let result = await sharedSevices.notificationupdate(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });

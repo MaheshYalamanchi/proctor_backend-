@@ -4,8 +4,8 @@ const globalMsg = require('../../configuration/messages/message');
 let roomsUpdate = async (params) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "rooms",
             docType: 0,
             query:{

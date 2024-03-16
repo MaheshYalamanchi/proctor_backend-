@@ -3,6 +3,7 @@ const globalMsg = require('../../configuration/messages/message');
 const schedule = require("../auth/sehedule");
 var qrcode = require("qrcode");
 const jwt_decode = require('jwt-decode');
+const _schedule = require('../schedule/schedule')
 
 let getSessions = async (params) => {
     try {
@@ -44,18 +45,14 @@ let updateRecord = async (params) => {
     try {
         let updatedAt = new Date().toISOString()    
         var getdata = {
-            url:process.env.MONGO_URI, 
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "rooms",
             docType: 0,
             query: {
                 _id: params.room,
                 updatedAt: updatedAt
-            }
-            // {
-            //     filter:{ _id: params.room},
-            //     update:{ $set: { updatedAt: updatedAt}}
-            // }   
+            } 
         };
         let responseData = await invoke.makeHttpCall_roomDataService("post", "saveById", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
@@ -186,8 +183,8 @@ function qrcodeData(data) {
 let getViolated = async (params) => {
     try {  
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+            database: params.tenantResponse.message.databaseName,
             model: "chats",
             docType: 1,
             query: [
@@ -273,13 +270,13 @@ let getViolated = async (params) => {
 let stoped = async (params) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "rooms",
             docType: 1,
             query: [
                 {
-                    $match: { _id: params }
+                    $match: { _id: params.id }
                 },
                 { $lookup: { from: "users",
                     localField: "proctor",
@@ -349,21 +346,26 @@ let roomstatusUpdate = async (params) => {
 };
 let timeoutupdate = async (params) => {
     try {
-        var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
-            model: "rooms",
-            docType: 0,
-            query: {
-                filter: { "_id": params.params.roomId },
-                update: {$set: { timeout:  params.body.timeout}}
+        let tenantResponse = await _schedule.tenantResponse(params.body);
+        if (tenantResponse && tenantResponse.success){
+            var getdata = {
+                url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
+				database: tenantResponse.message.databaseName,
+                model: "rooms",
+                docType: 0,
+                query: {
+                    filter: { "_id": params.params.roomId },
+                    update: {$set: { timeout:  params.body.timeout}}
+                }
+            };
+            let response = await invoke.makeHttpCall("post", "update", getdata);
+            if (response && response.data && response.data.statusMessage ) {
+                return { success: true, message: "Timeout updated" }
+            } else {
+                return { success: false, message: 'Data Not Found' }
             }
-        };
-        let response = await invoke.makeHttpCall("post", "update", getdata);
-        if (response && response.data && response.data.statusMessage ) {
-            return { success: true, message: "Timeout updated" }
         } else {
-            return { success: false, message: 'Data Not Found' }
+            return { success: false, message: tenantResponse.message }
         }
     } catch (erroe) {
         if (error && error.code == 'ECONNREFUSED') {

@@ -3,7 +3,9 @@ const globalMsg = require('../../configuration/messages/message');
 const schedule = require("./schedule")
 var ObjectID = require('mongodb').ObjectID;
 const json = require('../json');
-const moment = require("moment")
+const moment = require("moment");
+const _schedule = require('../schedule/schedule');
+const jwt_decode = require('jwt-decode');
 function getOperatingSystemInfo(browser) {
     try{
         const userAgent = browser;
@@ -300,8 +302,8 @@ let roomUpdate = async (params) => {
 let usersDetailsUpdate = async (params) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
+			database: params.decodeToken.tenantResponse.message.databaseName,
             model: "users",
             docType: 0,
             query:{
@@ -327,8 +329,8 @@ let usersDetailsUpdate = async (params) => {
 let userDetails = async (params) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "users",
             docType: 1,
             query: { _id : params.id}
@@ -349,60 +351,51 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
-        // let roomsData = await schedule.getRoomDetails(params);
-        // if(roomsData && roomsData.success){
-        //     let jsonData;
-        //     if (roomsData.message && (roomsData.message.startedAt == null)){
-        //         jsonData = {
-        //             status : 'started',
-        //             startedAt : new Date(),
-        //             ipaddress: params.body.ipAddress
-        //         }
-        //     } else {
-        //         jsonData = {
-        //             status : 'started',
-        //             ipaddress: params.body.ipAddress,
-        //             updatedAt: new Date()
-        //         }
-        //     }
-        let jsonData = {
-            startedAt: {
-              $cond: {
-                if: { $eq: ["$startedAt", null] }, // Check if the field is null
-                then:{ $dateFromString: { dateString: new Date().toISOString() } },
-                else:"$startedAt" // Keep the existing value if it's not null
-              }
-            },
-            status : 'started',
-            updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
-            ipaddress: params.body.ipAddress
-          }
-            var getdata = {   
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "rooms",
-                docType: 0,
-                query:{
-                    filter: { "_id": params.query.id },
-                    update: [
-                        {
-                          $set: jsonData
-                        }
-                    ]
-                      
+        decodeToken = jwt_decode(params.body.authorization)
+        let tenantParams;
+        if(decodeToken && decodeToken.role == "student"){
+            tenantParams = decodeToken;
+        }
+        let tenantResponse = await _schedule.tenantResponse(tenantParams || params.body);
+        if (tenantResponse && tenantResponse.success){
+            let jsonData = {
+                startedAt: {
+                $cond: {
+                    if: { $eq: ["$startedAt", null] }, // Check if the field is null
+                    then:{ $dateFromString: { dateString: new Date().toISOString() } },
+                    else:"$startedAt" // Keep the existing value if it's not null
                 }
-            };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
-                delete responseData.data.statusMessage._id
-                return { success: true, message: responseData.data.statusMessage}
-            } else {
-                return { success: false, message: 'Data Not Found' };
+                },
+                status : 'started',
+                updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
+                ipaddress: params.body.ipAddress
             }
-        // } else {
-        //     return { success: roomsData.success , message: roomsData.message };
-        // }
+                var getdata = {   
+                    url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
+					database: tenantResponse.message.databaseName,
+                    model: "rooms",
+                    docType: 0,
+                    query:{
+                        filter: { "_id": params.query.id },
+                        update: [
+                            {
+                            $set: jsonData
+                            }
+                        ]
+                        
+                    }
+                };
+                let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+                if (responseData && responseData.data && responseData.data.statusMessage) {
+                    responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                    delete responseData.data.statusMessage._id
+                    return { success: true, message: responseData.data.statusMessage}
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+        } else {
+            return { success: false, message: tenantResponse.message }
+        }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -551,8 +544,8 @@ let errorupdate =async(params)=>{
         let errorCounter = params.error
         errorCounter++;
         data = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "rooms",
             docType: 0,
             query: {

@@ -4,8 +4,8 @@ const globalMsg = require('../../configuration/messages/message');
 let getcount = async (params) => {
     try {
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
+			database: params.tenantResponse.message.databaseName,
             model: "chats",
             docType: 1,
             query: [
@@ -91,8 +91,8 @@ let faceResponse = async (params) => {
             },
         }
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
+			database: params.decodeToken.tenantResponse.message.databaseName,
             model: "attaches",
             docType: 0,
             query: jsonData
@@ -132,8 +132,8 @@ let passportResponse1 = async (params) => {
             "size" : params.myfile.size,
         }
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
+			database: params.decodeToken.tenantResponse.message.databaseName,
             model: "attaches",
             docType: 0,
             query: jsonData
@@ -166,8 +166,8 @@ let passportResponse2 = async (params) => {
             },
         }
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
+			database: params.decodeToken.tenantResponse.message.databaseName,
             model: "attaches",
             docType: 0,
             query: {

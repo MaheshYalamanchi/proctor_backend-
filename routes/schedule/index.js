@@ -485,6 +485,7 @@ module.exports = function (params) {
     app.post('/api/stop/:id', async (req, res,next) => {
         try {
             if(req.body ){
+                req.params.tenantId = params.query.tenantId
                 let result = await sharedService.stoppedAt(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
