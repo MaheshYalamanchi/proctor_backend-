@@ -17,6 +17,7 @@ let proctorLoginCall = async (params) => {
     try {
         let tenantResponse = await _schedule.tenantResponse(params);
         if (tenantResponse && tenantResponse.success){
+            console.log("tenantResponse====>>>>",tenantResponse.message)
             var postdata = {
                 url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
                 database: tenantResponse.message.databaseName,
@@ -28,6 +29,7 @@ let proctorLoginCall = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
             if (responseData && responseData.data) {
+                console.log("responseData======>>>",responseData.data.statusMessage[0])
                 if(responseData.data.statusMessage[0].locked === false || responseData.data.statusMessage[0].locked === 0 ){
                 let salt = responseData.data.statusMessage[0].salt;
                 let hashedPassword = responseData.data.statusMessage[0].hashedPassword;
@@ -57,6 +59,7 @@ let proctorLoginCall = async (params) => {
             return { success: false, message: tenantResponse.message }
         }
     } catch (error) {
+        console.log("error===>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
