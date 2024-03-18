@@ -317,8 +317,10 @@ let tenantResponse = async (params) => {
                      { $project: {_id:0,tenantId:"$tenantId",connectionString:"$data.connectionString",databaseName:"$data.databaseName"}}
                 ]
             };
+            console.log("getdata====>>>",getdata)
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
+                console.log("masterResponse====>>>>",responseData.data.statusMessage[0])
                 return { success: true, message:responseData.data.statusMessage[0]}
             } else {
                 return { success: false, message: 'Provide proper tenant params' };
@@ -327,6 +329,7 @@ let tenantResponse = async (params) => {
             return { success: false, message: 'Provide proper tenantId' };
         }
     } catch (error) {
+        console.log("error1======>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
