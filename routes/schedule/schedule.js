@@ -55,9 +55,18 @@ let eventInfo = async (params) => {
 };
 let updateScore = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "rooms",
             docType: 1,
             query: {_id:params.room}
@@ -185,9 +194,18 @@ let updateScore = async (params) => {
 };
 let faceInfo = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "chats",
             docType: 1,
             query: [
@@ -317,10 +335,8 @@ let tenantResponse = async (params) => {
                      { $project: {_id:0,tenantId:"$tenantId",connectionString:"$data.connectionString",databaseName:"$data.databaseName"}}
                 ]
             };
-            console.log("getdata====>>>",getdata)
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                console.log("masterResponse====>>>>",responseData.data.statusMessage[0])
                 return { success: true, message:responseData.data.statusMessage[0]}
             } else {
                 return { success: false, message: 'Provide proper tenant params' };

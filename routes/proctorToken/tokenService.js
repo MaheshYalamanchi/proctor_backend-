@@ -9,11 +9,22 @@ const { v4: uuidv4 } = require('uuid');
 
 let generateProctorToken = async (req) => {
     try {
-        let user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id }
-        let tokenArg = {
-            id: user.username,
-            role: user.provider
-        };
+        let user;
+        let tokenArg;
+        if (req.data.statusMessage[0].tenantId){
+            user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id,tenantId: req.data.statusMessage[0].tenantId};
+            tokenArg = {
+                id: user.username,
+                role: user.provider,
+                tenantId: user.tenantId
+            };
+        }else {
+            user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id };
+            tokenArg = {
+                id: user.username,
+                role: user.provider,
+            };
+        }
         user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
         if (user.proctorToken) {
             return user.proctorToken;
@@ -178,13 +189,25 @@ let checkToken = async (req) => {
 };
 let authCheckToken = async (req) => {
     try {
-        var getdata = {
-            url: req.tenantResponse.message.connectionString+'/'+req.tenantResponse.message.databaseName,
-            database: req.tenantResponse.message.databaseName,
-            model: "rooms",
-            docType: 1,
-            query:{ "_id":req.room}
-        };
+        let getdata;
+        if (req.tenantResponse && req.tenantResponse.success){
+            getdata = {
+                url: req.tenantResponse.message.connectionString+'/'+req.tenantResponse.message.databaseName,
+                database: req.tenantResponse.message.databaseName,
+                model: "rooms",
+                docType: 1,
+                query:{ "_id":req.room}
+            };
+        } else {
+            getdata = {
+                url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
+                database: process.env.DATABASENAME,
+                model: "rooms",
+                docType: 1,
+                query:{ "_id":req.room}
+            };
+        }
+        
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {
             let user = { "id": uuidv4(), "role": "student" ,"room":responseData.data.statusMessage[0]._id}

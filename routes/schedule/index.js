@@ -374,6 +374,7 @@ module.exports = function (params) {
     app.post('/api/room/stop', async (req, res,next) => {
         try {
             if(req && req.query){
+                req.query.body = req.headers.authorization;
                 let result = await sharedService.getCandidateDetailsStop(req.query);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -485,7 +486,7 @@ module.exports = function (params) {
     app.post('/api/stop/:id', async (req, res,next) => {
         try {
             if(req.body ){
-                req.params.tenantId = params.query.tenantId
+                req.params.body = req.body;
                 let result = await sharedService.stoppedAt(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });

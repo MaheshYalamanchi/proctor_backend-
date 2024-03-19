@@ -301,9 +301,18 @@ let roomUpdate = async (params) => {
 };
 let usersDetailsUpdate = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.decodeToken && params.decodeToken.tenantResponse && params.decodeToken.tenantResponse.success){
+            url = params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName;
+            database = params.decodeToken.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
-			database: params.decodeToken.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 0,
             query:{
@@ -328,9 +337,18 @@ let usersDetailsUpdate = async (params) => {
 };
 let userDetails = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 1,
             query: { _id : params.id}
@@ -351,51 +369,58 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
-        decodeToken = jwt_decode(params.body.authorization)
-        let tenantParams;
-        if(decodeToken && decodeToken.role == "student"){
-            tenantParams = decodeToken;
-        }
-        let tenantResponse = await _schedule.tenantResponse(tenantParams || params.body);
-        if (tenantResponse && tenantResponse.success){
-            let jsonData = {
-                startedAt: {
-                $cond: {
-                    if: { $eq: ["$startedAt", null] }, // Check if the field is null
-                    then:{ $dateFromString: { dateString: new Date().toISOString() } },
-                    else:"$startedAt" // Keep the existing value if it's not null
-                }
-                },
-                status : 'started',
-                updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
-                ipaddress: params.body.ipAddress
+        decodeToken = jwt_decode(params.body.authorization);
+        let url;
+        let database;
+        let tenantResponse;
+        if(decodeToken && decodeToken.tenantId ){
+            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            if (tenantResponse && tenantResponse.success){
+                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                database = tenantResponse.message.databaseName;
+            } else {
+                return { success: false, message: tenantResponse.message }
             }
-                var getdata = {   
-                    url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-					database: tenantResponse.message.databaseName,
-                    model: "rooms",
-                    docType: 0,
-                    query:{
-                        filter: { "_id": params.query.id },
-                        update: [
-                            {
-                            $set: jsonData
-                            }
-                        ]
-                        
-                    }
-                };
-                let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
-                if (responseData && responseData.data && responseData.data.statusMessage) {
-                    responseData.data.statusMessage.id = responseData.data.statusMessage._id;
-                    delete responseData.data.statusMessage._id
-                    return { success: true, message: responseData.data.statusMessage}
-                } else {
-                    return { success: false, message: 'Data Not Found' };
-                }
         } else {
-            return { success: false, message: tenantResponse.message }
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;  
         }
+        let jsonData = {
+            startedAt: {
+            $cond: {
+                if: { $eq: ["$startedAt", null] }, // Check if the field is null
+                then:{ $dateFromString: { dateString: new Date().toISOString() } },
+                else:"$startedAt" // Keep the existing value if it's not null
+            }
+            },
+            status : 'started',
+            updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
+            ipaddress: params.body.ipAddress
+        }
+            var getdata = {   
+                url: url,
+                database: database,
+                model: "rooms",
+                docType: 0,
+                query:{
+                    filter: { "_id": params.query.id },
+                    update: [
+                        {
+                        $set: jsonData
+                        }
+                    ]
+                    
+                }
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+                delete responseData.data.statusMessage._id
+                return { success: true, message: responseData.data.statusMessage}
+            } else {
+                return { success: false, message: 'Data Not Found' };
+            }
+        
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -406,22 +431,31 @@ let getCandidateDetailsUpdate = async (params) => {
 };
 let userDetailsUpdate = async (params) => {
     try {
-            var getdata = {   
-                url:process.env.MONGO_URI,
-                database:"proctor",
-                model: "users",
-                docType: 0,
-                query:{
-                    filter: { "_id": params.userID[0].student },
-                    update: { $set: { ipaddress : params.ipadress} }
-                }
-            };
-            let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
-                return { success: true, message: responseData.data.statusMessage}
-            } else {
-                return { success: false, message: 'Data Not Found' };
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
+        var getdata = {   
+            url: url,
+            database: database,
+            model: "users",
+            docType: 0,
+            query:{
+                filter: { "_id": params.userID[0].student },
+                update: { $set: { ipaddress : params.ipadress} }
             }
+        };
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage.nModified) {
+            return { success: true, message: responseData.data.statusMessage}
+        } else {
+            return { success: false, message: 'Data Not Found' };
+        }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -432,13 +466,22 @@ let userDetailsUpdate = async (params) => {
 };
 let getCandidateDetailsUpdateStop = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         jsonData = {
             status : 'stopped',
             stoppedAt : new Date()
         }
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: url,
+            database:database,
             model: "rooms",
             docType: 0,
             query:{
@@ -541,11 +584,20 @@ let fetchTemplate =async(params)=>{
 }
 let errorupdate =async(params)=>{
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         let errorCounter = params.error
         errorCounter++;
         data = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "rooms",
             docType: 0,
             query: {

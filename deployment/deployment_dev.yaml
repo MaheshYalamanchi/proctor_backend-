@@ -67,6 +67,11 @@ spec:
               secretKeyRef:
                 name: proctor-dev-env
                 key: ROOMS_DATA_SERVICE_ENDPOINT
+          - name: DATABASENAME
+            valueFrom:
+              secretKeyRef:
+                name: proctor-dev-env
+                key: DATABASENAME
                                                                         
           ports:
           - containerPort: 3002

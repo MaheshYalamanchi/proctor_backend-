@@ -3,9 +3,18 @@ const globalMsg = require('../../configuration/messages/message');
 
 let getcount = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "chats",
             docType: 1,
             query: [
@@ -73,6 +82,15 @@ let getAttach = async (params) => {
 let faceResponse = async (params) => {
     // decodeToken = jwt_decode(params.authorization);
     try {
+        let url;
+        let database;
+        if(params && params.decodeToken &&params.decodeToken.tenantResponse && params.decodeToken.tenantResponse.success){
+            url = params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName;
+            database = params.decodeToken.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         jsonData = {
             // "_id" :new ObjectID(params.message.face),
             "user" : params.decodeToken.id,
@@ -91,8 +109,8 @@ let faceResponse = async (params) => {
             },
         }
         var getdata = {
-            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
-			database: params.decodeToken.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "attaches",
             docType: 0,
             query: jsonData
@@ -125,6 +143,15 @@ let faceResponse = async (params) => {
 };
 let passportResponse1 = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         jsonData = {
             "user" : params.decodeToken.id,
             "filename" : params.myfile.originalFilename,
@@ -132,8 +159,8 @@ let passportResponse1 = async (params) => {
             "size" : params.myfile.size,
         }
         var getdata = {
-            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
-			database: params.decodeToken.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "attaches",
             docType: 0,
             query: jsonData
@@ -157,6 +184,15 @@ let passportResponse1 = async (params) => {
 };
 let passportResponse2 = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.decodeToken && params.decodeToken.tenantResponse && params.decodeToken.tenantResponse.success){
+            url = params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName;
+            database = params.decodeToken.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         jsonData = {
             "attached" : true,
             "metadata" : {
@@ -166,8 +202,8 @@ let passportResponse2 = async (params) => {
             },
         }
         var getdata = {
-            url: params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName,
-			database: params.decodeToken.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "attaches",
             docType: 0,
             query: {

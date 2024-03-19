@@ -3,9 +3,18 @@ const scheduleService = require("../auth/schedule.service");
 const globalMsg = require('../../configuration/messages/message');
 let roomUserDetails = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var userdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 1,
             query: [
@@ -55,9 +64,18 @@ let roomUserDetails = async (params) => {
 };
 let roomUserEdit = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var postdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "rooms",
             docType: 1,
             query: [
@@ -108,9 +126,18 @@ let roomUserDelete = async (params) => {
 };
 let roomUserSave = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+ params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "rooms",
             docType: 1,
             query: [
@@ -136,9 +163,18 @@ let roomUserSave = async (params) => {
 };
 let userEdit = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var postdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 1,
             query: [
@@ -163,9 +199,18 @@ let userEdit = async (params) => {
 };
 let UserSave = async (params) => {
     try{
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 1,
             query: [
@@ -193,9 +238,18 @@ let UserSave = async (params) => {
 };
 let UserDelete = async (params) => {
     try{
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "users",
             docType: 1,
             query:{
@@ -218,13 +272,22 @@ let UserDelete = async (params) => {
 };
 let MessageSend = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "chats",
             docType: 1,
             query: [
-                { $match: {"_id": params }  },
+                { $match: {"_id": params._id }  },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -275,11 +338,13 @@ let MessageSend = async (params) => {
                 // attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
-                    responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
+                    if(params && params.tenantResponse && params.tenantResponse.success){
+                        responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
+                    }
                     let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
                     var getdata = {
-                        url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			            database: params.tenantResponse.message.databaseName,
+                        url: url,
+			            database: database,
                         model: "rooms",
                         docType: 0,
                         query: {
@@ -314,9 +379,18 @@ let MessageSend = async (params) => {
 };
 let roomSubmitSave = async (params) => {
     try {
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var postdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "rooms",
             docType: 1,
             query: [
@@ -362,8 +436,8 @@ let roomSubmitSave = async (params) => {
                 }
                 "number" == typeof ratingdata? (ratingdata= Math.ceil((ratingdata+ B) / 2)) : (ratingdata = B)
                 var getdata = {
-                    url:process.env.MONGO_URI,
-                    database: "proctor",
+                    url: url,
+                    database: database,
                     model: "users",
                     docType: 0,
                     query: {
@@ -428,9 +502,18 @@ let attachCall = async (params) => {
 };
 let getTemplate = async(params) => {
     try{
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-		    database: params.tenantResponse.message.databaseName,
+            url: url,
+		    database: database,
             model: "rooms",
             docType: 1,
             query:[
@@ -464,9 +547,18 @@ let getTemplate = async(params) => {
 }
 let updateTemplate = async(params) => {
     try{
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-		    database: params.tenantResponse.message.databaseName,
+            url: url,
+		    database: database,
             model: "rooms",
             docType: 0,
             query:{
@@ -490,6 +582,15 @@ let updateTemplate = async(params) => {
 }
 let chatincidents = async(params) => {
     try{
+        let url;
+        let database;
+        if(params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         jsonData = {
             "type" : params.data.body.type,
             "metadata" : {
@@ -501,8 +602,8 @@ let chatincidents = async(params) => {
             "createdAt" : new Date(),
         }
         var getdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-			database: params.tenantResponse.message.databaseName,
+            url: url,
+			database: database,
             model: "chats",
             docType: 0,
             query: jsonData
@@ -546,10 +647,19 @@ let fetchdata = async (params) => {
 };
 let logtimeupdate = async (params) => {
     try {
+        let url;
+        let database;
+        if (params && params.tenantResponse && params.tenantResponse.success){
+            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+            database = params.tenantResponse.message.databaseName;
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         const date = new Date()
         var postdata = {
-            url: params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName,
-            database: params.tenantResponse.message.databaseName,
+            url: url,
+            database: database,
             model: "users",
             docType: 0,
             query: {

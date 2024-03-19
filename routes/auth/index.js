@@ -151,6 +151,7 @@ module.exports = function (params) {
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             } else {
+                req.body.authorization = req.headers.authorization;
                 let result = await sharedSevices.proctorSuggestSaveCall(req.body)
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -201,7 +202,7 @@ module.exports = function (params) {
                 app.logger.info({ success: false, message: validateSchema.errors });
                 app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
             } else {
-                req.params.tenantId = req.query.tenantId;
+                req.params.authorization = req.headers.authorization;
                 let result = await sharedSevices.proctorUserDetailsCall(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -314,6 +315,7 @@ module.exports = function (params) {
         "use strict";
         try {
             if (req && req.body) {
+                req.body.authorization = req.headers.authorization;
                 let result = await scheduleSevice.proctorRoomUserEdit(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -338,7 +340,7 @@ module.exports = function (params) {
         "use strict";
         try {
             // app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
-            req.params.tenantId = req.query.tenantId;
+            req.params.authorization = req.headers.authorization;
             let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
@@ -444,7 +446,7 @@ module.exports = function (params) {
         "use strict";
         try {
             if (req.params) {
-                req.params.tenantId = req.query.tenantId; 
+                req.params.authorization = req.headers.authorization;
                 let result = await sharedSevices.notificationupdate(req.params);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
