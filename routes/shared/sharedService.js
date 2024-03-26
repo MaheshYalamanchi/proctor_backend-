@@ -1588,61 +1588,67 @@ let getPassport = async (params) => {
     try {
         var decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
-            let tenantParams;
-            if(decodeToken && decodeToken.role == "student"){
-                tenantParams = decodeToken;
-            }
-            let tenantResponse = await _schedule.tenantResponse(tenantParams);
-            if (tenantResponse && tenantResponse.success){
-                decodeToken.tenantResponse = tenantResponse;
-                let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
-                if ( getCount.message.length>1 ){
+            let url;
+            let database;
+            let tenantResponse;
+            if(decodeToken && decodeToken.tenantId ){
+                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                if (tenantResponse && tenantResponse.success){
+                    url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                    database = tenantResponse.message.databaseName;
+                    decodeToken.tenantResponse = tenantResponse;
                     params.tenantResponse = tenantResponse;
-                    let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params);
-                    if(getPassportResponse && getPassportResponse.success){
-                        return { success: true, message: getPassportResponse.message }
-                        // let response = await schedule_Service.getPassport(decodeToken)
-                        // if (response.success){
-                        //     return { success: true, message: response.message[0] }
-                        // } else {
-                        //     return { success: false, message: response.message }
-                        // }
-                    } else {
-                        return { success: false, message: getPassportResponse.message }
-                    }
                 } else {
-                    let jsonData =  {
-                        "passport" : params.passport,
-                    };
-                    var getdata = {
-                        url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-					    database: tenantResponse.message.databaseName,
-                        model: "users",
-                        docType: 1,
-                        query: {
-                            filter: { "_id": decodeToken.id },
-                            update: { $set: jsonData },
-                            projection: {
-                                id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
-                                exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
-                                useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
-                                username:"$_id",passport:"$passport",verified:"$verified"
-                            }
-                        }
-                    };
-                    let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
-                    if (responseData && responseData.data.statusMessage) {
-                        return { success: true, message: responseData.data.statusMessage }
-                        // let response = await schedule_Service.getPassport(decodeToken)
-                        // if (response.success){
-                        //     return { success: true, message: response.message[0] }
-                        // }
-                    } else {
-                        return { success: false, message: 'Data Not Found' }
-                    }
+                    return { success: false, message: tenantResponse.message }
                 }
             } else {
-                return { success: false, message: tenantResponse.message }
+                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                database = process.env.DATABASENAME;
+            }
+            let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
+            if ( getCount.message.length>1 ){
+                let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params);
+                if(getPassportResponse && getPassportResponse.success){
+                    return { success: true, message: getPassportResponse.message }
+                    // let response = await schedule_Service.getPassport(decodeToken)
+                    // if (response.success){
+                    //     return { success: true, message: response.message[0] }
+                    // } else {
+                    //     return { success: false, message: response.message }
+                    // }
+                } else {
+                    return { success: false, message: getPassportResponse.message }
+                }
+            } else {
+                let jsonData =  {
+                    "passport" : params.passport,
+                };
+                var getdata = {
+                    url: url,
+                    database: database,
+                    model: "users",
+                    docType: 1,
+                    query: {
+                        filter: { "_id": decodeToken.id },
+                        update: { $set: jsonData },
+                        projection: {
+                            id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
+                            exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
+                            useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
+                            username:"$_id",passport:"$passport",verified:"$verified"
+                        }
+                    }
+                };
+                let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
+                if (responseData && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage }
+                    // let response = await schedule_Service.getPassport(decodeToken)
+                    // if (response.success){
+                    //     return { success: true, message: response.message[0] }
+                    // }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
             }
         } else {
             return { success: false, message: 'Invalid Token Error' }
