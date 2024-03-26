@@ -296,52 +296,57 @@ let attachmentPostCall = async (params) => {
    
     try {
         decodeToken = jwt_decode(params.headers)
-        // console.log(decodeToken,'decodetoken...............')
         if (decodeToken) {
-            let tenantParams;
-            if(decodeToken && decodeToken.role == "student"){
-                tenantParams = decodeToken;
-            }
-            let tenantResponse = await _schedule.tenantResponse(tenantParams || params);
-            if (tenantResponse && tenantResponse.success){
-                var createdAt = new Date()
-                var jsonData = {
-                    "createdAt":createdAt,
-                    "storagefilename":params.myfile.newFilename,
-                    "filename":params.myfile.originalFilename,
-                    "mimetype":params.myfile.mimetype,
-                    "size":params.myfile.size,
-                    "user":decodeToken.id,
-                    "attached" : true
-                }
-                var getdata = {
-                    url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-					database: tenantResponse.message.databaseName,
-                    model: "attaches",
-                    docType: 0,
-                    query: jsonData
-                };
-                let response = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
-                if (response && response.data && response.data.statusMessage._id) {
-                    response.data.statusMessage.id = response.data.statusMessage._id
-                    delete response.data.statusMessage._id
-                    delete response.data.statusMessage.attached
-                    decodeToken.tenantResponse = tenantResponse
-                    let updatedRecord= await shared.updateRecord(decodeToken);
-                    if(updatedRecord && updatedRecord.message){
-                        response.data.statusMessage.status = updatedRecord.message.status
-                        return { success: true, message: response.data.statusMessage }
-                    } else {
-                        return { success: false, message: updatedRecord.message }
+            let url;
+            let database;
+            let tenantResponse;
+            if(decodeToken && decodeToken.tenantId){
+                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                if (tenantResponse && tenantResponse.success){
+                    url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                    database = tenantResponse.message.databaseName;
+                    decodeToken.tenantResponse = tenantResponse;
+                }else {
+                        return { success: false, message: tenantResponse.message }
                     }
+            } else {
+                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                database = process.env.DATABASENAME;
+            }
+            var createdAt = new Date()
+            var jsonData = {
+                "createdAt":createdAt,
+                "storagefilename":params.myfile.newFilename,
+                "filename":params.myfile.originalFilename,
+                "mimetype":params.myfile.mimetype,
+                "size":params.myfile.size,
+                "user":decodeToken.id,
+                "attached" : true
+            }
+            var getdata = {
+                url: url,
+                database: database,
+                model: "attaches",
+                docType: 0,
+                query: jsonData
+            };
+            let response = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+            if (response && response.data && response.data.statusMessage._id) {
+                response.data.statusMessage.id = response.data.statusMessage._id
+                delete response.data.statusMessage._id
+                delete response.data.statusMessage.attached
+                let updatedRecord= await shared.updateRecord(decodeToken);
+                if(updatedRecord && updatedRecord.message){
+                    response.data.statusMessage.status = updatedRecord.message.status
+                    return { success: true, message: response.data.statusMessage }
                 } else {
-                    return { success: false, message: getRecord.message }
+                    return { success: false, message: updatedRecord.message }
                 }
             } else {
-                return { success: false, message: tenantResponse.message }
+                return { success: false, message: getRecord.message }
             }
         } else {
-
+            return { success: false, message: "Provide proper token" }
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
