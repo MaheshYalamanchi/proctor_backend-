@@ -13,7 +13,7 @@ let proctorRoomUserEdit = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -91,7 +91,7 @@ let proctorDeleteSaveCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -133,7 +133,7 @@ let UserLimitCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -261,7 +261,7 @@ let UserSearchCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -426,7 +426,7 @@ let UserEdit = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -492,7 +492,7 @@ let proctorUserSaveCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -638,7 +638,7 @@ let proctorUserDeleteCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;

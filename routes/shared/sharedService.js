@@ -75,7 +75,6 @@ let proctorLoginCall = async (params) => {
             return { success: false, message: 'Please check username' }
         }
     } catch (error) {
-        console.log("error===>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -88,7 +87,7 @@ let proctorMeCall = async (params) => {
         var decodeToken = jwt_decode(params.authorization);
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
             } else {
                 return { success: false, message: tenantResponse.message }
@@ -214,7 +213,7 @@ let proctorFetchCall = async (params) => {
     try {
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
             } else {
                 return { success: false, message: tenantResponse.message }
@@ -385,7 +384,7 @@ let proctorAuthCall = async (params) => {
         var decodeToken = jwt_decode(params.authorization);
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId ){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 decodeToken.tenantResponse = tenantResponse;
         }    else {
@@ -467,7 +466,7 @@ let proctorLimitCall = async (params) => {
         let url;
         let database;
         if (decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -713,7 +712,7 @@ let proctorSearchCall = async (params) => {
         let url;
         let database;
         if (decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -1204,7 +1203,7 @@ let proctorUserDetailsCall = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -1307,7 +1306,7 @@ let proctorRoomDetails = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -1363,7 +1362,7 @@ let proctorSuggestSaveCall = async (params) => {
         let url;
         let database;
         if (decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -1497,7 +1496,7 @@ let getface = async (params) => {
             let database;
             let tenantResponse;
             if(decodeToken && decodeToken.tenantId ){
-                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                tenantResponse = await _schedule.getTennant(decodeToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -1592,7 +1591,7 @@ let getPassport = async (params) => {
             let database;
             let tenantResponse;
             if(decodeToken && decodeToken.tenantId ){
-                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                tenantResponse = await _schedule.getTennant(decodeToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -1687,7 +1686,7 @@ let notificationupdate = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;

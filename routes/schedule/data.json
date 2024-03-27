@@ -1,0 +1,12 @@
+[
+  {
+    "tenantId": "2",
+    "connectionString": "mongodb+srv://lntedutech:microcertdevusr@proctordev.jsoli.mongodb.net",
+    "databaseName": "edutech_2"
+  },
+  {
+    "tenantId": "1",
+    "connectionString": "mongodb+srv://lntedutech:microcertdevusr@proctordev.jsoli.mongodb.net",
+    "databaseName": "edutech"
+  }
+]

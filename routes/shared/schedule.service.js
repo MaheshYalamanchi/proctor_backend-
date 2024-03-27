@@ -13,7 +13,7 @@ let getCandidateMessages = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -466,8 +466,6 @@ let getCandidateMessages = async (params) => {
                 return { success: false, message: 'Data Not Found' }
             }
         } else if (params.query && params.query.filter && params.query.filter.type == 'event') {
-            console.log("url=====>>",url);
-            console.log("database=====>>>",database)
             var limit = parseInt(params.query.limit);
             var sort = -1;
             var getdata = {
@@ -547,7 +545,6 @@ let getCandidateMessages = async (params) => {
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
-            console.log("getData=====>>>",JSON.stringify(getdata.query))
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage[0] }
@@ -618,7 +615,7 @@ let getCandidateMessagesDetails = async (params) => {
         let database;
         let tenantResponse
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -715,7 +712,7 @@ let SubmitSaveCall = async (params) => {
         let url;
         let database;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;

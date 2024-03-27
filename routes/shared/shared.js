@@ -378,7 +378,7 @@ let timeoutupdate = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;

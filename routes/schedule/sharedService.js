@@ -19,7 +19,7 @@ let getCandidateMessageSend = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -207,7 +207,7 @@ let getFaceResponse = async (params) => {
             let database;
             let tenantResponse;
             if(decodeToken && decodeToken.tenantId){
-                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                tenantResponse = await _schedule.getTennant(decodeToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -301,7 +301,7 @@ let attachmentPostCall = async (params) => {
             let database;
             let tenantResponse;
             if(decodeToken && decodeToken.tenantId){
-                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                tenantResponse = await _schedule.getTennant(decodeToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -419,7 +419,7 @@ let getDatails = async (params) => {
         let url;
         let database;
         if(decodeToken && decodeToken.tenantId ){
-            tenantResponse = await _schedule.tenantResponse(decodeToken);
+            tenantResponse = await _schedule.getTennant(decodeToken);
             if (tenantResponse && tenantResponse.success){
                 url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                 database = tenantResponse.message.databaseName;
@@ -482,7 +482,7 @@ let getPassportPhotoResponse1 = async (params) => {
             let database;
             let tenantResponse;
             if(decodeToken && decodeToken.tenantId){
-                tenantResponse = await _schedule.tenantResponse(decodeToken);
+                tenantResponse = await _schedule.getTennant(decodeToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -569,7 +569,7 @@ let getCandidateDetailsStop = async (params) => {
         if(params && params.body && params.body.authorization){
             let decodedToken = jwt_decode(params.body.authorization);
             if (decodedToken && decodedToken.tenantId){
-                tenantResponse = await _schedule.tenantResponse(decodedToken);
+                tenantResponse = await _schedule.getTennant(decodedToken);
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
@@ -717,7 +717,7 @@ let stoppedAt = async (params) => {
         let database;
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.tenantResponse(params);
+            tenantResponse = await _schedule.getTennant(params);
             if (tenantResponse && tenantResponse.success){
                 url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
 				database= tenantResponse.message.databaseName;
