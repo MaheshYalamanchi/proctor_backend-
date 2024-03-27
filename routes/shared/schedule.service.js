@@ -38,7 +38,7 @@ let getCandidateMessages = async (params) => {
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id","message":1,
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
@@ -53,7 +53,7 @@ let getCandidateMessages = async (params) => {
                         "$lookup": {
                             "from": 'attaches',
                             "localField": 'attach',
-                            "foreignField": '_id',
+                            "foreignField": 'id',
                             "as": 'attaches',
                         }
                     },
@@ -71,7 +71,7 @@ let getCandidateMessages = async (params) => {
                                         {
                                             "filename":"$attaches.filename",
                                             "mimetype":"$attaches.mimetype",
-                                            "id":"$attaches._id"
+                                            "id":"$attaches.id"
                                         }
                                      ]
                         }
@@ -125,7 +125,7 @@ let getCandidateMessages = async (params) => {
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id","message":1,
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
@@ -140,7 +140,7 @@ let getCandidateMessages = async (params) => {
                         "$lookup": {
                             "from": 'attaches',
                             "localField": 'attach',
-                            "foreignField": '_id',
+                            "foreignField": 'id',
                             "as": 'attaches',
                         }
                     },
@@ -158,7 +158,7 @@ let getCandidateMessages = async (params) => {
                                         {
                                             "filename":"$attaches.filename",
                                             "mimetype":"$attaches.mimetype",
-                                            "id":"$attaches._id"
+                                            "id":"$attaches.id"
                                         }
                                      ]
                         }
@@ -213,7 +213,7 @@ let getCandidateMessages = async (params) => {
                         { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                         {
                             "$project": {
-                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
                                 "user": {
                                     "id": "$data._id",
                                     "nickname": "$data.nickname",
@@ -228,7 +228,7 @@ let getCandidateMessages = async (params) => {
                             "$lookup": {
                                 "from": 'attaches',
                                 "localField": 'attach',
-                                "foreignField": '_id',
+                                "foreignField": 'id',
                                 "as": 'attaches',
                             }
                         },
@@ -246,7 +246,7 @@ let getCandidateMessages = async (params) => {
                                             {
                                                 "filename":"$attaches.filename",
                                                 "mimetype":"$attaches.mimetype",
-                                                "id":"$attaches._id"
+                                                "id":"$attaches.id"
                                             }
                                          ]
                             }
@@ -301,7 +301,7 @@ let getCandidateMessages = async (params) => {
                         { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                         {
                             "$project": {
-                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
                                 "user": {
                                     "id": "$data._id",
                                     "nickname": "$data.nickname",
@@ -316,7 +316,7 @@ let getCandidateMessages = async (params) => {
                             "$lookup": {
                                 "from": 'attaches',
                                 "localField": 'attach',
-                                "foreignField": '_id',
+                                "foreignField": 'id',
                                 "as": 'attaches',
                             }
                         },
@@ -334,7 +334,7 @@ let getCandidateMessages = async (params) => {
                                             {
                                                 "filename":"$attaches.filename",
                                                 "mimetype":"$attaches.mimetype",
-                                                "id":"$attaches._id"
+                                                "id":"$attaches.id"
                                             }
                                          ]
                             }
@@ -390,7 +390,7 @@ let getCandidateMessages = async (params) => {
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
@@ -403,7 +403,7 @@ let getCandidateMessages = async (params) => {
                         "$lookup": {
                             "from": 'attaches',
                             "localField": 'attach',
-                            "foreignField": '_id',
+                            "foreignField": 'id',
                             "as": 'attachesData',
                         }
                     },
@@ -414,13 +414,13 @@ let getCandidateMessages = async (params) => {
                                     "input":"$attachesData",
                                     as:"sec",
                                     in:{
-                                        "id":"$$sec._id",
+                                        "id":"$$sec.id",
                                         "filename":"$$sec.filename",
                                         "mimetype":"$$sec.mimetype",
                                     }
                                 }
                             },
-                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
                             "user": 1
                         }
                     },
@@ -477,12 +477,12 @@ let getCandidateMessages = async (params) => {
                     { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",
                                 "role": "$data.role",
-                                "username": "$data._id"
+                                "username": "$data.id"
                             }
                         }
                     },
@@ -490,7 +490,7 @@ let getCandidateMessages = async (params) => {
                         "$lookup": {
                             "from": 'attaches',
                             "localField": 'attach',
-                            "foreignField": '_id',
+                            "foreignField": 'id',
                             "as": 'attachesData',
                         }
                     },
@@ -501,7 +501,7 @@ let getCandidateMessages = async (params) => {
                                     "input":"$attachesData",
                                     as:"sec",
                                     in:{
-                                        "id":"$$sec._id",
+                                        "id":"$$sec.id",
                                         "filename":"$$sec.filename",
                                         "mimetype":"$$sec.mimetype",
                                     }
