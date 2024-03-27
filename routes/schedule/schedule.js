@@ -318,7 +318,8 @@ let getRoomDetails = async (params) => {
 
 let tenantResponse = async (params) => {
     try {
-        const filePath = path.join(__dirname, 'data.json');
+        // const filePath = path.join(__dirname, 'data.json');
+        const filePath = path.join("/mnt/", 'data.json');
         if(fs.existsSync(filePath)) {
             let fsReadResponse = await fsRead(filePath)
             if(fsReadResponse && fsReadResponse.success){
@@ -417,7 +418,7 @@ let tenantResponse = async (params) => {
 
 let getTennant = async(params) => {
     try {
-        const filePath = path.join(__dirname, 'data.json');
+        const filePath = path.join("/mnt/", 'data.json');
         let fsReadResponse = await fsRead(filePath)
         if(fsReadResponse && fsReadResponse.success){
             let JsonData = JSON.parse(fsReadResponse.message);

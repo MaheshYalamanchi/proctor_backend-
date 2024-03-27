@@ -75,6 +75,9 @@ spec:
                                                                         
           ports:
           - containerPort: 3002
+          volumeMounts:
+          - name: 'data'
+            mountPath: '/mnt'
       imagePullSecrets:
         - name: mysecret
       nodeSelector:

@@ -8,5 +8,10 @@
     "tenantId": "1",
     "connectionString": "mongodb+srv://lntedutech:microcertdevusr@proctordev.jsoli.mongodb.net",
     "databaseName": "edutech"
+  },
+  {
+    "tenantId": "3",
+    "connectionString": "mongodb+srv://lntedutech:microcertdevusr@proctordev.jsoli.mongodb.net",
+    "databaseName": "edutech_3"
   }
 ]

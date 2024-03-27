@@ -444,7 +444,6 @@ let proctorAuthCall = async (params) => {
                     }
                 }
             } else {
-                console.log(responseData.data,'responseData.data.statusMessage.............................................'+decodeToken.id)
                 return { success: false, message: 'Data Not Found' }
             }
         } else {
