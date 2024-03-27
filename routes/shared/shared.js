@@ -9,7 +9,8 @@ let getSessions = async (params) => {
     try {
         let fetchTenantResponse = await _schedule.fetchTenant();
         if(fetchTenantResponse && fetchTenantResponse.success){
-            fetchTenantResponse.message.array.forEach(async element => {
+            console.log("fetchTenantResponse=====>>>",JSON.stringify(fetchTenantResponse.message))
+            fetchTenantResponse.message.forEach(async element => {
                 var getdata = {
                     url: element.connectionString+'/'+element.databaseName,
                     database: element.databaseName,
