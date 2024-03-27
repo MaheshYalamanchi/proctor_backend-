@@ -442,6 +442,26 @@ let getTennant = async(params) => {
     }
 }
 
+let fetchTenant = async() => {
+    try {
+        const filePath = path.join("/mnt/", 'data.json');
+        let fsReadResponse = await fsRead(filePath)
+        if(fsReadResponse && fsReadResponse.success){
+            let JsonData = JSON.parse(fsReadResponse.message);
+            return { success: true, message: JsonData }
+        } else {
+            return { success: false, message: "Data not found" }
+        }
+
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+}
+
 let fsRead = async (filename) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -483,6 +503,7 @@ module.exports = {
     attachInsertion,
     getRoomDetails,
     tenantResponse,
-    getTennant
+    getTennant,
+    fetchTenant
     
 }

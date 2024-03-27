@@ -625,11 +625,11 @@ let chatincidents = async(params) => {
 let fetchdata = async (params) => {
     try {
         var userdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: params.url,
+            database: params.database,
             model: "rooms",
             docType: 1,
-            query: params.filter
+            query: params.query.filter
         }
         let response = await invoke.makeHttpCall("post", "read", userdata);
         if (response) {
