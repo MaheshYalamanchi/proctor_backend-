@@ -12,6 +12,10 @@ spec:
       labels:
         app: proctorbackend
     spec:
+      volumes:
+      - name: 'data'
+        persistentVolumeClaim:
+          claimName: my-azurefile
       containers:
         - name: proctorbackend
           image: proctordev.azurecr.io/proctorbackend:$tag
