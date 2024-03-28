@@ -211,7 +211,7 @@ let faceInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { '_id' : params._id } },
+                { $match: { 'id' : params._id } },
                 {
                     "$lookup": {
                         "from": 'users',
@@ -228,7 +228,7 @@ let faceInfo = async (params) => {
                 // },
                 {
                     "$project": {
-                        "attach": 1, "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1, "createdAt": 1, "id": "$id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
                         "user": {
                             "id": "$data._id",
                             "nickname": "$data.nickname",
