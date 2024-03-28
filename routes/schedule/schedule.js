@@ -191,7 +191,7 @@ let faceInfo = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: { '_id' : params  } },
+                { $match: { 'id' : params  } },
                 {
                     "$lookup": {
                         "from": 'users',
