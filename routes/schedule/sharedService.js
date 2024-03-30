@@ -849,7 +849,7 @@ let updatePhotoStatus=async(params)=>{
             }
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
-        console.log(response.data.statusMessage,'llllllllllllllllll')
+        console.log(response.data.statusMessage,'llllllllllllllllll',JSON.stringify(getdata.query))
         if(response&&response.data&&response.data.statusMessage){
             return {success:true,message:'Record updated successfully.'};
         }else{
