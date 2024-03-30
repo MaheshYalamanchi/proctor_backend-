@@ -504,4 +504,17 @@ module.exports = function (params) {
             }
         }
     });
+    app.post('/updatephotostatus',async(req,res)=>{
+        try {
+            if(req.body.id){
+                let updatePhotoStatus=await sharedService.updatePhotoStatus(req.body)
+                app.http.customResponse(res, updatePhotoStatus, 200);
+            }else{
+                app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);
+            }
+            
+        } catch (error) {
+            
+        }
+    })
 };

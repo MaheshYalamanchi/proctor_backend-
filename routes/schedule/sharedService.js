@@ -822,7 +822,42 @@ let fetchMetrics = async (params) => {
         return {success:false,message:err};
     }
 };
-
+let updatePhotoStatus=async(params)=>{
+    try {
+        let url,database
+        if(params && params.tenantId){
+            tenantResponse = await _schedule.getTennant(params);
+            if (tenantResponse && tenantResponse.success){
+                url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+				database= tenantResponse.message.databaseName;
+                // params.tenantResponse = tenantResponse;
+            } else {
+                return { success: false, message: tenantResponse.message }
+            }
+        }else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME; 
+        }
+        var getdata = {
+            url:url,
+            database:database,
+            model: "users",
+            docType: 0,
+            query: {
+                filter: { "_id": params.id },
+                update: { $set: { verified: params.verified} }
+            }
+        };
+        let response = await invoke.makeHttpCall("post", "update", getdata);
+        if(response&&response.data&&response.data.statusMessage){
+            return {success:true,message:'Record updated successfully.'};
+        }else{
+            return {success:false,message:'Something went wrong!'};
+        }
+    } catch (error) {
+        return {success:false,message:'Something went wrong!'};
+    }
+}
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
@@ -841,5 +876,6 @@ module.exports = {
     headphonecheck,
     stoppedAt,
     getFaceResponse1,
-    fetchMetrics
+    fetchMetrics,
+    updatePhotoStatus
 }
