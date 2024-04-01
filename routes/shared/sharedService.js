@@ -1123,10 +1123,26 @@ let proctorSearchCall = async (params) => {
 };
 let proctorSuggestCall = async (params) => {
     try {
+        let decodeToken = jwt_decode(params.body.authorization);
+        let url;
+        let database;
+        let tenantResponse;
+        if(decodeToken && decodeToken.tenantId){
+            tenantResponse = await _schedule.getTennant(decodeToken);
+            if (tenantResponse && tenantResponse.success){
+                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                database = tenantResponse.message.databaseName;
+            } else {
+                return { success: false, message: tenantResponse.message }
+            }
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
         if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "proctor" ){
             var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
+                url: url,
+                database: database,
                 model: "users",
                 docType: 1,
                 query: [
@@ -1154,8 +1170,8 @@ let proctorSuggestCall = async (params) => {
             }
         } else if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "student" ){
             var getdata = {
-                url:process.env.MONGO_URI,
-                database:"proctor",
+                url: url,
+                database: database,
                 model: "users",
                 docType: 1,
                 query: [
@@ -1300,7 +1316,7 @@ let proctorUserInfoCall = async (params) => {
 };
 let proctorRoomDetails = async (params) => {
     try {
-        let decodeToken = jwt_decode(params.headers.authorization);
+        let decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         let tenantResponse;
@@ -1316,7 +1332,6 @@ let proctorRoomDetails = async (params) => {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
         }
-        var userid = params.params.userId;
         var postdata = {
             url: url,
             database: database,
@@ -1324,7 +1339,7 @@ let proctorRoomDetails = async (params) => {
             docType: 1,
             query: [
                 {
-                    $match: { _id: userid }
+                    $match: { _id: params.userId }
                 },
                 {
                     $project: {

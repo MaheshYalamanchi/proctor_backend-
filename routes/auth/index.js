@@ -170,7 +170,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/suggest/users", async (req, res) => {
+    app.post("/api/suggest/users", async (req, res) => {
 
         "use strict";
         try {
@@ -250,7 +250,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/room/:userId", async (req, res) => {
+    app.post("/api/room/:userId", async (req, res) => {
         "use strict";
         try {
             if (req.params.userId && req.query.populate && req.query.populate[0] && req.query.populate[1]) {
@@ -262,7 +262,8 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: validateSchema.errors });
                     app.http.customResponse(res, { success: false, message: validateSchema.errors }, 200);
                 } else {
-                    let result = await sharedSevices.proctorRoomDetails(req);
+                    req.body.userId = req.params.userId
+                    let result = await sharedSevices.proctorRoomDetails(req.body);
                     if (result && result.success) {
                         app.logger.info({ success: true, message: result.message });
                         app.http.customResponse(res, result.message, 200);
@@ -272,8 +273,8 @@ module.exports = function (params) {
                     }
                 }
             } else if (req.params.userId) {
-                req.params.tenantId = req.query.tenantId;
-                let result = await shared.roomUserDatails(req.params);
+                req.body.userId = req.params.userId;
+                let result = await shared.roomUserDatails(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
