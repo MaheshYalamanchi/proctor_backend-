@@ -358,7 +358,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, result.message, 200);
             } else {
                 app.logger.info({ success: false, message: result.message });
-                app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                app.http.customResponse(res, { success: false, message: 'Data Not Found1' }, 200);
             }
         } catch (error) {
             app.logger.error({ success: false, message: error });

@@ -418,7 +418,7 @@ let getCandidateDetailsUpdate = async (params) => {
                 delete responseData.data.statusMessage._id
                 return { success: true, message: responseData.data.statusMessage}
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: 'Data Not Found2' };
             }
         
     } catch (error) {
