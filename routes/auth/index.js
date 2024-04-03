@@ -250,7 +250,7 @@ module.exports = function (params) {
             }
         }
     });
-    app.post("/api/room/:userId", async (req, res) => {
+    app.patch("/api/room/:userId", async (req, res) => {
         "use strict";
         try {
             if (req.params.userId && req.query.populate && req.query.populate[0] && req.query.populate[1]) {
