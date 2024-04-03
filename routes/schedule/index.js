@@ -352,6 +352,7 @@ module.exports = function (params) {
     app.post('/api/room/start', async (req, res,next) => {
         try {
             let result = await sharedService.getCandidateDetails(req);
+            console.log(JSON.stringify(result))
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
