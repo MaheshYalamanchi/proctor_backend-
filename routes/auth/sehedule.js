@@ -287,7 +287,7 @@ let MessageSend = async (params) => {
             model: "chats",
             docType: 1,
             query: [
-                { $match: {"_id": params._id }  },
+                { $match: {"id": params._id }  },
                 {
                     "$lookup": {
                         "from": 'users',
