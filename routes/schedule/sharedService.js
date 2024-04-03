@@ -128,27 +128,38 @@ let getMessageTemplates = async (params) => {
 };
 let roomUserDatails = async (params) => {
     try {
-        let tenantResponse = await _schedule.tenantResponse(params);
-        if (tenantResponse && tenantResponse.success){
-            var getdata = {
-                url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-				database: tenantResponse.message.databaseName,
-                model: "rooms",
-                docType: 1,
-                query: [
-                    { $match: { _id: params.userId} }
-                ]
-            };
-            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage) {
-                responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-                delete responseData.data.statusMessage[0]._id;
-                return { success: true, message: responseData.data.statusMessage[0] }
+        let decodeToken = jwt_decode(params.authorization);
+        let url;
+        let database;
+        let tenantResponse;
+        if(decodeToken && decodeToken.tenantId){
+            tenantResponse = await _schedule.getTennant(decodeToken);
+            if (tenantResponse && tenantResponse.success){
+                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                database = tenantResponse.message.databaseName;
             } else {
-                return { success: false, message: 'Data Not Found' };
+                return { success: false, message: tenantResponse.message }
             }
         } else {
-            return { success: false, message: tenantResponse.message }
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
+        var getdata = {
+            url: url,
+            database: database,
+            model: "rooms",
+            docType: 1,
+            query: [
+                { $match: { _id: params.userId} }
+            ]
+        };
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+            delete responseData.data.statusMessage[0]._id;
+            return { success: true, message: responseData.data.statusMessage[0] }
+        } else {
+            return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
