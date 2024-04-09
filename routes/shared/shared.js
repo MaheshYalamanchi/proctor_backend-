@@ -247,78 +247,59 @@ let getViolated = async (params) => {
                   $project: { "attach": 1, "metadata.peak": 1 , violation:1}
                 },
                 {
-                    $match: {
-                      violation: { $ne: [] } 
+                  $unwind: { path: "$attach", preserveNullAndEmptyArrays: true }
+                },
+                {
+                  $lookup: {
+                    from: 'attaches',
+                    localField: 'attach',
+                    foreignField: '_id',
+                    as: 'data'
+                  }
+                },
+                {
+                  $unwind: { path: "$data", preserveNullAndEmptyArrays: true }
+                },
+                {
+                  $project: { data: 1, violation: 1, "metadata.peak": 1 }
+                },
+                { $match: {
+                    $or: [{ "data.filename": "webcam.jpg" },{ "data.filename": "screen.jpg" }]
                     }
                 },
                 {
-                  $project: {"violation": 1,_id: 0 }
+                  $addFields: {
+                    "peak": {
+                      $switch: {
+                        branches: [
+                          { case: { $eq: ["$metadata.peak", "b1"] }, then: "Browser not supported" },
+                          { case: { $eq: ["$metadata.peak", "b2"] }, then: "Focus changed to a different window" },
+                          { case: { $eq: ["$metadata.peak", "b3"] }, then: "Full-screen mode is disabled" },
+                          { case: { $eq: ["$metadata.peak", "c1"] }, then: "Webcam is disabled" },
+                          { case: { $eq: ["$metadata.peak", "c2"] }, then: "Face invisible or not looking into the camera" },
+                          { case: { $eq: ["$metadata.peak", "c3"] }, then: "Several faces in front of the camera" },
+                          { case: { $eq: ["$metadata.peak", "c4"] }, then: "Face does not match the profile" },
+                          { case: { $eq: ["$metadata.peak", "c5"] }, then: "Found a similar profile" },
+                          { case: { $eq: ["$metadata.peak", "k1"] }, then: "Atypical keyboard handwriting" },
+                          { case: { $eq: ["$metadata.peak", "m1"] }, then: "Microphone muted or its volume is low" },
+                          { case: { $eq: ["$metadata.peak", "m2"] }, then: "Conversation or noise in the background" },
+                          { case: { $eq: ["$metadata.peak", "m3"] }, then: "Mobile use" },
+                          { case: { $eq: ["$metadata.peak", "n1"] }, then: "No network connection" },
+                          { case: { $eq: ["$metadata.peak", "n2"] }, then: "No connection to a mobile camera" },
+                          { case: { $eq: ["$metadata.peak", "s1"] }, then: "Screen activities are not shared" },
+                          { case: { $eq: ["$metadata.peak", "s2"] }, then: "Second display is used"},
+                          { case: { $eq: ["$metadata.peak", "h1"] }, then: "Headphone use" }
+                        ],
+                        default: "$metadata.peak"
+                      }
+                    }
+                  }
+                },
+                {
+                  $project: {
+                      "peak": 1,"violation": 1,"screen.id": "$data._id","screen.filename": "$data.filename","screen.createdAt": "$data.createdAt",_id: 0
+                      }
                 }
-
-                // old code
-                // { $match: {
-                //     $and: [{ "room": params.id },{ 
-                //     $or: [{ "type": { $in: ["event", "face"] } }]}]
-                //   }
-                // },
-                // { $sort: { createdAt: 1}},
-                // {
-                //   $project: { "attach": 1, "metadata.peak": 1 , violation:1}
-                // },
-                // {
-                //   $unwind: { path: "$attach", preserveNullAndEmptyArrays: true }
-                // },
-                // {
-                //   $lookup: {
-                //     from: 'attaches',
-                //     localField: 'attach',
-                //     foreignField: '_id',
-                //     as: 'data'
-                //   }
-                // },
-                // {
-                //   $unwind: { path: "$data", preserveNullAndEmptyArrays: true }
-                // },
-                // {
-                //   $project: { data: 1, violation: 1, "metadata.peak": 1 }
-                // },
-                // { $match: {
-                //     $or: [{ "data.filename": "webcam.jpg" },]
-                //     }
-                // },
-                // {
-                //   $addFields: {
-                //     "peak": {
-                //       $switch: {
-                //         branches: [
-                //           { case: { $eq: ["$metadata.peak", "b1"] }, then: "Browser not supported" },
-                //           { case: { $eq: ["$metadata.peak", "b2"] }, then: "Focus changed to a different window" },
-                //           { case: { $eq: ["$metadata.peak", "b3"] }, then: "Full-screen mode is disabled" },
-                //           { case: { $eq: ["$metadata.peak", "c1"] }, then: "Webcam is disabled" },
-                //           { case: { $eq: ["$metadata.peak", "c2"] }, then: "Face invisible or not looking into the camera" },
-                //           { case: { $eq: ["$metadata.peak", "c3"] }, then: "Several faces in front of the camera" },
-                //           { case: { $eq: ["$metadata.peak", "c4"] }, then: "Face does not match the profile" },
-                //           { case: { $eq: ["$metadata.peak", "c5"] }, then: "Found a similar profile" },
-                //           { case: { $eq: ["$metadata.peak", "k1"] }, then: "Atypical keyboard handwriting" },
-                //           { case: { $eq: ["$metadata.peak", "m1"] }, then: "Microphone muted or its volume is low" },
-                //           { case: { $eq: ["$metadata.peak", "m2"] }, then: "Conversation or noise in the background" },
-                //           { case: { $eq: ["$metadata.peak", "m3"] }, then: "Mobile use" },
-                //           { case: { $eq: ["$metadata.peak", "n1"] }, then: "No network connection" },
-                //           { case: { $eq: ["$metadata.peak", "n2"] }, then: "No connection to a mobile camera" },
-                //           { case: { $eq: ["$metadata.peak", "s1"] }, then: "Screen activities are not shared" },
-                //           { case: { $eq: ["$metadata.peak", "s2"] }, then: "Second display is used"},
-                //           { case: { $eq: ["$metadata.peak", "h1"] }, then: "Headphone use" }
-                //         ],
-                //         default: "$metadata.peak"
-                //       }
-                //     }
-                //   }
-                // },
-                // {
-                //   $project: {
-                //       "peak": 1,"violation": 1,"screen.id": "$data._id","screen.filename": "$data.filename","screen.createdAt": "$data.createdAt",_id: 0
-                //       }
-                // }
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
