@@ -218,7 +218,7 @@ let getViolated = async (params) => {
                   $project: { data: 1, violation: 1, "metadata.peak": 1 }
                 },
                 { $match: {
-                    $or: [{ "data.filename": "webcam.jpg" },]
+                    $or: [{ "data.filename": "webcam.jpg" },{ "data.filename": "screen.jpg" }]
                     }
                 },
                 {
