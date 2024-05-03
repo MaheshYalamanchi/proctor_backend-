@@ -78,7 +78,6 @@ module.exports = function (params) {
         "use strict";
         try {
             if (req && req.body) {
-                req.body.authorization = req.headers.authorization;
                 let result = await scheduleSevice.UserEdit(req.body);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
@@ -102,7 +101,6 @@ module.exports = function (params) {
     app.post("/api/user", async (req, res) => {
         "use strict";
         try {
-            req.body.authorization = req.headers.authorization;
             let result = await scheduleSevice.proctorUserSaveCall(req.body)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
