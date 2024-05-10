@@ -1078,16 +1078,43 @@ let proctorSearchCall = async (params) => {
                         return { success: false, message: 'Data Not Found' }
                     }
                 } else if ("object"== typeof filterData){
-                    let jsonData = {
-                        filter : filterData,
-                        skip :start,
-                        limit:limit,
-                        sort:sort,
-                        populate: limit && [
-                            { path: "student", select: "nickname face passport verified similar" },
-                            { path: "proctor", select: "nickname" },
-                            { path: "members", select: "nickname" },
-                        ],
+                    let startedAtFilter;
+                    let jsonData;
+                    if(filterData && filterData.startedAt){
+                        if(filterData.startedAt && filterData.startedAt.$gt){
+                            startedAtFilter = {startedAt:{$gt: new Date(filterData.startedAt.$gt)}}
+                        } else if(filterData.startedAt && filterData.startedAt.$lt){
+                            startedAtFilter = {startedAt:{$lt: new Date(filterData.startedAt.$lt)}}
+                        } else if(filterData.startedAt && filterData.startedAt.$gte){
+                            startedAtFilter = {startedAt:{$gte: new Date(filterData.startedAt.$gte)}}
+                        } else if(filterData.startedAt && filterData.startedAt.$lte){
+                            startedAtFilter = {startedAt:{$lte: new Date(filterData.startedAt.$lte)}}
+                        } else if(filterData.startedAt && filterData.startedAt){
+                            startedAtFilter = {startedAt: new Date(filterData.startedAt)}
+                        }
+                        jsonData = {
+                            filter : startedAtFilter,
+                            skip :start,
+                            limit:limit,
+                            sort:sort,
+                            populate: limit && [
+                                { path: "student", select: "nickname face passport verified similar" },
+                                { path: "proctor", select: "nickname" },
+                                { path: "members", select: "nickname" },
+                            ],
+                        }
+                    } else {
+                        jsonData = {
+                            filter : filterData,
+                            skip :start,
+                            limit:limit,
+                            sort:sort,
+                            populate: limit && [
+                                { path: "student", select: "nickname face passport verified similar" },
+                                { path: "proctor", select: "nickname" },
+                                { path: "members", select: "nickname" },
+                            ],
+                        }
                     }
                     var getdata = {
                         url: url,
@@ -1693,7 +1720,7 @@ let getCheck = async (params) => {
         }
     }
 };
-let notificationupdate = async (params) => {
+let notificationFetch = async (params) => {
     try {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
@@ -1718,7 +1745,7 @@ let notificationupdate = async (params) => {
             docType: 1,
             query: [
                 {
-                    $match: {"student": params.userId,"status": { $in: ["paused", "started"] } } 
+                    $match: {"status": { $in: ["paused", "started"] } } 
                 },
                 {
                     $project: { "_id": 0 ,"id" :"$_id" }
@@ -1732,17 +1759,8 @@ let notificationupdate = async (params) => {
                 responseData.data.statusMessage[0].templateResponse = tenantResponse;
             }
             let result = await schedule_Service.unreadmessagefetch(responseData.data.statusMessage[0])
-            if (result && result.success && result.message && result.message.length>0) {
-                var data = _.map(result.message, (iterator) => iterator._id);
-                var message = _.map(result.message, (iterator) => _.pick(iterator, ['message', 'user', 'notification', 'createdAt']))
-                let jsonData  = {
-                    data: data,
-                    tenantResponse: tenantResponse
-                }
-                let response = await schedule_Service.unreadchat(jsonData)
-                return { success: true, message: message}
-            } else {
-                return { success: false, message: '[]' }
+            if(result && result.success){
+                return { success: true, message: result.message}
             }
         } else {
             return { success: false, message: "Data not found" }
@@ -1756,6 +1774,50 @@ let notificationupdate = async (params) => {
       }
     }
   };
+
+let notificationUpdate = async (params) => {
+try {
+    let  decodeToken = jwt_decode(params.authorization);
+    let url;
+    let database;
+    let tenantResponse;
+    if(decodeToken && decodeToken.tenantId){
+        tenantResponse = await _schedule.getTennant(decodeToken);
+        if (tenantResponse && tenantResponse.success){
+            url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+            database = tenantResponse.message.databaseName;
+        }else {
+                return { success: false, message: tenantResponse.message }
+            }
+    } else {
+        url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
+    }
+    var getdata = {
+        url: url,
+        database: database,
+        model: "chats",
+        docType: 1,
+        query:{
+            filter :{id:{$in:params.chatId}},
+            update :{$set:{notification:"read"}}
+        } 
+    };
+    let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+    if(responseData && responseData.data && responseData.data.statusMessage){
+        return { success: true, message: responseData.data.statusMessage.nModified}
+    } else {
+        return { success: false, message: "Data not found" }
+    }
+}
+catch (error) {
+    if (error && error.code == 'ECONNREFUSED') {
+    return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+    } else {
+    return { success: false, message: error }
+    }
+}
+};
 
 module.exports = {
     proctorLoginCall,
@@ -1773,5 +1835,6 @@ module.exports = {
     getface,
     getPassport,
     getCheck,
-    notificationupdate,
+    notificationFetch,
+    notificationUpdate,
 }

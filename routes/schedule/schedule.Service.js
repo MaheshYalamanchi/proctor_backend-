@@ -559,53 +559,16 @@ let unreadmessagefetch = async (params) => {
             docType: 1,
             query:[
                 {
-                    $match: {"room": { $in: params.data },"notification": "unread","message":{ "$exists": true } } 
+                    $match: {"room": { $in: params.data },"message":{ "$exists": true } } 
                 },
                 {
-                    $project: {"_id":0,"notification": 1 ,"message" :1,"user" :1,"createdAt":1,"_id" :1}
+                    $project: {"_id":0,"notification": 1 ,"message" :1,"user" :1,"createdAt":1,"id" :1}
                 },
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage }
-        } else {
-            return { success: false, message: 'Data Not Found' }
-        }
-    }
-    catch (error) {
-      if (error && error.code == 'ECONNREFUSED') {
-        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-      } else {
-        return { success: false, message: error }
-      }
-    }
-  };
-
-let unreadchat = async (params) => {
-    try {
-        let url;
-        let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
-        }
-        var getdata = {
-            url: url,
-			database: database,
-            model: "chats",
-            docType: 1,
-            query:{
-                filter :{_id:{$in:params.data}},
-                update :{$set:{notification:"read"}}
-            } 
-        };
-        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
-        if (responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-            return { success: true, message: "Record updated sucessfully" }
         } else {
             return { success: false, message: 'Data Not Found' }
         }
@@ -747,7 +710,6 @@ module.exports = {
     fetchurl,
     fetchstatus,
     getFacePassportResponse,
-    unreadchat,
     unreadmessagefetch,
     getUserRoomsCount,
     GetFaceInsertionResponse,
