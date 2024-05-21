@@ -669,6 +669,7 @@ let logtimeupdate = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", postdata);
         if (responseData) {
+            console.log(responseData,'responseData.................')
             return responseData
         } else {
             return "Data Not Found";
