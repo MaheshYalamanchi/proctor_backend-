@@ -758,6 +758,7 @@ let SubmitSaveCall = async (params) => {
                             params.query.tenantResponse = tenantResponse;
                         }
                         let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
+                        console.log(JSON.stringify(result),'l..............')
                         let violatedResponse = await shared.getViolated(params.query)
                         if(violatedResponse && violatedResponse.success){
                             try {
