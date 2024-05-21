@@ -759,7 +759,6 @@ let stoppedAt = async (params) => {
                     status.message.tenantResponse = tenantResponse;
                 }
                 let result = await schedule.logtimeupdate(status.message)
-                console.log(JSON.stringify(result),'LOGIN TIME.................')
                 let violatedResponse = await shared.getViolated(status.message);
                 if(violatedResponse && violatedResponse.success){
                     try {
