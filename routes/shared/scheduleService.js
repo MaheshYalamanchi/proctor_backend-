@@ -542,7 +542,7 @@ let proctorUserSaveCall = async (params) => {
             "os" : B.os,
             "platform" : B.platform
         }
-        if(params.role = "administrator"  && params.face != undefined){
+        if(params.role == "administrator"  && params.face != undefined){
             var getdata = {
                 url: url,
                 database: database,
@@ -550,7 +550,7 @@ let proctorUserSaveCall = async (params) => {
                 docType: 1,
                 query: [
                 {
-                    "$match": { _id: params.face }
+                    "$match": { id: params.face }
                 },
                 {
                     $project: { _id:0, metadata:1}
