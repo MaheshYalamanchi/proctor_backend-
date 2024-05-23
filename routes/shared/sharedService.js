@@ -998,6 +998,7 @@ let proctorSearchCall = async (params) => {
                         model: "rooms",
                         docType: 1,
                         query: [
+                            { $match: { isActive: true } },
                             {
                                 $match: {
                                     $or: [
