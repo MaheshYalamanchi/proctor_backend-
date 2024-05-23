@@ -114,7 +114,7 @@ let proctorDeleteSaveCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            return { success: true, message: "User Deleted Sucessfully..."};
+            return { success: true, message: "Session Deleted Sucessfully..."};
         } else {
             return { uccess: false, message: 'Data Not Found' }
         }
@@ -662,17 +662,18 @@ let proctorUserDeleteCall = async (params) => {
         };
         let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
-            if (tenantResponse && tenantResponse.success){
-                responseData.data.statusMessage[0].templateResponse = tenantResponse;
-            }
-            let response = await schedule.UserDelete(responseData.data.statusMessage[0]);
-        }
-        if (responseData && responseData.data) {
-            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0].salt;
-            delete responseData.data.statusMessage[0].hashedPassword;
-            return { success: true, message: responseData.data.statusMessage[0] }
+        //     if (tenantResponse && tenantResponse.success){
+        //         responseData.data.statusMessage[0].templateResponse = tenantResponse;
+        //     }
+        //     let response = await schedule.UserDelete(responseData.data.statusMessage[0]);
+        // }
+        // if (responseData && responseData.data) {
+        //     responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
+        //     delete responseData.data.statusMessage[0]._id;
+        //     delete responseData.data.statusMessage[0].salt;
+        //     delete responseData.data.statusMessage[0].hashedPassword;
+        //  return { success: true, message: responseData.data.statusMessage[0] }
+            return { success: true, message: "User deleted Successfully..." }
         } else {
             return { success: false, message: 'Data Not Found' }
         }
