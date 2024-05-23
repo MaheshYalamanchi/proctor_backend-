@@ -339,7 +339,7 @@ module.exports = function (params) {
         "use strict";
         try {
             // app.http.customResponse(res, { success: false, message: 'Not at implemented...' }, 200);
-            req.params.authorization = req.headers.authorization;
+            req.params.authorization = req.query.authorization;
             let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
