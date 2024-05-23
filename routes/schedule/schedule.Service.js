@@ -562,8 +562,33 @@ let unreadmessagefetch = async (params) => {
                     $match: {"room": { $in: params.data },"message":{ "$exists": true } } 
                 },
                 {
-                    $project: {"_id":0,"notification": 1 ,"message" :1,"user" :1,"createdAt":1,"id" :1}
+                    $sort: { createdAt: -1 }
                 },
+                {
+                    $project: {
+                        "_id": 0,
+                        "notification": 1,
+                        "message": 1,
+                        "user": 1,
+                        "createdAt": 1,
+                        "id": 1,
+                        "isUnread": { $cond: [{ $eq: ["$notification", "unread"] }, 1, 0] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        data: { $push: "$$ROOT" },
+                        unreadCount: { $sum: "$isUnread" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        data: 1,
+                        unreadCount: 1
+                    }
+                }
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);

@@ -1749,6 +1749,9 @@ let notificationFetch = async (params) => {
                     $match: {"status": { $in: ["paused", "started"] } } 
                 },
                 {
+                    $match: {isActive:true}  
+                },
+                {
                     $project: { "_id": 0 ,"id" :"$_id" }
                 },    
                 { $group: { _id: null, data: { $push: "$id" }}}
