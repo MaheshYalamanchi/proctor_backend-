@@ -343,7 +343,7 @@ module.exports = function (params) {
             let result = await scheduleSevice.proctorDeleteSaveCall(req.params)
             if (result && result.success) {
                 app.logger.info({ success: true, message: result.message });
-                app.http.customResponse(res, result.message, 200);
+                app.http.customResponse(res, { success: true, message: result.message }, 200);
             } else {
                 app.logger.info({ success: false, message: result.message });
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
