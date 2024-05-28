@@ -559,7 +559,7 @@ let unreadmessagefetch = async (params) => {
             docType: 1,
             query:[
                 {
-                    $match: {"room": { $in: params.data },"message":{ "$exists": true } } 
+                    $match: {"room": { $in: params.data },"message":{ "$exists": true,"$ne": null, "$ne": ""} } 
                 },
                 {
                     $sort: { createdAt: -1 }
