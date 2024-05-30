@@ -113,7 +113,7 @@ let getCandidateMessages = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0].data}
+                return { success: true, message: responseData.data.statusMessage[0]}
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -199,7 +199,7 @@ let getCandidateMessages = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage[0].data }
+                return { success: true, message: responseData.data.statusMessage[0] }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
