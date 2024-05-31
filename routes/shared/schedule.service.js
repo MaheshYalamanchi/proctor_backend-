@@ -96,9 +96,9 @@ let getCandidateMessages = async (params) => {
                     {
                         "$facet": {
                             "data": [
-                                { "$sort": { "createdAt": -1 } },
-                                { "$skip": 0 },
-                                { "$limit": 20 }
+                                { "$sort": { "createdAt": sort } },
+                                { "$skip": start },
+                                { "$limit": limit }
                             ],
                             "total_count": [
                                 { "$group": { _id: null, "count": { "$sum": 1 } } },
@@ -189,9 +189,9 @@ let getCandidateMessages = async (params) => {
                     {
                         "$facet": {
                             "data": [
-                                { "$sort": { "createdAt": -1 } },
-                                { "$skip": 0 },
-                                { "$limit": 20 }
+                                { "$sort": { "createdAt": sort } },
+                                { "$skip": start },
+                                { "$limit": limit }
                             ],
                             "total_count": [
                                 { "$group": { _id: null, "count": { "$sum": 1 } } },
