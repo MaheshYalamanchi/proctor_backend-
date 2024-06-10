@@ -1822,7 +1822,108 @@ catch (error) {
     }
 }
 };
-
+///////////////stream
+let proctorStreamCall = async (params) => {
+    try {
+        var decodeToken = jwt_decode(params.headers.authorization);
+        let tenantResponse;
+        let url;
+        let database;
+        if (decodeToken && decodeToken.tenantId){
+            tenantResponse = await _schedule.getTennant(decodeToken);
+            if (tenantResponse && tenantResponse.success){
+                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                database = tenantResponse.message.databaseName;
+            } else {
+                return { success: false, message: tenantResponse.message }
+            }
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        }
+        if (decodeToken.role == "proctor"){
+            // if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
+                var sort = -1;
+                var start=0;
+                // if (params.query.start){
+                //     start = parseInt(params.query.start);
+                // }else{
+                //     start = 0;
+                // }
+                // var limit = parseInt(params.query.limit);
+                var getdata = {
+                    url: url,
+                    database: database,
+                    model: "rooms",
+                    docType: 1,
+                    query: [ 
+                        { $match: { isActive: true,_id:{$in:params.body.rooms} } },
+                        {$match: {
+                        members:decodeToken.id 
+                    }
+                    },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'student',
+                                foreignField: '_id',
+                                as: 'student',
+                            }
+                        },
+                        { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                        {
+                            $project: {
+                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                                subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                                updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
+                                startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                os: "$os", platform: "$platform",errorlog:"$errorlog", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                                "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                            }
+                        },
+                        {
+                            $facet: {
+                                "data": [
+                                    { "$sort": { startedAt: sort } },
+                                    { "$skip": 0 },
+                                    { "$limit": 30 }
+                                ],
+                                "total_count": [
+                                    { $group: { _id: null, count: { $sum: 1 } } }
+                                ]
+                            }
+                        }
+                    ]
+                };
+                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+                if (responseData && responseData.data) {
+                    let response = await schedule_Service.fetchurl(responseData.data) 
+                    var data = {
+                        response: responseData.data,
+                        start: params,
+                        tenantResponse: tenantResponse,
+                        rooms:params.body.rooms
+                    };
+                    let responsemessage = await schedule_Service.fetchStreamStatus(data)
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start,url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count,status:responsemessage.message} }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
+            // }
+        }    
+   
+    } catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+//////////end
 module.exports = {
     proctorLoginCall,
     proctorMeCall,
@@ -1841,4 +1942,5 @@ module.exports = {
     getCheck,
     notificationFetch,
     notificationUpdate,
+    proctorStreamCall
 }
