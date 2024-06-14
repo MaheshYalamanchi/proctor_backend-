@@ -290,42 +290,42 @@ let MessageSend = async (params) => {
                 { $match: {"id": params._id }  },
                 {
                     "$lookup": {
-                        "from": 'users',
-                        "localField": 'user',
-                        "foreignField": '_id',
-                        "as": 'data',
+                        "from": "users",
+                        "localField": "user",
+                        "foreignField": "_id",
+                        "as": "data"
                     }
                 },
                 {
                     "$lookup": {
-                        "from": 'attaches',
-                        "localField": 'attach',
-                        "foreignField": '_id',
-                        "as": 'attach',
+                        "from": "attaches",
+                        "localField": "attach",
+                        "foreignField": "_id",
+                        "as": "attach"
+                    }
+                },
+                {"$unwind": {"path": "$data","preserveNullAndEmptyArrays": true}},
+                {"$unwind": {"path": "$attach","preserveNullAndEmptyArrays": true}},
+                {
+                    "$group": {"_id": "$_id","createdAt": { "$first": "$createdAt" },"message": { "$first": "$message" },"room": { "$first": "$room" },
+                        "type": { "$first": "$type" },"metadata": { "$first": "$metadata" },"user": { "$first": "$data" },
+                        "attach": {
+                            "$push": {
+                                "id": "$attach._id",
+                                "filename": "$attach.filename",
+                                "mimetype": "$attach.mimetype"
+                            }
+                        }
                     }
                 },
                 {
-                    "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
-                },
-                {
-                    "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true }
-                },
-                // {
-                //     "$addFields": { "test": { "$toString": "$_id" } }
-                // },
-                {
                     "$project": {
-                        "attach":[{
-                            "id":"$attach._id",
-                            "filename":"$attach.filename",
-                            "mimetype":"$attach.mimetype"
-                        }],
-                        "createdAt": 1, "id": "$_id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
+                        "attach": 1,"createdAt": 1,"id": "$_id","message": 1,"room": 1,"type": 1,"_id": 0,"metadata": 1,
                         "user": {
-                            "id": "$data._id",
-                            "nickname": "$data.nickname",
-                            "username": "$data._id",
-                            "role": "$data.role",
+                            "id": "$user._id",
+                            "nickname": "$user.nickname",
+                            "username": "$user._id",
+                            "role": "$user.role"
                         }
                     }
                 }

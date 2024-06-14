@@ -80,9 +80,9 @@ let getCandidateMessageSend = async (params) => {
                     }
                     let responseData = await schedule.MessageSend(response.data.statusMessage);
                     if (responseData && responseData.data && responseData.data.statusMessage) {
-                        let messageData=responseData.data.statusMessage[0]
-                        messageData.attach = messageData.attach.filter(obj => Object.keys(obj).length !== 0);
-                        return { success: true, message: messageData }
+                        // let messageData=responseData.data.statusMessage[0]
+                        // messageData.attach = messageData.attach.filter(obj => Object.keys(obj).length !== 0);
+                        return { success: true, message: responseData.data.statusMessage[0] }
                     } else {
                         return { success: false, message: 'Data Not Found' };
                     }
