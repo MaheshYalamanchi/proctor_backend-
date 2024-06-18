@@ -668,7 +668,7 @@ let getCandidateMessagesDetails = async (params) => {
                     { "$unwind": { "path": "$attacheData", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
-                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,"updatedAt":1,
                             "user": {
                                 "id": "$data._id",
                                 "nickname": "$data.nickname",

@@ -111,7 +111,8 @@ let getCandidateEventSend = async (params) => {
                 "user" : decodeToken.id,
                 "createdAt" :new Date(params.body.createdAtEvent),
                 "metadata" : params.body.metadata,
-                "violation" : violation || []
+                "violation" : violation || [],
+                "updatedAt": new Date(params.body.updatedAt) || null
             }
             var getdata = {
                 url: url,
