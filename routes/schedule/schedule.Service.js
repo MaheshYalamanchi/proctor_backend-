@@ -5,7 +5,7 @@ const scheduleService = require('../schedule/sharedService');
 const schedule = require('./schedule');
 var ObjectID = require('mongodb').ObjectID;
 const moment = require('moment');
-const _schedule = require('../schedule/schedule')
+const _schedule = require('../schedule/schedule');
 let getChatDetails = async (params) => {
     decodeToken = jwt_decode(params.body.authorization)
     try {
@@ -70,6 +70,7 @@ let getCandidateEventSend = async (params) => {
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
+                    req.body.tenantResponse = tenantResponse;
                 }else {
                         return { success: false, message: tenantResponse.message }
                     }
@@ -111,8 +112,7 @@ let getCandidateEventSend = async (params) => {
                 "user" : decodeToken.id,
                 "createdAt" :new Date(params.body.createdAtEvent),
                 "metadata" : params.body.metadata,
-                "violation" : violation || [],
-                "updatedAt": new Date(params.body.updatedAt) || null
+                "violation" : violation || []
             }
             var getdata = {
                 url: url,
@@ -123,6 +123,9 @@ let getCandidateEventSend = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
+                if(params.body.chatId && (params.body.chatId !== 'undefined')){
+                    let chatUpdateResponse = await schedule.chatUpdateResponse(params.body)
+                }
                 let user = {
                     "id": decodeToken.id,
                     "nickname": decodeToken.nickname,
