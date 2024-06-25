@@ -717,26 +717,25 @@ let headphonecheck = async (params) => {
 };
 let stoppedAt = async (params) => {
     try {
-        // if(params && params.body && params.body.authorization){
-        //     let decodeToken = jwt_decode(params.body.authorization);
-        //     if(decodeToken && decodeToken.tenantId){
-        //         params.tenantId = decodeToken.tenantId;
-        //     }
-        // }
-        let decodeToken = jwt_decode(params.body.authorization);
-        let url;
-        let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(params);
-            if (tenantResponse && tenantResponse.success){
-                url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-				database= tenantResponse.message.databaseName;
-                params.tenantResponse = tenantResponse;
-            } else {
-                return { success: false, message: tenantResponse.message }
+        if(params && params.body && params.body.authorization){  
+            let decodeToken = jwt_decode(params.body.authorization);
+            let url;
+            let database;
+            let tenantResponse;
+            if(decodeToken && decodeToken.tenantId){
+                tenantResponse = await _schedule.getTennant(params);
+                if (tenantResponse && tenantResponse.success){
+                    url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                    database= tenantResponse.message.databaseName;
+                    params.tenantResponse = tenantResponse;
+                } else {
+                    return { success: false, message: tenantResponse.message }
+                }
+            }else {
+                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                database = process.env.DATABASENAME; 
             }
-        }else {
+        } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME; 
         }
