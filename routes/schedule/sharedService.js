@@ -717,11 +717,11 @@ let headphonecheck = async (params) => {
 };
 let stoppedAt = async (params) => {
     try {
+        let url;
+        let database;
+        let tenantResponse;
         if(params && params.body && params.body.authorization){  
             let decodeToken = jwt_decode(params.body.authorization);
-            let url;
-            let database;
-            let tenantResponse;
             if(decodeToken && decodeToken.tenantId){
                 tenantResponse = await _schedule.getTennant(params);
                 if (tenantResponse && tenantResponse.success){
