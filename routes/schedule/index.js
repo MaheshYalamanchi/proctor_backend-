@@ -550,6 +550,7 @@ module.exports = function (params) {
             }
             
         } catch (error) {
+            console.log(error)
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
