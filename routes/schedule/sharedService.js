@@ -873,6 +873,49 @@ let updatePhotoStatus=async(params)=>{
         return {success:false,message:'Something went wrong!'};
     }
 }
+let approvalProcess=async(params)=>{
+    try {
+        let url,database
+        if(params && params.authorization){  
+            let decodeToken = jwt_decode(params.body.authorization);
+            if(decodeToken && decodeToken.tenantId){
+                tenantResponse = await _schedule.getTennant(params);
+                if (tenantResponse && tenantResponse.success){
+                    url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                    database= tenantResponse.message.databaseName;
+                    params.tenantResponse = tenantResponse;
+                } else {
+                    return { success: false, message: tenantResponse.message }
+                }
+            }else {
+                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                database = process.env.DATABASENAME; 
+            }
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME; 
+        }
+        var getdata = {
+            url:url,
+            database:database,
+            model: "rooms",
+            docType: 0,
+            query: {
+                filter: { "_id": params.roomid },
+                update: { $set: { verified: params.verified,status:params.status} }
+            }
+        };
+        let response = await invoke.makeHttpCall("post", "update", getdata);
+        console.log(response.data.statusMessage,'llllllllllllllllll',JSON.stringify(getdata))
+        if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.nModified){
+            return {success:true,message:'Candidate approved successfully.'};
+        }else{
+            return {success:false,message:'Something went wrong!'};
+        }
+    } catch (error) {
+        return {success:false,message:'Something went wrong!'};
+    }
+}
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
@@ -892,5 +935,6 @@ module.exports = {
     stoppedAt,
     getFaceResponse1,
     fetchMetrics,
-    updatePhotoStatus
+    updatePhotoStatus,
+    approvalProcess
 }

@@ -514,7 +514,20 @@ module.exports = function (params) {
             }
             
         } catch (error) {
+            app.http.customResponse(res, { success: false, message: error }, 400);
+        }
+    })
+    app.post('/approvecandidate',async(req,res)=>{
+        try {
+            if(req.body.roomid&&req.body.status&&req.body.verified){
+                let approvalProcess=await sharedService.approvalProcess(req.body)
+                app.http.customResponse(res, approvalProcess, 200);
+            }else{
+                app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);
+            }
             
+        } catch (error) {
+            app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
 };
