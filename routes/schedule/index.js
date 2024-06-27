@@ -540,8 +540,8 @@ module.exports = function (params) {
                     role: 'student',
                     similar: [],
                     useragent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-                    username: fetchuserwithroom.message[0].student
-                    
+                    username: fetchuserwithroom.message[0].student,
+                    verified:fetchuserwithroom.message[0].verified
                   }
                   console.log(jsonData,'jsondata after')
                 app.http.customResponse(res, {success:true,message:'Candidate approved successfully.',data:{student:jsonData,members:fetchuserwithroom.message[0].member}}, 200);

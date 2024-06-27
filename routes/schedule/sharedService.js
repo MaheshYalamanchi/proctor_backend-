@@ -971,7 +971,8 @@ let fetchuserwithroom=async(params)=>{
                         ip:"$ipaddress",
                         loggedAt:"$userInfo.loggedAt",
                         createdAt:"$userInfo.createdAt",
-                        member:"$members"
+                        member:"$members",
+                        verified:"$verified"
                     }
                 }
               ]
