@@ -522,6 +522,7 @@ module.exports = function (params) {
             if(req.body.roomid&&req.body.status){
                 let approvalProcess=await sharedService.approvalProcess(req.body)
                 let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
+                console.log(fetchuserwithroom,'fetch before')
                 var jsonData={
                     id: fetchuserwithroom.message[0]?.student,
                     browser: { name: fetchuserwithroom.message[0].browser.name, version:fetchuserwithroom.message[0].browser.version },
@@ -542,6 +543,7 @@ module.exports = function (params) {
                     username: fetchuserwithroom.message[0].student
                     
                   }
+                  console.log(jsonData,'jsondata after')
                 app.http.customResponse(res, {success:true,student:jsonData,members:fetchuserwithroom.message[0].member}, 200);
             }else{
                 app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);

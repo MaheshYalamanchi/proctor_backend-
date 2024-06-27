@@ -875,7 +875,7 @@ let updatePhotoStatus=async(params)=>{
 }
 let approvalProcess=async(params)=>{
     try {
-        console.log(params,'body..................')
+        // console.log(params,'body..................')
         let url,database
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
@@ -907,7 +907,7 @@ let approvalProcess=async(params)=>{
             }
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
-        console.log(response.data.statusMessage,'llllllllllllllllll',JSON.stringify(getdata))
+        // console.log(response.data.statusMessage,'llllllllllllllllll',JSON.stringify(getdata))
         if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.nModified){
             return {success:true,message:'Candidate approved successfully.'};
         }else{
@@ -920,7 +920,7 @@ let approvalProcess=async(params)=>{
 }
 let fetchuserwithroom=async(params)=>{
     try {
-        console.log(params,'body..................')
+        // console.log(params,'body..................')
         let url,database
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
