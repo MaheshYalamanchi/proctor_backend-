@@ -918,6 +918,74 @@ let approvalProcess=async(params)=>{
         return {success:false,message:'Something went wrong!'};
     }
 }
+let fetchuserwithroom=async(params)=>{
+    try {
+        console.log(params,'body..................')
+        let url,database
+        if(params && params.authorization){  
+            let decodeToken = jwt_decode(params.authorization);
+            if(decodeToken && decodeToken.tenantId){
+                tenantResponse = await _schedule.getTennant(params);
+                if (tenantResponse && tenantResponse.success){
+                    url= tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                    database= tenantResponse.message.databaseName;
+                    params.tenantResponse = tenantResponse;
+                } else {
+                    return { success: false, message: tenantResponse.message }
+                }
+            }else {
+                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                database = process.env.DATABASENAME; 
+            }
+        } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME; 
+        }
+        var getdata = {
+            url:url,
+            database:database,
+            model: "rooms",
+            docType: 1,
+            query: [
+                {
+                    $match:{_id:params.roomid}
+                },
+                {
+                    $lookup:{
+                        from:'users',
+                        localField:'student',
+                        foreignField:'_id',
+                        as:'userInfo'
+                    }
+                },
+                { $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true } },
+                {
+                    $project:{
+                        _id:"$_id",
+                        student:"$student",
+                        face:"$userInfo.face",
+                        passport:"$userInfo.passport",
+                        email:"$userInfo.nickname",
+                        browser:"$browser",
+                        os:"$os",
+                        ip:"$ipaddress",
+                        loggedAt:"$userInfo.loggedAt",
+                        createdAt:"$userInfo.createdAt"
+                    }
+                }
+              ]
+        };
+        let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+        if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.length){
+            return {success:true,message:response.data.statusMessage};
+        }else{
+            return {success:false,message:'Something went wrong!'};
+        }
+    } catch (error) {
+        console.log(error)
+        return {success:false,message:'Something went wrong!'};
+    }
+}
 module.exports = {
     getCandidateMessageSend,
     getMessageTemplates,
@@ -938,5 +1006,6 @@ module.exports = {
     getFaceResponse1,
     fetchMetrics,
     updatePhotoStatus,
-    approvalProcess
+    approvalProcess,
+    fetchuserwithroom
 }

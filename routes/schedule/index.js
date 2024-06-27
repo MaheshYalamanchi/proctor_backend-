@@ -530,4 +530,17 @@ module.exports = function (params) {
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
+    app.post('/fetchuserwithroom',async(req,res)=>{
+        try {
+            if(req.body.roomid){
+                let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
+                app.http.customResponse(res, fetchuserwithroom, 200);
+            }else{
+                app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);
+            }
+            
+        } catch (error) {
+            app.http.customResponse(res, { success: false, message: error }, 400);
+        }
+    })
 };
