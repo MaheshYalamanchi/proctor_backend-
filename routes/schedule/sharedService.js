@@ -875,9 +875,10 @@ let updatePhotoStatus=async(params)=>{
 }
 let approvalProcess=async(params)=>{
     try {
+        console.log(params,'body..................')
         let url,database
         if(params && params.authorization){  
-            let decodeToken = jwt_decode(params.body.authorization);
+            let decodeToken = jwt_decode(params.authorization);
             if(decodeToken && decodeToken.tenantId){
                 tenantResponse = await _schedule.getTennant(params);
                 if (tenantResponse && tenantResponse.success){
@@ -913,6 +914,7 @@ let approvalProcess=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
+        console.log(error)
         return {success:false,message:'Something went wrong!'};
     }
 }
