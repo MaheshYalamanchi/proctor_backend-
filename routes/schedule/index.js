@@ -519,7 +519,7 @@ module.exports = function (params) {
     })
     app.post('/approvecandidate',async(req,res)=>{
         try {
-            if(req.body.roomid&&req.body.status&&req.body.verified){
+            if(req.body.roomid&&req.body.status){
                 let approvalProcess=await sharedService.approvalProcess(req.body)
                 app.http.customResponse(res, approvalProcess, 200);
             }else{
