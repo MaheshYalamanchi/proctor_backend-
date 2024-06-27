@@ -970,7 +970,8 @@ let fetchuserwithroom=async(params)=>{
                         os:"$os",
                         ip:"$ipaddress",
                         loggedAt:"$userInfo.loggedAt",
-                        createdAt:"$userInfo.createdAt"
+                        createdAt:"$userInfo.createdAt",
+                        member:"$members"
                     }
                 }
               ]

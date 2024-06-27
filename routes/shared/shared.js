@@ -12,7 +12,7 @@ let getSessions = async (params) => {
             fetchTenantResponse.message.forEach(async element => {
                 var getdata = {
                     url: element?.connectionString+'/'+element?.databaseName,
-                    database: element.databaseName,
+                    database: element?.databaseName,
                     model: "rooms",
                     docType: 1,
                     query: {

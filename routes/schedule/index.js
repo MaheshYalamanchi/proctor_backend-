@@ -521,7 +521,28 @@ module.exports = function (params) {
         try {
             if(req.body.roomid&&req.body.status){
                 let approvalProcess=await sharedService.approvalProcess(req.body)
-                app.http.customResponse(res, approvalProcess, 200);
+                let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
+                var jsonData={
+                    id: fetchuserwithroom.message[0]?.student,
+                    browser: { name: fetchuserwithroom.message[0].browser.name, version:fetchuserwithroom.message[0].browser.version },
+                    createdAt: fetchuserwithroom.message[0].createdAt,
+                    exclude: [],
+                    face: fetchuserwithroom.message[0].face,
+                    passport: fetchuserwithroom.message[0].passport,
+                    labels: [],
+                    loggedAt:fetchuserwithroom.message[0].loggedAt,
+                    nickname: fetchuserwithroom.message[0].email,
+                    os: { name: fetchuserwithroom.message[0].os.name, version:fetchuserwithroom.message[0].version, versionName: 'NT 10.0' },
+                    platform: { type: 'desktop' },
+                    provider: 'jwt',
+                    referer: 'https://lntproctordev.lntedutech.com/test_2.html?userToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6InN0ZXBjaGVjazExMDE4QGRpc3Bvc3RhYmxlLmNvbSIsImlkIjoiMjhkMDNkYTAtNzQ0YS00OTI5LTlkOGItNDg3Zjg3NzU1MzE1IiwidGFncyI6WyJzdGVwY2hlY2sxMTAxOEBkaXNwb3N0YWJsZS5jb20iLCI1ODcyNDgyNDI0Nzk5MiIsIjQ4NTgyNzU0OTgxMiJdLCJ1c2VybmFtZSI6InN0ZXBjaGVjazExMDE4QGRpc3Bvc3RhYmxlLmNvbSIsInRlbXBsYXRlIjoiZGVmYXVsdCIsInN1YmplY3QiOiJTdGVwIHByb2N0b3IgY2hlY2sgOCIsInRpbWVvdXQiOiI2OTAiLCJpYXQiOjE3MTk0Nzc4MTcsImV4cCI6MTcyNDg3NzgxN30.f2qYdLCVMUX3ygyUbErW7CXBC_Azbk5CBnXnSJVagvU',
+                    role: 'student',
+                    similar: [],
+                    useragent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                    username: fetchuserwithroom.message[0].student
+                    
+                  }
+                app.http.customResponse(res, {success:true,student:jsonData,members:fetchuserwithroom.message[0].member}, 200);
             }else{
                 app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);
             }
