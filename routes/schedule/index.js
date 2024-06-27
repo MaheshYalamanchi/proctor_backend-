@@ -524,6 +524,7 @@ module.exports = function (params) {
                 let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
                 console.log(fetchuserwithroom,'fetch before')
                 var jsonData={
+                    roomid:req.body.roomid,
                     id: fetchuserwithroom.message[0]?.student,
                     browser: { name: fetchuserwithroom.message[0].browser.name, version:fetchuserwithroom.message[0].browser.version },
                     createdAt: fetchuserwithroom.message[0].createdAt,
