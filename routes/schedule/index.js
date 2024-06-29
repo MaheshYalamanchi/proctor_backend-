@@ -522,7 +522,7 @@ module.exports = function (params) {
             if(req.body.roomid&&req.body.status){
                 let approvalProcess=await sharedService.approvalProcess(req.body)
                 let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
-                console.log(fetchuserwithroom,'fetch before')
+                // console.log(fetchuserwithroom,'fetch before')
                 var jsonData={
                     roomid:req.body.roomid,
                     id: fetchuserwithroom.message[0]?.student,
