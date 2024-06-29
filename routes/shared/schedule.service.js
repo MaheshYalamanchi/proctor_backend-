@@ -799,6 +799,7 @@ let SubmitSaveCall = async (params) => {
                                 logger.info({ success: false, message: "pdf report not generated..." });
                             }
                         }
+                        console.log(JSON.stringify(getData.data.statusMessage[0]))
                         return { success: true, message: getData.data.statusMessage[0] }
                     } else {
                         return { success: true, message: getData.data.statusMessage[0] }
