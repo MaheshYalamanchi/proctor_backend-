@@ -544,7 +544,7 @@ module.exports = function (params) {
                     username: fetchuserwithroom.message[0]?.student,
                     verified:fetchuserwithroom.message[0]?.verified
                   }
-                  console.log(jsonData,'jsondata after')
+                //   console.log(jsonData,'jsondata after')
                 app.http.customResponse(res, {success:true,message:'Candidate approved successfully.',data:{student:jsonData,members:fetchuserwithroom.message[0].member}}, 200);
             }else{
                 app.http.customResponse(res, { success: false, message: 'provide correct request' }, 200);
