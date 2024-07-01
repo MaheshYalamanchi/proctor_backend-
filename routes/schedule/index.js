@@ -20,6 +20,7 @@ module.exports = function (params) {
             if (req && req.body && req.body.type && req.body.type== 'message') {
                 let result = await sharedService.getCandidateMessageSend(req);
                 if (result && result.success) {
+                    console.log(result.message,'final msg..............')
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
