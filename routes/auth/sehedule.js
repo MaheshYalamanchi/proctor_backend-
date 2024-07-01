@@ -354,7 +354,7 @@ let MessageSend = async (params) => {
                     };
                     let Data = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata)
                     console.log(Data.data.statusMessage)
-                    console.log(Data.data.statusMessage,'jflksdjflksdjflkdsjkl')
+                    console.log(Data.data.statusMessage.pauseURL,'jflksdjflksdjflkdsjkl')
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
                             responseData.data.statusMessage[0].metadata={}
@@ -364,8 +364,8 @@ let MessageSend = async (params) => {
                     }else{
                         response.data.statusMessage[0].incidents=0
                     }
-                    console.log(response.data.statusMessage[0],'MessageSend',response.data.statusMessage[0].pauseURL)
-                    return responseData;
+                    console.log(response.data.statusMessage[0],'MessageSend',Data.data.statusMessage.pauseURL)
+                    return {incidents:responseData,pauseURL:Data.data?.statusMessage?.pauseURL};
             //     } 
             // }else{
             //     return responseData

@@ -79,6 +79,7 @@ let getCandidateMessageSend = async (params) => {
                         response.data.statusMessage.tenantResponse = tenantResponse;
                     }
                     let responseData = await schedule.MessageSend(response.data.statusMessage);
+                    console.log(responseData,'response............')
                     if (responseData && responseData.data && responseData.data.statusMessage) {
                         // let messageData=responseData.data.statusMessage[0]
                         // messageData.attach = messageData.attach.filter(obj => Object.keys(obj).length !== 0);
