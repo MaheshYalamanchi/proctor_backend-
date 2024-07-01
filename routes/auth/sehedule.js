@@ -362,7 +362,7 @@ let MessageSend = async (params) => {
                     }else{
                         response.data.statusMessage[0].incidents=0
                     }
-                    console.log(responseData,'MessageSend............')
+                    console.log(response.data.statusMessage[0],'MessageSend')
                     return responseData;
             //     } 
             // }else{
