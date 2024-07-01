@@ -353,7 +353,7 @@ let MessageSend = async (params) => {
                         }
                     };
                     let Data = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata)
-                    console.log(Data)
+                    console.log(Data.data.statusMessage)
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
                             responseData.data.statusMessage[0].metadata={}
