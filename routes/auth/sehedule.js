@@ -352,8 +352,8 @@ let MessageSend = async (params) => {
                                 update: {$set: { incidents:  response.data.statusMessage[0].incidents}}
                         }
                     };
-                    let Data = await invoke.makeHttpCall("post", "update", getdata)
-                    console.log(response.data.statusMessage[0])
+                    let Data = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata)
+                    console.log(Data)
                     if(response.data.statusMessage&& response.data.statusMessage[0].incidents){
                         if(!responseData.data.statusMessage[0].metadata){
                             responseData.data.statusMessage[0].metadata={}
