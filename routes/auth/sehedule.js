@@ -409,7 +409,7 @@ let roomSubmitSave = async (params) => {
                     as: "student" } 
                 },
                 { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
-                {$project:{"id":"$_id",deliveryId:"$deliveryId",_id:0,addons:"$addons","api":"$api","averages":"$averages","browser":"$browser",
+                {$project:{"id":"$_id",deliveryId:"$deliveryId",rdfRef:"$rdfRef",_id:0,addons:"$addons","api":"$api","averages":"$averages","browser":"$browser",
                 "comment":"$comment","complete":"$complete","conclusion":"$conclusion","concurrent":"$concurrent",
                 "createdAt":"$createdAt","deadline":"$deadline","duration":"$duration","error":"$error","incidents":"$incidents",
                 "integrator":"$integrator","invites":"$invites","ipaddress":"$ipaddress","lifetime":"$lifetime","locale":"$locale","members":"$members",
