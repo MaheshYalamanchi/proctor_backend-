@@ -385,6 +385,13 @@ let getCandidateDetailsUpdate = async (params) => {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;  
         }
+        var roomStatus;
+        if(params&&(params.query.status=='paused')){
+            roomStatus='paused'
+        }else{
+            roomStatus='started'
+        }
+        console.log(roomStatus)
         let jsonData = {
             startedAt: {
             $cond: {
@@ -393,7 +400,7 @@ let getCandidateDetailsUpdate = async (params) => {
                 else:"$startedAt" // Keep the existing value if it's not null
             }
             },
-            status : 'started',
+            status : roomStatus,
             updatedAt :{ $dateFromString: { dateString: new Date().toISOString() } },
             ipaddress: params.body.ipAddress
         }
