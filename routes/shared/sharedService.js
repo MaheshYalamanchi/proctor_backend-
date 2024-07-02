@@ -1557,22 +1557,22 @@ let getface = async (params) => {
             }
             let faceResponse = await schedule_Service.getFacePassportResponse(params);
             if (faceResponse && faceResponse.success){
-                let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
-                if ( getCount.message.length >1 ){
-                    params.decodeToken = decodeToken
-                    let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params);
-                    if(getFaceResponse && getFaceResponse.success){
-                        return { success: true, message: getFaceResponse.message }
-                        // let response = await schedule_Service.getface(decodeToken)
-                        // if (response.success){
-                        //     return { success: true, message: response.message[0] }
-                        // } else {
-                        //     return { success: false, message: response.message }
-                        // }
-                    } else {
-                        return { success: false, message: getFaceResponse.message }
-                    }
-                } else {
+                // let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
+                // if ( getCount.message.length >1 ){
+                //     params.decodeToken = decodeToken
+                //     let getFaceResponse = await schedule_Service.GetFaceInsertionResponse(params);
+                //     if(getFaceResponse && getFaceResponse.success){
+                //         return { success: true, message: getFaceResponse.message }
+                //         // let response = await schedule_Service.getface(decodeToken)
+                //         // if (response.success){
+                //         //     return { success: true, message: response.message[0] }
+                //         // } else {
+                //         //     return { success: false, message: response.message }
+                //         // }
+                //     } else {
+                //         return { success: false, message: getFaceResponse.message }
+                //     }
+                // } else {
                     let jsonData =  {
                         "face" : params.face,
                         "rep" : faceResponse.message[0].metadata.rep,
@@ -1610,7 +1610,7 @@ let getface = async (params) => {
                     } else {
                         return { success: false, message: 'Data Not Found' }
                     }
-                }
+                // }
             } else {
                 return { success: false, message: faceResponse.message }
             }
@@ -1649,20 +1649,20 @@ let getPassport = async (params) => {
                 database = process.env.DATABASENAME;
             }
             let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
-            if ( getCount.message.length>1 ){
-                let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params);
-                if(getPassportResponse && getPassportResponse.success){
-                    return { success: true, message: getPassportResponse.message }
-                    // let response = await schedule_Service.getPassport(decodeToken)
-                    // if (response.success){
-                    //     return { success: true, message: response.message[0] }
-                    // } else {
-                    //     return { success: false, message: response.message }
-                    // }
-                } else {
-                    return { success: false, message: getPassportResponse.message }
-                }
-            } else {
+            // if ( getCount.message.length>1 ){
+            //     let getPassportResponse = await schedule_Service.GetPassportInsertionResponse(params);
+            //     if(getPassportResponse && getPassportResponse.success){
+            //         return { success: true, message: getPassportResponse.message }
+            //         // let response = await schedule_Service.getPassport(decodeToken)
+            //         // if (response.success){
+            //         //     return { success: true, message: response.message[0] }
+            //         // } else {
+            //         //     return { success: false, message: response.message }
+            //         // }
+            //     } else {
+            //         return { success: false, message: getPassportResponse.message }
+            //     }
+            // } else {
                 let jsonData =  {
                     "passport" : params.passport,
                 };
@@ -1692,7 +1692,7 @@ let getPassport = async (params) => {
                 } else {
                     return { success: false, message: 'Data Not Found' }
                 }
-            }
+            // }
         } else {
             return { success: false, message: 'Invalid Token Error' }
         }
