@@ -972,7 +972,9 @@ let fetchuserwithroom=async(params)=>{
                         loggedAt:"$userInfo.loggedAt",
                         createdAt:"$userInfo.createdAt",
                         member:"$members",
-                        verified:"$verified"
+                        verified:"$verified",
+                        faceArray:"$faceArray",
+                        passportArray:"$passportArray"
                     }
                 }
               ]
