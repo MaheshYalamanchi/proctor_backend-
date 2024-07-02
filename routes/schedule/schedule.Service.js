@@ -647,6 +647,7 @@ let unreadmessagefetch = async (params) => {
                         "notification": 1,
                         "message": 1,
                         "user": 1,
+                        "room":1,
                         "createdAt": 1,
                         "id": 1,
                         "isUnread": { $cond: [{ $eq: ["$notification", "unread"] }, 1, 0] }
