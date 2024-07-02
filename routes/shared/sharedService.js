@@ -209,7 +209,9 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
+    console.log(params.authorization)
     var decodeToken = jwt_decode(params.authorization);
+    console.log(decodeToken,'decode token')
     try {
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
