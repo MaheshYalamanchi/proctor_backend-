@@ -307,23 +307,27 @@ let proctorFetchCall = async (params) => {
             }
             let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage.length) {
-                const providedDate =new Date(responseData.data.statusMessage[0].scheduledAt);
-                const timeDifferenceMs = new Date() - new Date(responseData.data.statusMessage[0].updatedAt);
-                const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
-                // const timeOut = minutesDifference - responseData.data.statusMessage[0].timeout
-                const deadline = new Date(responseData.data.statusMessage[0].deadline);
-                if(minutesDifference <= responseData.data.statusMessage[0].timeout  || responseData.data.statusMessage[0].timeout == null ){
-                    if(providedDate <= deadline || responseData.data.statusMessage[0].deadline == null ){
-                        return { success: true, message: responseData.data.statusMessage[0] }
+                if(responseData.data.statusMessage[0].status =='paused'){
+                    const providedDate =new Date(responseData.data.statusMessage[0].scheduledAt);
+                    const timeDifferenceMs = new Date() - new Date(responseData.data.statusMessage[0].updatedAt);
+                    const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
+                    // const timeOut = minutesDifference - responseData.data.statusMessage[0].timeout
+                    const deadline = new Date(responseData.data.statusMessage[0].deadline);
+                    if(minutesDifference <= responseData.data.statusMessage[0].timeout  || responseData.data.statusMessage[0].timeout == null ){
+                        if(providedDate <= deadline || responseData.data.statusMessage[0].deadline == null ){
+                            return { success: true, message: responseData.data.statusMessage[0] }
+                        }else{
+                            return {success:false, message : 'Data Not Found'};
+                        }
                     }else{
+                        if(decodeToken.tenantId){
+                            responseData.data.statusMessage[0].body.authorization = params.authorization
+                        }
+                        let result = await shared.stoppedAt(responseData.data.statusMessage[0]);
                         return {success:false, message : 'Data Not Found'};
                     }
-                }else{
-                    if(decodeToken.tenantId){
-                        responseData.data.statusMessage[0].body.authorization = params.authorization
-                    }
-                    let result = await shared.stoppedAt(responseData.data.statusMessage[0]);
-                    return {success:false, message : 'Data Not Found'};
+                } else {
+                    return { success: true, message: responseData.data.statusMessage[0] }
                 }
             } else {
                 return { success: false, message: "Data not Found" }
