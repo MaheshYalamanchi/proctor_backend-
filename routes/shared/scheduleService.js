@@ -177,7 +177,7 @@ let UserLimitCall = async (params) => {
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
-                            passport:"$passport",verified:"$verified"
+                            passport:"$passport",verified:"$verified",approve:"$approve"
                         }
                     }
                 ]
@@ -224,7 +224,7 @@ let UserLimitCall = async (params) => {
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
-                            passport:"$passport",verified:"$verified"
+                            passport:"$passport",verified:"$verified",approve:"$approve"
                         }
                     }
                 ]
@@ -305,7 +305,7 @@ let UserSearchCall = async (params) => {
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
-                            passport:"$passport",verified:"$verified"
+                            passport:"$passport",verified:"$verified",approve:"$approve"
                         }
                     },
                     { "$sort": sort },
@@ -373,7 +373,7 @@ let UserSearchCall = async (params) => {
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
                             useragent: "$useragent", username: "$_id",face:"$face",rating:"$rating",referer:"$referer",provider:"$provider",
-                            passport:"$passport",verified:"$verified"
+                            passport:"$passport",verified:"$verified",approve:"$approve"
                         }
                     },
                     { "$limit": limit },
