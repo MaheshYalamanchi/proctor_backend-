@@ -470,6 +470,12 @@ let getDatails = async (params) => {
                     tenantResponse: tenantResponse
                 }
                 let responsemessage = await scheduleService.errorupdate(data)
+            }else{
+                const data = {
+                    ipaddress : body.body.ipaddress,
+                    id : params.query.id,
+                }
+                let responsemessage = await scheduleService.updateIpAddress(data)
             }
             responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
             delete responseData.data.statusMessage[0]._id
