@@ -602,6 +602,7 @@ let errorupdate =async(params)=>{
         }
         let errorCounter = params.error
         errorCounter++;
+        console.log(JSON.stringify(params.body),'IP ADDRES')
         data = {
             url: url,
 			database: database,
@@ -611,7 +612,7 @@ let errorupdate =async(params)=>{
                 filter: { "_id": params.id },
                 update: { 
                     $push: { "errorlog" :  params.body },
-                    $set: { error : errorCounter}
+                    $set: { error : errorCounter,ipaddress:params.body.ipaddress}
                 }
             }
         };
