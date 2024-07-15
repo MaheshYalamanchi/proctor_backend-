@@ -56,15 +56,26 @@ let proctorLoginCall = async (params) => {
             }
             let response = await tokenService.generateProctorToken(responseData);
             if (validPassword) {
-                return {
-                    success: true, message: {
-                        id: responseData.data.statusMessage[0]._id,
-                        role: responseData.data.statusMessage[0].role,
-                        roleId: responseData.data.statusMessage[0].roleId,
-                        token: response,
+                if(responseData.data.statusMessage[0].role == 'proctor'){
+                    return {
+                        success: true, message: {
+                            id: responseData.data.statusMessage[0]._id,
+                            role: responseData.data.statusMessage[0].role,
+                            roleId: responseData.data.statusMessage[0].roleId,
+                            approve: responseData.data.statusMessage[0].approve,
+                            token: response,
+                        }
+                    }
+                } else if(responseData.data.statusMessage[0].role == 'administrator'){
+                    return {
+                        success: true, message: {
+                            id: responseData.data.statusMessage[0]._id,
+                            role: responseData.data.statusMessage[0].role,
+                            roleId: responseData.data.statusMessage[0].roleId,
+                            token: response,
+                        }
                     }
                 }
-                
             } else {
                 return { success: false, message: 'Please check password.' }
             }
