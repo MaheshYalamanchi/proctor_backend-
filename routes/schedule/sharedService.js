@@ -723,7 +723,6 @@ let headphonecheck = async (params) => {
 };
 let stoppedAt = async (params) => {
     try {
-        console.log("starting=======>>>>>>")
         let url;
         let database;
         let tenantResponse;
@@ -797,7 +796,6 @@ let stoppedAt = async (params) => {
                                 "status": roomData.status,
                                 "tenantResponse": tenantResponse
                             }
-                        console.log("before==========>>>>>",JSON.stringify(jsonData))
                         let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
                         if (generateReport) {
                             logger.info({ success: true, message: "pdf report generated successfully..." });
@@ -809,7 +807,6 @@ let stoppedAt = async (params) => {
                     }
                 }
             }
-            console.log("before==========>>>>>",JSON.stringify(status.message))
             return { success: true, message: status.message }
         }else{
             return {success: false, message:'Data not found...'};
