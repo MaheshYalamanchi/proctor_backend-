@@ -70,7 +70,7 @@ spec:
           - name: DATABASENAME
             valueFrom:
               secretKeyRef:
-                name: proctor-uatenv
+                name: proctor-uat-env
                 key: DATABASENAME
           - name: PAUSE_ENDPOINT
             valueFrom:
