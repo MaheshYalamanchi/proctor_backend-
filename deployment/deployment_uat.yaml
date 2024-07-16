@@ -67,7 +67,16 @@ spec:
               secretKeyRef:
                 name: proctor-uat-env
                 key: ROOMS_DATA_SERVICE_ENDPOINT
-                                                                        
+          - name: DATABASENAME
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uatenv
+                key: DATABASENAME
+          - name: PAUSE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: PAUSE_ENDPOINT                                                              
           ports:
           - containerPort: 3002
       imagePullSecrets:
