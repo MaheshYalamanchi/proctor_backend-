@@ -467,10 +467,19 @@ let getDatails = async (params) => {
                     id : params.query.id,
                     body : params.body.body,
                     error : responseData.data.statusMessage[0].error,
-                    tenantResponse: tenantResponse
+                    tenantResponse: tenantResponse,
+                    approvalRequest : params?.body?.body?.approvalRequest
                 }
                 let responsemessage = await scheduleService.errorupdate(data)
-            }else{
+            }else if(params?.body?.body?.approve){
+                const data = {
+                    id : params.query.id,
+                    approvalRequest : params?.body?.body?.approvalRequest
+                  
+                }
+                let responsemessage = await scheduleService.updateApproveStatus(data)
+            }
+            else{
                 const data = {
                     ipaddress : body.body.ipaddress,
                     id : params.query.id,
