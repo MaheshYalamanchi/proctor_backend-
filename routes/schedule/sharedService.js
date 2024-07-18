@@ -908,6 +908,12 @@ let approvalProcess=async(params)=>{
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME; 
         }
+        let jsonData;
+        if(params.verified){
+            jsonData = { $set: { verified: params.verified,status:params.status} }
+        }else {
+            jsonData = { $set: { verified: params.verified,status:params.status,rejectLog:{message:params.rejectLog,createdAt:new Date()}} }
+        }
         var getdata = {
             url:url,
             database:database,
@@ -915,7 +921,7 @@ let approvalProcess=async(params)=>{
             docType: 0,
             query: {
                 filter: { "_id": params.roomid },
-                update: { $set: { verified: params.verified,status:params.status} }
+                update: jsonData
             }
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
