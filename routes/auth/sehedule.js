@@ -317,7 +317,7 @@ let MessageSend = async (params) => {
                 {"$unwind": {"path": "$roomData","preserveNullAndEmptyArrays": true}},
                 {
                     "$group": {"_id": "$_id","createdAt": { "$first": "$createdAt" },"message": { "$first": "$message" },"room": { "$first": "$room" },
-                        "type": { "$first": "$type" },"metadata": { "$first": "$metadata" },"user": { "$first": "$data" },
+                        "type": { "$first": "$type" },"metadata": { "$first": "$metadata" },"user": { "$first": "$data" },"roomData":{"$first": "$roomData" },
                         "attach": {
                             "$push": {
                                 "id": "$attach._id",
@@ -347,7 +347,6 @@ let MessageSend = async (params) => {
                 // attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
-                    delete responseData.data.statusMessage[0].roomData
                     if(params && params.tenantResponse && params.tenantResponse.success){
                         responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
                     }
