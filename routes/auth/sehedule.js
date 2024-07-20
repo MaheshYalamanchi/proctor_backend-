@@ -309,12 +309,12 @@ let MessageSend = async (params) => {
                         "from": "rooms",
                         "localField": "room",
                         "foreignField": "_id",
-                        "as": "room"
+                        "as": "roomData"
                     }
                 },
                 {"$unwind": {"path": "$data","preserveNullAndEmptyArrays": true}},
                 {"$unwind": {"path": "$attach","preserveNullAndEmptyArrays": true}},
-                {"$unwind": {"path": "$room","preserveNullAndEmptyArrays": true}},
+                {"$unwind": {"path": "$roomData","preserveNullAndEmptyArrays": true}},
                 {
                     "$group": {"_id": "$_id","createdAt": { "$first": "$createdAt" },"message": { "$first": "$message" },"room": { "$first": "$room" },
                         "type": { "$first": "$type" },"metadata": { "$first": "$metadata" },"user": { "$first": "$data" },
@@ -329,7 +329,7 @@ let MessageSend = async (params) => {
                 },
                 {
                     "$project": {
-                        "attach": 1,"createdAt": 1,"id": "$_id","message": 1,"room": 1,"type": 1,"_id": 0,"metadata": 1,"members":"$room.members",
+                        "attach": 1,"createdAt": 1,"id": "$_id","message": 1,"room": 1,"type": 1,"_id": 0,"metadata": 1,"members":"$roomData.members",
                         "user": {
                             "id": "$user._id",
                             "nickname": "$user.nickname",
@@ -347,7 +347,7 @@ let MessageSend = async (params) => {
                 // attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
-                    delete responseData.data.statusMessage[0].room
+                    delete responseData.data.statusMessage[0].roomData
                     if(params && params.tenantResponse && params.tenantResponse.success){
                         responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
                     }
