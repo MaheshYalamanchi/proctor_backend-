@@ -309,7 +309,7 @@ let proctorFetchCall = async (params) => {
                                 "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
                                 "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
                                 "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
-                                "student.verified":"$student.verified"
+                                "student.verified":"$student.verified","verified":"$verified"
     
                             }
                         }
