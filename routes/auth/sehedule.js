@@ -329,7 +329,7 @@ let MessageSend = async (params) => {
                 },
                 {
                     "$project": {
-                        "attach": 1,"createdAt": 1,"id": "$_id","message": 1,"room": 1,"type": 1,"_id": 0,"metadata": 1,"members":"$roomData.members",
+                        "attach": 1,"createdAt": 1,"id": "$_id","message": 1,"room": 1,"type": 1,"_id": 0,"metadata": 1,"members":"$roomData.members","subject":"$roomData.subject","testId":"$roomData.testId",
                         "user": {
                             "id": "$user._id",
                             "nickname": "$user.nickname",
