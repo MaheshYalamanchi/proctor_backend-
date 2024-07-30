@@ -258,7 +258,7 @@ let proctorFetchCall = async (params) => {
                         },
                         {
                             "$project": {
-                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+                                id: "$_id", _id: 0, addons: "$addons", api: "$api",color:"$color", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
                                 concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
                                 locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
                                 scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt",subject: "$subject",
@@ -1388,7 +1388,7 @@ let proctorRoomDetails = async (params) => {
                 },
                 {
                     $project: {
-                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
                         members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                         subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                         updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
