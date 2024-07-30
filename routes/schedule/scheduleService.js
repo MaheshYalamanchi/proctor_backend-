@@ -612,7 +612,7 @@ let errorupdate =async(params)=>{
                 filter: { "_id": params.id },
                 update: { 
                     $push: { "errorlog" :  params.body },
-                    $set: { error : errorCounter,ipaddress:params.body.ipaddress,approvalRequest:params.body.approvalRequest}
+                    $set: { error : errorCounter,ipaddress:params.body.ipaddress,color:params.body.color}
                 }
             }
         };
@@ -686,7 +686,7 @@ let updateApproveStatus =async(params)=>{
             query: {
                 filter: { "_id": params.id },
                 update: { 
-                    $set: { approvalRequest : params.approvalRequest}
+                    $set: { color : params.color}
                 }
             }
         };
