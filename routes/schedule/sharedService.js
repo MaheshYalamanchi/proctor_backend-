@@ -914,6 +914,7 @@ let approvalProcess=async(params)=>{
         }else {
             jsonData = { $set: { verified: params.verified,status:params.status,rejectLog:{message:params.rejectLog,createdAt:new Date(),color:params.color}} }
         }
+        console.log(jsonData,'approve body')
         var getdata = {
             url:url,
             database:database,
