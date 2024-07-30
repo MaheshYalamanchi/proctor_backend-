@@ -912,7 +912,7 @@ let approvalProcess=async(params)=>{
         if(params.verified){
             jsonData = { $set: { verified: params.verified,status:params.status,color:params.color} }
         }else {
-            jsonData = { $set: { verified: params.verified,status:params.status,rejectLog:{message:params.rejectLog,createdAt:new Date(),color:params.color}} }
+            jsonData = { $set: { verified: params.verified,status:params.status,color:params.color,rejectLog:{message:params.rejectLog,createdAt:new Date(),color:params.color}} }
         }
         console.log(jsonData,'approve body')
         var getdata = {
