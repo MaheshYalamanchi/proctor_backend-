@@ -1890,7 +1890,7 @@ let proctorStreamCall = async (params) => {
                         { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                         {
                             $project: {
-                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                id: "$_id", _id: 0, timesheet: "$timesheet",color:"$color", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
                                 members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                 subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                 updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
