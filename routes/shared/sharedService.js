@@ -525,7 +525,7 @@ let proctorLimitCall = async (params) => {
                         { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                         {
                             $project: {
-                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
                                 members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                 subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                 updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
@@ -596,7 +596,7 @@ let proctorLimitCall = async (params) => {
                     { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                     {
                         $project: {
-                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
                             members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
@@ -674,7 +674,7 @@ let proctorLimitCall = async (params) => {
                     { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                     {
                         $project: {
-                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
                             members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
@@ -778,7 +778,7 @@ let proctorSearchCall = async (params) => {
                             { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                             {
                                 $project: {
-                                    id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                                    id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
                                     members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                     subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                     updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
