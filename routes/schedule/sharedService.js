@@ -910,9 +910,9 @@ let approvalProcess=async(params)=>{
         }
         let jsonData;
         if(params.verified){
-            jsonData = { $set: { verified: params.verified,status:params.status} }
+            jsonData = { $set: { verified: params.verified,status:params.status,color:params.color} }
         }else {
-            jsonData = { $set: { verified: params.verified,status:params.status,rejectLog:{message:params.rejectLog,createdAt:new Date()}} }
+            jsonData = { $set: { verified: params.verified,status:params.status,rejectLog:{message:params.rejectLog,createdAt:new Date(),color:params.color}} }
         }
         var getdata = {
             url:url,
