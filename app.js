@@ -27,23 +27,29 @@ app.invoke = require("./lib/http/invoke");
 var request = require('request')
 var CronJob = require('cron').CronJob;
 const axios = require('axios'); 
-new CronJob('*/2 * * * *', async function () {
-  console.log('PAUSE_ENDPOINT:', process.env.PAUSE_ENDPOINT);
-  try {
-    const response = await axios.get(process.env.PAUSE_ENDPOINT);
-    if (response.status === 200) {
-      console.log('You will see this message every 2 minutes (Pause)');
+
+try {
+  new CronJob('*/2 * * * *', async function () {
+    console.log('PAUSE_ENDPOINT:', process.env.PAUSE_ENDPOINT);
+    try {
+      const response = await axios.get(process.env.PAUSE_ENDPOINT);
+      if (response.status === 200) {
+        console.log('You will see this message every 2 minutes (Pause)');
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(`PauseErrorLog====>>>> Status: ${error.response.status}`);
+      } else if (error.request) {
+        console.log('PauseErrorLog====>>>> No response received:', error.request);
+      } else {
+        console.log('PauseCatchLog====>>>>', error.message);
+      }
     }
-  } catch (error) {
-    if (error.response) {
-      console.log(`PauseErrorLog====>>>> Status: ${error.response.status}`);
-    } else if (error.request) {
-      console.log('PauseErrorLog====>>>> No response received:', error.request);
-    } else {
-      console.log('PauseCatchLog====>>>>', error.message);
-    }
-  }
-}, null, true, "Asia/Calcutta")
+  }, null, true, "Asia/Calcutta")
+  
+} catch (error) {
+  console.log('PauseCatchLog====>>>>', error.message);
+}
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

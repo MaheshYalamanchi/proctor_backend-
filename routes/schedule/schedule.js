@@ -517,7 +517,6 @@ let chatUpdateResponse = async (params) => {
                 update: {$set: { updatedAt:  new Date(params.createdAtEvent)}}
             }
         };
-        console.log("chat Date=========>>>>>",JSON.stringify(getdata.query))
         let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
