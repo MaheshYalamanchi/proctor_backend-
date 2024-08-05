@@ -28,6 +28,7 @@ var request = require('request')
 var CronJob = require('cron').CronJob;
 const axios = require('axios'); 
 new CronJob('*/2 * * * *', async function () {
+  console.log('PAUSE_ENDPOINT:', process.env.PAUSE_ENDPOINT);
   try {
     const response = await axios.get(process.env.PAUSE_ENDPOINT);
     if (response.status === 200) {
