@@ -97,7 +97,7 @@ let getCandidateEventSend = async (params) => {
                     if(params.body.peak[i] == "c3"){
                         if (params.body.metadata.peak != "c3"){
                             let response = await scheduleService.fetchMetrics(params.params.roomId)
-                            const c3Index = response.message.metrics.indexOf("m3");
+                            const c3Index = response.message.metrics.indexOf("c3");
                             const c3Weight = response.message.weights[c3Index] * response.message.metrics.length;
                             params.body.metadata.metrics["c3"] = c3Weight
                         }
