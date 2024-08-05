@@ -26,17 +26,21 @@ app.util = require("./lib/util/parser");
 app.invoke = require("./lib/http/invoke");
 var request = require('request')
 var CronJob = require('cron').CronJob;
-new CronJob('*/2 * * * *', function () {
+const axios = require('axios'); 
+new CronJob('*/2 * * * *', async function () {
   try {
-    request(process.env.PAUSE_ENDPOINT, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        console.log('You will see this message every 2 minutes');
-      }  else {
-        console.log("PauseErrorLog====>>>>",error)
-      }
-    })
+    const response = await axios.get(process.env.PAUSE_ENDPOINT);
+    if (response.status === 200) {
+      console.log('You will see this message every 2 minutes (Pause)');
+    }
   } catch (error) {
-    console.log("PauseCatchLog====>>>>",error)
+    if (error.response) {
+      console.log(`PauseErrorLog====>>>> Status: ${error.response.status}`);
+    } else if (error.request) {
+      console.log('PauseErrorLog====>>>> No response received:', error.request);
+    } else {
+      console.log('PauseCatchLog====>>>>', error.message);
+    }
   }
 }, null, true, "Asia/Calcutta")
 
