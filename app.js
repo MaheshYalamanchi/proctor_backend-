@@ -14,11 +14,11 @@ var app = express();
 appConfig.init(app, express);
 app.use(cookieParser());
 app.use(cors());
-app.logger=require("./logger/logger");
+app.logger = require("./logger/logger");
 
-require("./routes/auth/index")({app:app});
-require("./routes/shared/index")({app:app});
-require("./routes/schedule/index")({app:app});
+require("./routes/auth/index")({ app: app });
+require("./routes/shared/index")({ app: app });
+require("./routes/schedule/index")({ app: app });
 
 
 app.http = require("./lib/util/http");
@@ -26,18 +26,22 @@ app.util = require("./lib/util/parser");
 app.invoke = require("./lib/http/invoke");
 var request = require('request')
 var CronJob = require('cron').CronJob;
-new CronJob('*/2 * * * *', function() {
-    console.log(process.env.PAUSE_ENDPOINT)
-    request(process.env.PAUSE_ENDPOINT, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-          console.log('You will see this message every 2 minutes');
-            
-        }
+new CronJob('*/2 * * * *', function () {
+  try {
+    request(process.env.PAUSE_ENDPOINT, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log('You will see this message every 2 minutes');
+      }  else {
+        console.log("PauseErrorLog====>>>>",error)
+      }
     })
+  } catch (error) {
+    console.log("PauseCatchLog====>>>>",error)
+  }
 }, null, true, "Asia/Calcutta")
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
@@ -46,7 +50,7 @@ app.use(function(req, res, next) {
 errorConfig.init(app);
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -57,6 +61,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
- var server = app.listen(3002, function () {
-   console.log("proctor Service...")
- });
+var server = app.listen(3002, function () {
+  console.log("proctor Service...")
+});
