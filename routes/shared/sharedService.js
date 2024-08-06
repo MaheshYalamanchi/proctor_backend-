@@ -1775,7 +1775,7 @@ let notificationFetch = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if(responseData && responseData.data && responseData.data.statusMessage){
+        if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.length>0){
             if(tenantResponse && tenantResponse.success){
                 responseData.data.statusMessage[0].templateResponse = tenantResponse;
             }
@@ -1784,7 +1784,7 @@ let notificationFetch = async (params) => {
                 return { success: true, message: result.message}
             }
         } else {
-            return { success: false, message: "Data not found" }
+            return { success: true, message: "No records found"}
         }
     }
     catch (error) {
