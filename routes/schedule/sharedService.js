@@ -994,7 +994,7 @@ let fetchuserwithroom=async(params)=>{
                         verified:"$verified",
                         faceArray:"$faceArray",
                         passportArray:"$passportArray",
-                        preUploadPhoto:"$preUploadPhoto"
+                        preUploadPhoto:"$userInfo.preUploadPhoto"
                     }
                 }
               ]
