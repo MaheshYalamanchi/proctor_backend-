@@ -993,7 +993,8 @@ let fetchuserwithroom=async(params)=>{
                         member:"$members",
                         verified:"$verified",
                         faceArray:"$faceArray",
-                        passportArray:"$passportArray"
+                        passportArray:"$passportArray",
+                        preUploadPhoto:"$preUploadPhoto"
                     }
                 }
               ]
