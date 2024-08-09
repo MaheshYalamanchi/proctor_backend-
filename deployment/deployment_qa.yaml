@@ -24,62 +24,62 @@ spec:
           - name: DATA_SERVICE_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: DATA_SERVICE_ENDPOINT  
           - name: MONGO_URI
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: MONGO_URI   
           - name: SOCKET_IO
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: SOCKET_IO
           - name: MAPREDUCE_URL
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: MAPREDUCE_URL
           - name: MINIO_ACCESSKEY
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: MINIO_ACCESSKEY
           - name: MINIO_SECRETKEY
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: MINIO_SECRETKEY
           - name: MINIO_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: MINIO_ENDPOINT
           - name: REPORTSERVICE
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: REPORTSERVICE
           - name: USERS_DATA_SERVICE_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: USERS_DATA_SERVICE_ENDPOINT
           - name: ROOMS_DATA_SERVICE_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: ROOMS_DATA_SERVICE_ENDPOINT
           - name: DATABASENAME
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: DATABASENAME
           - name: PAUSE_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: proctor-dev-env
+                name: proctor-qa-env
                 key: PAUSE_ENDPOINT
                                                                         
           ports:
