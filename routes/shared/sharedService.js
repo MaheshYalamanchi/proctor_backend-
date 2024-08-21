@@ -1763,28 +1763,31 @@ let notificationFetch = async (params) => {
             docType: 1,
             query: [
                 {
-                    $match: { 
-                        "status": { $in: ["paused", "started"] },
-                        isActive: true
+                    "$match": {
+                        "status": { "$in": ["paused", "started"] },
+                        "isActive": true
                     }
                 },
                 {
-                    $match: {
-                        $expr: {
-                            $eq: [
-                                { $dateToString: { format: "%Y-%m-%d", date: "$startedAt" } }, 
-                                { $dateToString: { format: "%Y-%m-%d", date: new Date() } }
-                            ]
+                    "$project": {
+                        "id": "$_id",
+                        "startedAt": { "$dateToString": { "format": "%Y-%m-%d", "date": "$startedAt" } }
+                    }
+                },
+                {
+                    "$match": {
+                        "startedAt": new Date().toISOString().split('T')[0]
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": null,
+                        "data": {
+                            "$push": "$id"
                         }
                     }
-                },
-                {
-                    $project: { "_id": 0, "id": "$_id" }
-                },
-                { 
-                    $group: { _id: null, data: { $push: "$id" }} 
                 }
-            ]
+            ]         
 
             // [
             //     {
