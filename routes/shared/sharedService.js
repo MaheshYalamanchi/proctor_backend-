@@ -1763,16 +1763,42 @@ let notificationFetch = async (params) => {
             docType: 1,
             query: [
                 {
-                    $match: {"status": { $in: ["paused", "started"] } } 
+                    $match: { 
+                        "status": { $in: ["paused", "started"] },
+                        isActive: true
+                    }
                 },
                 {
-                    $match: {isActive:true}  
+                    $match: {
+                        $expr: {
+                            $eq: [
+                                { $dateToString: { format: "%Y-%m-%d", date: "$startedAt" } }, 
+                                { $dateToString: { format: "%Y-%m-%d", date: new Date() } }
+                            ]
+                        }
+                    }
                 },
                 {
-                    $project: { "_id": 0 ,"id" :"$_id" }
-                },    
-                { $group: { _id: null, data: { $push: "$id" }}}
+                    $project: { "_id": 0, "id": "$_id" }
+                },
+                { 
+                    $group: { _id: null, data: { $push: "$id" }} 
+                }
             ]
+
+            // [
+            //     {
+            //         $match: {"status": { $in: ["paused", "started"] } } 
+            //     },
+            //     {
+            //         $match: {isActive:true}  
+            //     },
+            //     {
+            //         $project: { "_id": 0 ,"id" :"$_id" }
+            //     },    
+            //     { $group: { _id: null, data: { $push: "$id" }}}
+            // ]
+            
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.length>0){
