@@ -913,7 +913,6 @@ let approvalProcess=async(params)=>{
         }else {
             jsonData = { $set: { verified: params.verified,status:params.status,color:params.color,rejectLog:{message:params.rejectLog,createdAt:new Date(),color:params.color}} }
         }
-        console.log(jsonData,'approve body')
         var getdata = {
             url:url,
             database:database,
@@ -1004,7 +1003,7 @@ let fetchuserwithroom=async(params)=>{
                         useragent:"$userInfo.useragent",
                         similar:"$userInfo.similar",
                         platform:"$userInfo.platform",
-                        verified:"$userInfo.verified"
+                        verified:"$verified"
                     }
                 }
               ]
