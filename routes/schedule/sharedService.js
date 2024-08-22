@@ -887,7 +887,6 @@ let updatePhotoStatus=async(params)=>{
 }
 let approvalProcess=async(params)=>{
     try {
-        // console.log(params,'body..................')
         let url,database
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
@@ -926,7 +925,6 @@ let approvalProcess=async(params)=>{
             }
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
-        // console.log(response.data.statusMessage,'llllllllllllllllll',JSON.stringify(getdata))
         if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.nModified){
             return {success:true,message:'Candidate approved successfully.'};
         }else{
@@ -939,8 +937,8 @@ let approvalProcess=async(params)=>{
 }
 let fetchuserwithroom=async(params)=>{
     try {
-        // console.log(params,'body..................')
-        let url,database
+        let url;
+        let database;
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
             if(decodeToken && decodeToken.tenantId){
@@ -980,11 +978,13 @@ let fetchuserwithroom=async(params)=>{
                 { $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true } },
                 {
                     $project:{
-                        _id:"$_id",
-                        student:"$student",
+                        roomid:"$_id",
+                        _id:0,
+                        id:"$student",
+                        username:"$student",
                         face:"$userInfo.face",
                         passport:"$userInfo.passport",
-                        email:"$userInfo.nickname",
+                        nickname:"$userInfo.nickname",
                         browser:"$browser",
                         os:"$os",
                         ip:"$ipaddress",
@@ -994,12 +994,22 @@ let fetchuserwithroom=async(params)=>{
                         verified:"$verified",
                         faceArray:"$faceArray",
                         passportArray:"$passportArray",
-                        preUploadPhoto:"$userInfo.preUploadPhoto"
+                        preUploadPhoto:"$userInfo.preUploadPhoto",
+                        role:"$userInfo.role",
+                        exclude:"$userInfo.exclude",
+                        labels:"$userInfo.labels",
+                        exclude:"$userInfo.exclude",
+                        provider:"$userInfo.provider",
+                        referer:"$userInfo.referer",
+                        useragent:"$userInfo.useragent",
+                        similar:"$userInfo.similar",
+                        platform:"$userInfo.platform",
+                        verified:"$userInfo.verified"
                     }
                 }
               ]
         };
-        let response = await invoke.makeHttpCall("post", "aggregate", getdata);
+        let response = await invoke.makeHttpCall_userDataService("post", "aggregate", getdata);
         if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.length){
             return {success:true,message:response.data.statusMessage};
         }else{
