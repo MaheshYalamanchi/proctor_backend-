@@ -81,11 +81,13 @@ let updateRecord = async (params) => {
             model: "rooms",
             docType: 0,
             query: {
-                _id: params.room,
-                updatedAt: updatedAt
-            } 
+                filter: { "_id": params.room },
+                update: { $set:{updatedAt: updatedAt} }
+            }
+
+            
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "saveById", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage };
         } else {
