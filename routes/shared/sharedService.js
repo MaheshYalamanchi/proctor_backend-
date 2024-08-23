@@ -220,9 +220,7 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
-    console.log(params.authorization)
-    var decodeToken = jwt_decode(params.authorization);
-    console.log(decodeToken,'decode token')
+    const decodeToken = jwt_decode(params.authorization);
     try {
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
@@ -241,161 +239,118 @@ let proctorFetchCall = async (params) => {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
         }
-        if (decodeToken && !(decodeToken.role == "administrator")){
-            let getdata;
-            
-            if (decodeToken && decodeToken.room=="check"){
-                getdata = {
-                    url: url,
-                    database: database,
-                    model: "rooms",
-                    docType: 1,
-                    query: [
-                        {
-                            "$match": { 
-                                "_id" : decodeToken.room
-                            }
-                        },
-                        {
-                            "$project": {
-                                id: "$_id", _id: 0, addons: "$addons", api: "$api",color:"$color", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt",subject: "$subject",
-                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",duration:"$duration",
-                                error:"$error",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",os:"$os",platform:"$platform",
-                                score:"$score",signedAt:"$signedAt",template:"$template",useragent:"$useragent",startedAt:"$startedAt"
-    
-                            }
-                        }
-                    ]
-                };
-            } else {
-                getdata = {
-                    url: url,
-                    database: database,
-                    model: "rooms",
-                    docType: 1,
-                    query: [
-                        {
-                            "$match": { 
-                                "student": decodeToken.id ,
-                                "_id" : decodeToken.room
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                from: 'users',
-                                localField: 'student',
-                                foreignField: '_id',
-                                as: 'student',
-                            }
-                        },
-                        {
-                            "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
-                        },
-                        {
-                            "$project": {
-                                id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                                concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                                locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                                scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt","student.browser":"$student.browser",subject: "$subject",
-                                tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                                updatedAt: "$updatedAt", url: "$url", weights: "$weights",browser:"$browser",averages:"$averages",duration:"$duration",
-                                error:"$error",incidents:"$incidents",integrator:"$integrator",ipaddress:"$ipaddress",os:"$os",platform:"$platform",
-                                score:"$score",signedAt:"$signedAt",template:"$template",useragent:"$useragent",startedAt:"$startedAt","student.createdAt":"$student.createdAt",
-                                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
-                                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
-                                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
-                                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
-                                "student.verified":"$student.verified","verified":"$verified"
-    
-                            }
-                        }
-                    ]
-                };
-            }
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.length) {
-                if(responseData.data.statusMessage[0].status =='paused'){
-                    const providedDate =new Date(responseData.data.statusMessage[0].scheduledAt);
-                    const timeDifferenceMs = new Date() - new Date(responseData.data.statusMessage[0].updatedAt);
-                    const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
-                    // const timeOut = minutesDifference - responseData.data.statusMessage[0].timeout
-                    const deadline = new Date(responseData.data.statusMessage[0].deadline);
-                    if(minutesDifference <= responseData.data.statusMessage[0].timeout  || responseData.data.statusMessage[0].timeout == null ){
-                        if(providedDate <= deadline || responseData.data.statusMessage[0].deadline == null ){
-                            return { success: true, message: responseData.data.statusMessage[0] }
-                        }else{
-                            return {success:false, message : 'Data Not Found'};
-                        }
-                    }else{
-                        if(decodeToken.tenantId){
-                            responseData.data.statusMessage[0].body.authorization = params.authorization
-                        }
-                        let result = await shared.stoppedAt(responseData.data.statusMessage[0]);
-                        return {success:false, message : 'Data Not Found'};
-                    }
-                } else {
-                    return { success: true, message: responseData.data.statusMessage[0] }
-                }
-            } else {
-                return { success: false, message: "Data not Found" }
-            }
-        } else if (decodeToken && (decodeToken.role == "administrator")) {
-            var getdata = {
-                url: url,
-                database: database,
-                model: "rooms",
-                docType: 1,
-                query: [
-                    {
-                        "$match": { 
-                            "student": decodeToken.id 
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            from: 'users',
-                            localField: 'student',
-                            foreignField: '_id',
-                            as: 'student',
-                        }
-                    },
-                    {
-                        "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true }
-                    },
-                    {
-                        "$project": {
-                            id: "$_id", _id: 0, addons: "$addons", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
-                            concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
-                            locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
-                            scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", student: "$student", subject: "$subject",
-                            tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
-                            updatedAt: "$updatedAt", url: "$url", weights: "$weights"
-                        }
-                    }
-                ]
-            };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage.length) {
-                return { success: true, message: responseData.data.statusMessage[0] }
-            } else {
-                return { success: false, message: "Data not Found" }
-            }
-        } else {
-            return { success: false, message: "Invalid Token Error" }
-        }
+        let getdata = {
+            url,
+            database,
+            model: "rooms",
+            docType: 1,
+            query: buildQuery(decodeToken),
+        };
+        const responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+        return processResponseData(responseData, decodeToken, params);
+
     } catch (error) {
-        console.log(error,"fetchError2=======>>>>")
-        if (error && error.code == 'ECONNREFUSED') {
-            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-        } else {
-            return { success: false, message: error }
+        console.log(error, "fetchError2=======>>>>");
+        if (error?.code === 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status };
         }
+        return { success: false, message: error };
     }
 };
+
+// Helper function to build the query
+function buildQuery(decodeToken) {
+    let matchCondition = { "student": decodeToken.id, "_id": decodeToken.room };
+
+    if (decodeToken.room === "check") {
+        matchCondition = { "_id": decodeToken.room };
+    }
+
+    const projectFields = {
+        id: "$_id", _id: 0, addons: "$addons", api: "$api", color: "$color", comment: "$comment", complete: "$complete", conclusion: "$conclusion",
+        concurrent: "$concurrent", createdAt: "$createdAt", deadline: "$deadline", invites: "$invites", lifetime: "$lifetime",
+        locale: "$locale", members: "$members", metrics: "$metrics", proctor: "$proctor", quota: "$quota", rules: "$rules",
+        scheduledAt: "$scheduledAt", status: "$status", stoppedAt: "$stoppedAt", subject: "$subject",
+        tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
+        updatedAt: "$updatedAt", url: "$url", weights: "$weights", browser: "$browser", averages: "$averages", duration: "$duration",
+        error: "$error", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", os: "$os", platform: "$platform",
+        score: "$score", signedAt: "$signedAt", template: "$template", useragent: "$useragent", startedAt: "$startedAt"
+    };
+
+    if (decodeToken.role !== "administrator" && decodeToken.room == "check") {
+        return [
+            { "$match": matchCondition },
+            {
+                "$lookup": {
+                    from: 'users',
+                    localField: 'student',
+                    foreignField: '_id',
+                    as: 'student',
+                }
+            },
+            { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
+            { "$project": { ...projectFields} }
+        ];
+    } else if(decodeToken.role !== "administrator") {
+        return [
+            { "$match": matchCondition },
+            {
+                "$lookup": {
+                    from: 'users',
+                    localField: 'student',
+                    foreignField: '_id',
+                    as: 'student',
+                }
+            },
+            { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
+            { "$project": { ...projectFields,"student.createdAt":"$student.createdAt",
+                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
+                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
+                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
+                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
+                "student.verified":"$student.verified","verified":"$verified"} }
+        ];
+    } else {
+        matchCondition = { "student": decodeToken.id}
+        return [
+            { "$match": matchCondition },
+            { "$project": projectFields }
+        ];
+    }
+}
+
+// Helper function to process response data
+async function processResponseData(responseData, decodeToken, params) {
+    if (responseData?.data?.statusMessage.length) {
+        const statusMessage = responseData.data.statusMessage[0];
+
+        if (statusMessage.status === 'paused') {
+            const timeDifferenceMs = new Date() - new Date(statusMessage.updatedAt);
+            const minutesDifference = Math.floor(timeDifferenceMs / (1000 * 60));
+
+            if (minutesDifference <= statusMessage.timeout || statusMessage.timeout === null) {
+                if (new Date(statusMessage.scheduledAt) <= new Date(statusMessage.deadline) || statusMessage.deadline === null) {
+                    return { success: true, message: statusMessage };
+                } else {
+                    return { success: false, message: 'Data Not Found' };
+                }
+            } else {
+                if (decodeToken.tenantId) {
+                    statusMessage.body.authorization = params.authorization;
+                }
+                await shared.stoppedAt(statusMessage);
+                return { success: false, message: 'Data Not Found' };
+            }
+        } else {
+            return { success: true, message: statusMessage };
+        }
+    } else if(responseData?.data?.statusMessage.length == 0) {
+        return { success: true, message: {} }
+    }
+    return { success: false, message: "Data not Found" };
+}
+
+
 let proctorAuthCall = async (params) => {
     try {
         var decodeToken = jwt_decode(params.authorization);
