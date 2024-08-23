@@ -85,7 +85,7 @@ let updateRecord = async (params) => {
                 update: { $set:{updatedAt: new Date()} }
             }
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage };
         } else {
