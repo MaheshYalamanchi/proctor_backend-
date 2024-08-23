@@ -74,7 +74,7 @@ let getSessions = async (params) => {
 };
 let updateRecord = async (params) => {
     try {
-        let updatedAt = new Date().toISOString()    
+        // let updatedAt = new Date().toISOString()    
         var getdata = {
             url: params.url,
 			database: params.database,
@@ -82,12 +82,10 @@ let updateRecord = async (params) => {
             docType: 0,
             query: {
                 filter: { "_id": params.room },
-                update: { $set:{updatedAt: updatedAt} }
+                update: { $set:{updatedAt: new Date()} }
             }
-
-            
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage };
         } else {
