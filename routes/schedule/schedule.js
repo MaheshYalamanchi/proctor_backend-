@@ -239,7 +239,7 @@ let faceInfo = async (params) => {
                 }
             ]
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -517,7 +517,7 @@ let chatUpdateResponse = async (params) => {
                 update: {$set: { updatedAt:  new Date(params.createdAtEvent)}}
             }
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {

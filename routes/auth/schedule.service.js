@@ -115,7 +115,7 @@ let faceResponse = async (params) => {
             docType: 0,
             query: jsonData
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "write", getdata);
+        let responseData = await invoke.makeHttpCall("post", "write", getdata);
         if (responseData && responseData.data.statusMessage._id) {
             if(params.decodeToken.role === "administrator"){
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
