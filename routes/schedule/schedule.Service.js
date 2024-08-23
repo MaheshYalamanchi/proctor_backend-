@@ -57,120 +57,77 @@ let getChatDetails = async (params) => {
     }
 };
 
-let getCandidateEventSend = async (params) => {
+const getCandidateEventSend = async (params) => {
     try {
-        let violation = []
-        if(params.body.authorization){
-            var decodeToken = jwt_decode(params.body.authorization);
-            let url;
-            let database;
-            let tenantResponse;
-            if(decodeToken && decodeToken.tenantId){
-                tenantResponse = await _schedule.getTennant(decodeToken);
-                if (tenantResponse && tenantResponse.success){
-                    url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                    database = tenantResponse.message.databaseName;
-                    req.body.tenantResponse = tenantResponse;
-                }else {
-                        return { success: false, message: tenantResponse.message }
-                    }
-            } else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
-            }
-            if (params.body.filename){
-                for(let i= 0;i< params.body.filename.length;i++){
-                    let data;
-                    if("string" == typeof params.body.peak ){
-                        data = {
-                            "image": params.body.filename[i],
-                            "peak": params.body.peak,
-                            "createdAt": new Date(params.body.createdAt)
-                        }
-                    } else {
-                        data = {
-                            "image": params.body.filename[i],
-                            "peak": params.body.peak[i],
-                            "createdAt": new Date(params.body.createdAt[i])
-                        }
-                    }
-                    // if(params.body.peak[i] == "c3"){
-                    //     if (params.body.metadata.peak != "c3"){
-                    //         let response = await scheduleService.fetchMetrics(params.params.roomId)
-                    //         const c3Index = response.message.metrics.indexOf("c3");
-                    //         const c3Weight = response.message.weights[c3Index] * response.message.metrics.length;
-                    //         params.body.metadata.metrics["c3"] = c3Weight
-                    //     }
-                    // }
-                    violation.push(data)
-                }
-            }
-            jsonData = {
-                "type" : params.body.type,
-                "attach" : [],
-                "room" : params.params.roomId,
-                "user" : decodeToken.id,
-                "createdAt" :new Date(params.body.createdAtEvent),
-                "metadata" : params.body.metadata,
-                "violation" : violation || []
-            }
-            var getdata = {
-                url: url,
-                database: database,
-                model: "chats",
-                docType: 0,
-                query: jsonData
-            };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
-            if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                if(params.body.chatId && (params.body.chatId !== 'undefined')){
-                    let chatUpdateResponse = await schedule.chatUpdateResponse(params.body)
-                }
-                let user = {
-                    "id": decodeToken.id,
-                    "nickname": decodeToken.nickname,
-                    "role": decodeToken.role,
-                    "username": decodeToken.id
-                }
-                delete responseData.data.statusMessage._id
-                responseData.data.statusMessage.user = user
-                // let userResponse = await schedule.eventInfo(responseData.data.statusMessage._id);
-                // if (userResponse && userResponse.success){
-                    
-                    if (params.body.metadata.peak == "m3"){
-                        json = {
-                            timestamp:new Date(),
-                            room :params.params.roomId,
-                            metrics : params.body.metadata.metrics,
-                            peak : params.body.metadata.peak
-                        }
-                    } else {
-                        json = {
-                            timestamp:new Date(),
-                            room :params.params.roomId,
-                            metrics : params.body.metadata.metrics,
-                            tenantResponse: tenantResponse
-                        }
-                    }
-                    return { success: true, message:{data:responseData.data.statusMessage,json:json}}
-                    // let score = await schedule.updateScore(json)
-                    // if (score.success){
-                    //     responseData.data.statusMessage.metadata.score = score.message;
-                    //     return { success: true, message:responseData.data.statusMessage}
-                    // } else  {
-                    //     return { success: true, message:"data not found"}
-                    // }
-            }
-        }
-        else{
+        if (!params.body.authorization) {
             return { success: false, message: 'Invalid Token Error' };
         }
-    } catch (error) {
-        if (error && error.code == 'ECONNREFUSED') {
-            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        const decodeToken = jwt_decode(params.body.authorization);
+        let url;
+        let database;
+        let tenantResponse;
+        if(decodeToken && decodeToken.tenantId){
+            tenantResponse = await _schedule.getTennant(decodeToken);
+            if (tenantResponse && tenantResponse.success){
+                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+                database = tenantResponse.message.databaseName;
+                req.body.tenantResponse = tenantResponse;
+            }else {
+                    return { success: false, message: tenantResponse.message }
+                }
         } else {
-            return { success: false, message: error }
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
         }
+        const violation = (params.body.filename || []).map((filename, i) => ({
+            image: filename,
+            peak: Array.isArray(params.body.peak) ? params.body.peak[i] : params.body.peak,
+            createdAt: new Date(Array.isArray(params.body.createdAt) ? params.body.createdAt[i] : params.body.createdAt)
+        }));
+        const jsonData = {
+            type: params.body.type,
+            attach: [],
+            room: params.params.roomId,
+            user: decodeToken.id,
+            createdAt: new Date(params.body.createdAtEvent),
+            metadata: params.body.metadata,
+            violation
+        };
+        const getdata = {
+            url,
+            database,
+            model: "chats",
+            docType: 0,
+            query: jsonData
+        };
+        const responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+        if (!responseData?.data?.statusMessage?._id) {
+            return { success: false, message: 'Failed to write data' };
+        }
+        if (params.body.chatId && params.body.chatId !== 'undefined') {
+            await schedule.chatUpdateResponse(params.body);
+        }
+        const user = {
+            id: decodeToken.id,
+            nickname: decodeToken.nickname,
+            role: decodeToken.role,
+            username: decodeToken.id
+        };
+        delete responseData.data.statusMessage._id;
+        responseData.data.statusMessage.user = user;
+        const json = {
+            timestamp: new Date(),
+            room: params.params.roomId,
+            metrics: params.body.metadata.metrics,
+            peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
+            tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+        };
+        return { success: true, message: { data: responseData.data.statusMessage, json } };
+    } catch (error) {
+        const errorMsg = error?.code === 'ECONNREFUSED'
+            ? { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+            : { success: false, message: error.message || 'An unexpected error occurred' };
+        return errorMsg;
     }
 };
 let getCandidateFcaeSend = async (params) => {
