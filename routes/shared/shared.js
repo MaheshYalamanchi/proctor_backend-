@@ -74,19 +74,10 @@ let getSessions = async (params) => {
 };
 let updateRecord = async (params) => {
     try {
-        let url;
-        let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
-        }
         let updatedAt = new Date().toISOString()    
         var getdata = {
-            url: url,
-			database: database,
+            url: params.url,
+			database: params.database,
             model: "rooms",
             docType: 0,
             query: {
@@ -96,10 +87,8 @@ let updateRecord = async (params) => {
         };
         let responseData = await invoke.makeHttpCall_roomDataService("post", "saveById", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
-            //console.log(JSON.stringify(getdata.query,'update api success'))
             return { success: true, message: responseData.data.statusMessage };
         } else {
-            //console.log(JSON.stringify(getdata.query,'update api false'))
             return { success: false, message: 'Status not updated...' };
         }
     } catch (error) {
