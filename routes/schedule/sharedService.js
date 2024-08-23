@@ -281,15 +281,11 @@ let getFaceResponse1 = async (params) => {
     try {
         let response = await scheduleservice.faceResponse(params);
         if (response.success){
-            console.log("face1=============>>>>",JSON.stringify(response));
-            console.log("face2=============>>>>",JSON.stringify(params.decodeToken));
             if(params.decodeToken.role == "student"){
                 let updatedRecord= await shared.updateRecord(params.decodeToken);
-                console.log("face3=============>>>>",JSON.stringify(updatedRecord))
                 if (updatedRecord && updatedRecord.success){
                     return { success: true, message: response.message }
                 } else {
-                    console.log("face5=============>>>>",JSON.stringify(updatedRecord.message))
                     return { success: false, message: updatedRecord.message }
                 }
             } else {
