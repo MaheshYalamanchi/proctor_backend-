@@ -100,7 +100,7 @@ const getCandidateEventSend = async (params) => {
             docType: 0,
             query: jsonData
         };
-        const responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+        const responseData = await invoke.makeHttpCall_commonDataService("post", "write", getdata);
         if (!responseData?.data?.statusMessage?._id) {
             return { success: false, message: 'Failed to write data' };
         }

@@ -73,7 +73,7 @@ let updateScore = async (params) => {
             docType: 1,
             query: {_id:params.room}
         };
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
+        let responseData = await invoke.makeHttpCall_commonDataService("post", "read", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             let roomsData = responseData.data.statusMessage[0];
             if (roomsData.duration >= roomsData.lifetime && roomsData.lifetime !== null) {
