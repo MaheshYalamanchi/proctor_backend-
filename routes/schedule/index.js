@@ -54,6 +54,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
             }
         } catch (error) {
+            console.log("chat Error================>>>>>>"+req.body.type+"", error)
+            console.log("chat Body================>>>>>>", JSON.stringify(req.body))
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -198,6 +200,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log("storage Error================>>>>>>"+req.body.type+"", error)
+            console.log("storage Body================>>>>>>", JSON.stringify(req.body))
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -404,6 +408,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("chat PUT Error================>>>>>>"+req.body.type+"", error)
+            console.log("chat PUT Body================>>>>>>", JSON.stringify(req.body))
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
