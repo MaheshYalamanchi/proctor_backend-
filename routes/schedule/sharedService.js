@@ -316,6 +316,7 @@ let attachmentPostCall = async (params) => {
                 if (tenantResponse && tenantResponse.success){
                     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
                     database = tenantResponse.message.databaseName;
+                    decodeToken.tenantResponse = tenantResponse;
                 }else {
                         return { success: false, message: tenantResponse.message }
                     }
@@ -345,8 +346,6 @@ let attachmentPostCall = async (params) => {
                 response.data.statusMessage.id = response.data.statusMessage._id
                 delete response.data.statusMessage._id
                 delete response.data.statusMessage.attached
-                decodeToken.url = url;
-                decodeToken.database = database;
                 let updatedRecord= await shared.updateRecord(decodeToken);
                 if(updatedRecord && updatedRecord.message){
                     response.data.statusMessage.status = updatedRecord.message.status
