@@ -214,18 +214,20 @@ let faceInfo = async (params) => {
                 { $match: { 'id' : params._id } },
                 {
                     "$lookup": {
-                        "from": 'users',
-                        "localField": 'user',
-                        "foreignField": '_id',
-                        "as": 'data',
+                        "from": "users",
+                        "let": { "userId": "$user" },
+                        "pipeline": [
+                            { "$match": { "$expr": { "$eq": ["$_id", "$$userId"] } } },
+                            { "$project": { "nickname": 1, "role": 1 } }
+                        ],
+                        "as": "data"
                     }
                 },
                 {
-                    "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true }
+                    "$addFields": {
+                        "data": { "$arrayElemAt": ["$data", 0] }
+                    }
                 },
-                // {
-                //     "$addFields": { "test": { "$toString": "$_id" } }
-                // },
                 {
                     "$project": {
                         "attach": 1, "createdAt": 1, "id": "$id", "message": 1, "room": 1, "type": 1, "_id": 0, "metadata": 1,
