@@ -81,6 +81,11 @@ spec:
               secretKeyRef:
                 name: proctor-dev-env
                 key: PAUSE_ENDPOINT
+          - name: COMMON_DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-dev-env
+                key: COMMON_DATA_SERVICE_ENDPOINT
                                                                         
           ports:
           - containerPort: 3002

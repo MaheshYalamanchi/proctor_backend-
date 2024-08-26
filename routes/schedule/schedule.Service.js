@@ -166,7 +166,7 @@ let getCandidateFcaeSend = async (params) => {
                 docType: 0,
                 query: jsonData
             };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "write", getdata);
+            let responseData = await invoke.makeHttpCall_commonDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
                 if (tenantResponse && tenantResponse.success){
                     responseData.data.statusMessage.tenantResponse = tenantResponse;

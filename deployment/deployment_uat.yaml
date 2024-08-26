@@ -76,7 +76,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: proctor-uat-env
-                key: PAUSE_ENDPOINT                                                              
+                key: PAUSE_ENDPOINT 
+          - name: COMMON_DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-uat-env
+                key: COMMON_DATA_SERVICE_ENDPOINT                                                              
           ports:
           - containerPort: 3002
       imagePullSecrets:
