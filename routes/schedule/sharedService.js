@@ -922,7 +922,7 @@ let approvalProcess=async(params)=>{
                 update: jsonData
             }
         };
-        let response = await invoke.makeHttpCall("post", "update", getdata);
+        let response = await invoke.makeHttpCall_commonDataService("post", "update", getdata);
         if(response&&response.data&&response.data.statusMessage&&response.data.statusMessage.nModified){
             return {success:true,message:'Candidate approved successfully.'};
         }else{
