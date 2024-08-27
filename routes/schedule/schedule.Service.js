@@ -84,45 +84,94 @@ const getCandidateEventSend = async (params) => {
             peak: Array.isArray(params.body.peak) ? params.body.peak[i] : params.body.peak,
             createdAt: new Date(Array.isArray(params.body.createdAt) ? params.body.createdAt[i] : params.body.createdAt)
         }));
-        const jsonData = {
-            type: params.body.type,
-            attach: [],
-            room: params.params.roomId,
-            user: decodeToken.id,
-            createdAt: new Date(params.body.createdAtEvent),
-            metadata: params.body.metadata,
-            violation
-        };
-        const getdata = {
-            url,
-            database,
-            model: "chats",
-            docType: 0,
-            query: jsonData
-        };
-        const responseData = await invoke.makeHttpCall_commonDataService("post", "write", getdata);
-        if (!responseData?.data?.statusMessage?._id) {
-            return { success: false, message: 'Failed to write data' };
-        }
         if (params.body.chatId && params.body.chatId !== 'undefined') {
-            await schedule.chatUpdateResponse(params.body);
+            // await schedule.chatUpdateResponse(params.body);
+            const jsonData = {
+                insertOne: {
+                    type: params.body.type,
+                    attach: [],
+                    room: params.params.roomId,
+                    user: decodeToken.id,
+                    createdAt: new Date(params.body.createdAtEvent),
+                    metadata: params.body.metadata,
+                    violation
+                },
+                updateOne: {
+                    filter: { "id": params.body.chatId },
+                    update: {$set: { updatedAt:  new Date(params.body.createdAtEvent)}}
+                }
+            };
+            const getdata = {
+                url,
+                database,
+                model: "chats",
+                docType: 1,
+                query: jsonData
+            };
+            const responseData = await invoke.makeHttpCall_commonDataService("post", "bulkwrite", getdata);
+            if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.insertedIds && responseData.data.statusMessage.insertedIds.length>0){
+                const responseJson = {
+                    type: params.body.type,
+                    attach: [],
+                    room: params.params.roomId,
+                    user: {
+                        id: decodeToken.id,
+                        nickname: decodeToken.nickname,
+                        role: decodeToken.role,
+                        username: decodeToken.id
+                    },
+                    createdAt: new Date(params.body.createdAtEvent),
+                    metadata: params.body.metadata,
+                    id: responseData.data.statusMessage.insertedIds[0]._id,
+                    violation
+                };
+                const json = {
+                    timestamp: new Date(),
+                    room: params.params.roomId,
+                    metrics: params.body.metadata.metrics,
+                    peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
+                    tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+                };
+                return { success: true, message: { data: responseJson, json } };
+            }
+        } else {
+            const jsonData = {
+                type: params.body.type,
+                attach: [],
+                room: params.params.roomId,
+                user: decodeToken.id,
+                createdAt: new Date(params.body.createdAtEvent),
+                metadata: params.body.metadata,
+                violation
+            };
+            const getdata = {
+                url,
+                database,
+                model: "chats",
+                docType: 0,
+                query: jsonData
+            };
+            const responseData = await invoke.makeHttpCall_commonDataService("post", "write", getdata);
+            if (!responseData?.data?.statusMessage?._id) {
+                return { success: false, message: 'Failed to write data' };
+            }
+            const user = {
+                id: decodeToken.id,
+                nickname: decodeToken.nickname,
+                role: decodeToken.role,
+                username: decodeToken.id
+            };
+            delete responseData.data.statusMessage._id;
+            responseData.data.statusMessage.user = user;
+            const json = {
+                timestamp: new Date(),
+                room: params.params.roomId,
+                metrics: params.body.metadata.metrics,
+                peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
+                tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+            };
+            return { success: true, message: { data: responseData.data.statusMessage, json } };
         }
-        const user = {
-            id: decodeToken.id,
-            nickname: decodeToken.nickname,
-            role: decodeToken.role,
-            username: decodeToken.id
-        };
-        delete responseData.data.statusMessage._id;
-        responseData.data.statusMessage.user = user;
-        const json = {
-            timestamp: new Date(),
-            room: params.params.roomId,
-            metrics: params.body.metadata.metrics,
-            peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
-            tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
-        };
-        return { success: true, message: { data: responseData.data.statusMessage, json } };
     } catch (error) {
         const errorMsg = error?.code === 'ECONNREFUSED'
             ? { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -168,19 +217,26 @@ let getCandidateFcaeSend = async (params) => {
             };
             let responseData = await invoke.makeHttpCall_commonDataService("post", "write", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                if (tenantResponse && tenantResponse.success){
-                    responseData.data.statusMessage.tenantResponse = tenantResponse;
+                // if (tenantResponse && tenantResponse.success){
+                //     responseData.data.statusMessage.tenantResponse = tenantResponse;
+                // }
+                jsonData.user = {
+                    id: decodeToken.id,
+                    nickname: decodeToken.nickname,
+                    role: decodeToken.role,
+                    username: decodeToken.id
                 }
-                let chatResponse = await schedule.faceInfo(responseData.data.statusMessage);
-                if (chatResponse && chatResponse.success){
+                jsonData.id = responseData.data.statusMessage._id
+                // let chatResponse = await schedule.faceInfo(responseData.data.statusMessage);
+                // if (chatResponse && chatResponse.success){
                     // let attatchResponse = await schedule.attachInsertion(chatResponse.message[0])
                     // if (attatchResponse.success){
                         // chatResponse.message[0].attach[0] = attatchResponse.message[0].id;
-                        return { success: true, message:chatResponse.message[0]}
+                        return { success: true, message:jsonData}
                     // } else  {
                     //     return { success: true, message:"data not found"}
                     // }
-                }
+                // }
             } else {
                 return { success: false, message: 'Data Not Found' };
             }
