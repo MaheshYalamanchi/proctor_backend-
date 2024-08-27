@@ -123,7 +123,7 @@ let proctorMeCall = async (params) => {
                     docType: 1,
                     query: decodeToken.id
                 };
-            let responseData = await invoke.makeHttpCall("post", "findById", getdata);
+            let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id;
@@ -399,7 +399,7 @@ let proctorAuthCall = async (params) => {
                     query: decodeToken.id
                 };
             }
-            let responseData = await invoke.makeHttpCall_userDataService("post", "findById", getdata);
+            let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
             if (responseData && responseData.data&&responseData.data.statusMessage&&responseData.data.statusMessage._id) {
                 var splitToken = params.authorization.split(" ");
                 if (decodeToken && decodeToken.room && decodeToken.provider){
