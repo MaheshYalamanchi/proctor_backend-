@@ -57,10 +57,10 @@ let proctorRoomUserEdit = async (params) => {
                         }
                         let updateTemplate = await schedule.updateTemplate(jsonData);
                         if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
-                            console.log('nModified true')
+                            
                             //logger.info({ success: true, message: updateTemplate.data.statusMessage });
                         } else {
-                            console.log('nModified false')
+                            
                             //logger.info({ success: false, message: "records updated not successfully..." });
                         }
                     } else {

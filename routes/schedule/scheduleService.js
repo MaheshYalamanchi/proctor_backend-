@@ -602,7 +602,6 @@ let errorupdate =async(params)=>{
         }
         let errorCounter = params.error
         errorCounter++;
-        console.log(JSON.stringify(params.body),'IP ADDRES')
         data = {
             url: url,
 			database: database,
