@@ -545,7 +545,8 @@ module.exports = function (params) {
             }
             
         } catch (error) {
-            console.log(error)
+            console.log("approvecandidate error body======>>>>",JSON.stringify(req.body))
+            console.log(error,"approvecandidate Error==========>>>>>>")
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })

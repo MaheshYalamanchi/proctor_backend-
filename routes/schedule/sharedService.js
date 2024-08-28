@@ -902,6 +902,10 @@ let updatePhotoStatus=async(params)=>{
 }
 let approvalProcess=async(params)=>{
     try {
+        if(!params?.authorization){
+            console.log("face Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         let url,database
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
