@@ -507,7 +507,7 @@ let getDatails = async (params) => {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
-        console.log("nect Error Body2========>>>>",JSON.stringify(req.body))
+        console.log("nect Error Body2========>>>>",JSON.stringify(params.body))
             console.log("next Error2========>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -959,7 +959,7 @@ let approvalProcess=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
-        console.log("approvecandidate error body2======>>>>",JSON.stringify(req.body))
+        console.log("approvecandidate error body2======>>>>",JSON.stringify(params))
             console.log(error,"approvecandidate Error2==========>>>>>>")
         return {success:false,message:'Something went wrong!'};
     }
@@ -1049,7 +1049,7 @@ let fetchuserwithroom=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
-        console.log("approvecandidate error body3======>>>>",JSON.stringify(req.body))
+        console.log("approvecandidate error body3======>>>>",JSON.stringify(params.authorization))
             console.log(error,"approvecandidate Error3==========>>>>>>")
         return {success:false,message:'Something went wrong!'};
     }

@@ -605,8 +605,8 @@ let getCandidateMessages = async (params) => {
             return { success: false, message: 'Invalid Params Error' }
         }
     } catch (error) {
-        console.log("chat fetch Error Token2========>>>>",JSON.stringify(req.headers.authorization))
-            console.log(error,"chat fetch error2=======>>>>>>>>")
+        console.log("chat fetch Error Token2========>>>>",JSON.stringify(params.headers.authorization))
+        console.log(error,"chat fetch error2=======>>>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {

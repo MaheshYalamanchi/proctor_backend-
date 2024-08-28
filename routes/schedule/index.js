@@ -300,7 +300,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("nect Error Body1========>>>>",JSON.stringify(req.body))
+            console.log("next Error Body1========>>>>",JSON.stringify(req.body))
             console.log("next Error1========>>>>",error)
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
