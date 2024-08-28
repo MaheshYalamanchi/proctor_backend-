@@ -189,6 +189,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
             }
         } catch (error) {
+            console.log("chat fetch Error Token========>>>>",JSON.stringify(req.headers.authorization))
+            console.log(error,"chat fetch error=======>>>>>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);

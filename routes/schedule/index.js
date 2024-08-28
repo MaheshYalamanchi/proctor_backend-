@@ -151,6 +151,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log("face Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"face1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -200,7 +201,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("storage Error================>>>>>>"+req.body.type+"", error)
+            console.log("storage Error================>>>>>>", error)
             console.log("storage Body================>>>>>>", JSON.stringify(req.body))
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -298,6 +299,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log("nect Error Body========>>>>",JSON.stringify(req.body))
+            console.log("next Error========>>>>",error)
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -321,6 +324,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log("passport Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"passport1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -345,6 +349,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
+            console.log("passport Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"passport3====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {

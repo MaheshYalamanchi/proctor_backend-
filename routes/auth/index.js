@@ -50,6 +50,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("Me Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"userError1=======>>>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -71,6 +72,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("Fetch Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"fetchError1=======>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -93,6 +95,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("auth Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"authError1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -410,6 +413,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("putme1 Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"putme1====>>>>putme1")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -431,6 +435,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
             }
         } catch (error) {
+            console.log("putme2 Error Body========>>>>",JSON.stringify(req.body))
             console.log(error,"putme2====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
