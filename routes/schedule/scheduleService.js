@@ -328,6 +328,8 @@ let usersDetailsUpdate = async (params) => {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
+        console.log("passport Error 6========>>>>",JSON.stringify(params))
+        console.log(error,"passport6====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -360,6 +362,8 @@ let userDetails = async (params) => {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
+        console.log("face Error Body3========>>>>",JSON.stringify(params))
+        console.log(error,"face3====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -369,6 +373,10 @@ let userDetails = async (params) => {
 };
 let getCandidateDetailsUpdate = async (params) => {
     try {
+        if(!params?.body?.authorization){
+            console.log("start Token========>>>>",params.body.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
@@ -429,6 +437,8 @@ let getCandidateDetailsUpdate = async (params) => {
             }
         
     } catch (error) {
+        console.log("start Error Body3========>>>>",JSON.stringify(params.body))
+            console.log(error,"start3====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {

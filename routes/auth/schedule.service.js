@@ -134,6 +134,8 @@ let faceResponse = async (params) => {
             return ({success:false,message :"Data not found"});
         }
     } catch (error) {
+        console.log("face Error Body6========>>>>",JSON.stringify(params))
+        console.log(error,"face6====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -175,6 +177,8 @@ let passportResponse1 = async (params) => {
             return ({success: false, message: "attach insertion failed"});
         }
     } catch (error) {
+        console.log("passport Error Body3========>>>>",JSON.stringify(params))
+            console.log(error,"passport3====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -218,6 +222,8 @@ let passportResponse2 = async (params) => {
             return ({success: true,message: "record updated failed"});
         }
     } catch (error) {
+        console.log("passport Error 7========>>>>",JSON.stringify(params))
+        console.log(error,"passport7====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {

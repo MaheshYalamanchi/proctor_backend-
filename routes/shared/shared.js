@@ -103,7 +103,8 @@ let updateRecord = async (params) => {
             return { success: false, message: 'Status not updated...' };
         }
     } catch (error) {
-        console.log(error,'update record erro')
+        console.log("face Error Body7========>>>>",JSON.stringify(params))
+        console.log(error,"face7====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {

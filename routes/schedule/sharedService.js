@@ -273,7 +273,8 @@ let getFaceResponse = async (params) => {
             return { success: false, message: "Invalid Token Error" };
         }
     } catch (error) {
-        console.log(error,"face2====>>>>")
+        console.log("face Error Body2========>>>>",JSON.stringify(params))
+            console.log(error,"face2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -299,7 +300,8 @@ let getFaceResponse1 = async (params) => {
             return { success: false, message: response.message };
         }  
     } catch (error) {
-        console.log(error,"face4====>>>>")
+        console.log("face Error Body5========>>>>",JSON.stringify(params))
+        console.log(error,"face5====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -505,6 +507,8 @@ let getDatails = async (params) => {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
+        console.log("nect Error Body2========>>>>",JSON.stringify(req.body))
+            console.log("next Error2========>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -549,6 +553,7 @@ let getPassportPhotoResponse1 = async (params) => {
             return { success: false, message: "Invalid Token Error" }
         }
     } catch (error) {
+        console.log("passport Error Body2========>>>>",JSON.stringify(params))
         console.log(error,"passport2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -576,7 +581,8 @@ let getPassportPhotoResponse2 = async (params) => {
             }
         }
     } catch (error) {
-        console.log(error,"passport4====>>>>")
+        console.log("passport Error Body5========>>>>",JSON.stringify(params))
+        console.log(error,"passport5====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -597,6 +603,8 @@ let getCandidateDetails = async (params) => {
             return { success: false, message: 'Invalid Params Error' };
         }
     } catch (error) {
+        console.log("start Error Body2========>>>>",JSON.stringify(params.body))
+            console.log(error,"start2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -897,13 +905,15 @@ let updatePhotoStatus=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
+        console.log("updatephotostatus Error Body2========>>>>",JSON.stringify(params))
+        console.log(error,"updatephotostatus error2==========>>>>")
         return {success:false,message:'Something went wrong!'};
     }
 }
 let approvalProcess=async(params)=>{
     try {
         if(!params?.authorization){
-            console.log("face Token========>>>>",params.authorization)
+            console.log("approval Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
         let url,database
@@ -949,7 +959,8 @@ let approvalProcess=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
-        console.log(error)
+        console.log("approvecandidate error body2======>>>>",JSON.stringify(req.body))
+            console.log(error,"approvecandidate Error2==========>>>>>>")
         return {success:false,message:'Something went wrong!'};
     }
 }
@@ -1038,7 +1049,8 @@ let fetchuserwithroom=async(params)=>{
             return {success:false,message:'Something went wrong!'};
         }
     } catch (error) {
-        console.log(error)
+        console.log("approvecandidate error body3======>>>>",JSON.stringify(req.body))
+            console.log(error,"approvecandidate Error3==========>>>>>>")
         return {success:false,message:'Something went wrong!'};
     }
 }

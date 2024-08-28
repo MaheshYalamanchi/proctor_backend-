@@ -1604,7 +1604,8 @@ let getface = async (params) => {
             return { success: false, message: 'Invalid Token Error' }
         }
     } catch (error) {
-        console.log(error,"putme1====>>>>test")
+        console.log("putme1 Error Body========>>>>",JSON.stringify(params))
+            console.log(error,"putme1====>>>>putme1")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -1686,6 +1687,7 @@ let getPassport = async (params) => {
             return { success: false, message: 'Invalid Token Error' }
         }
     } catch (error) {
+        console.log("putme2 Error Body========>>>>",JSON.stringify(params))
         console.log(error,"putme2====>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }

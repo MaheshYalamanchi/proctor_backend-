@@ -151,7 +151,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("face Error Body========>>>>",JSON.stringify(req.body))
+            console.log("face Error Body1========>>>>",JSON.stringify(req.body))
             console.log(error,"face1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -176,7 +176,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log(error,"face3====>>>>")
+            console.log("face Error Body4========>>>>",JSON.stringify(req.body))
+            console.log(error,"face4====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -299,8 +300,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("nect Error Body========>>>>",JSON.stringify(req.body))
-            console.log("next Error========>>>>",error)
+            console.log("nect Error Body1========>>>>",JSON.stringify(req.body))
+            console.log("next Error1========>>>>",error)
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -324,7 +325,7 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("passport Error Body========>>>>",JSON.stringify(req.body))
+            console.log("passport Error Body1========>>>>",JSON.stringify(req.body))
             console.log(error,"passport1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
@@ -349,8 +350,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'authorization error' }, 200);
             }
         } catch (error) {
-            console.log("passport Error Body========>>>>",JSON.stringify(req.body))
-            console.log(error,"passport3====>>>>")
+            console.log("passport Error Body4========>>>>",JSON.stringify(req.body))
+            console.log(error,"passport4====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -370,6 +371,8 @@ module.exports = function (params) {
                 app.http.customResponse(res, { success: false, message: 'Data Not Found1' }, 200);
             }
         } catch (error) {
+            console.log("start Error Body1========>>>>",JSON.stringify(req.body))
+            console.log(error,"start1====>>>>")
             app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
@@ -526,6 +529,8 @@ module.exports = function (params) {
             }
             
         } catch (error) {
+            console.log("updatephotostatus Error Body1========>>>>",JSON.stringify(req.body))
+            console.log(error,"updatephotostatus error1==========>>>>")
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
@@ -545,8 +550,8 @@ module.exports = function (params) {
             }
             
         } catch (error) {
-            console.log("approvecandidate error body======>>>>",JSON.stringify(req.body))
-            console.log(error,"approvecandidate Error==========>>>>>>")
+            console.log("approvecandidate error body1======>>>>",JSON.stringify(req.body))
+            console.log(error,"approvecandidate Error1==========>>>>>>")
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
@@ -560,6 +565,8 @@ module.exports = function (params) {
             }
             
         } catch (error) {
+            console.log("fetchuserwithroom error body =====>>>>>",JSON.stringify(req.body))
+            console.log(error,"fetchuserwithroom error ======>>>>>>>>")
             app.http.customResponse(res, { success: false, message: error }, 400);
         }
     })
