@@ -8,6 +8,10 @@ const _schedule = require('../schedule/schedule');
 const { param } = require("express-validator/check");
 let getCandidateMessages = async (params) => {
     try {
+        if(!params?.headers?.authorization){
+            console.log("chat fetch Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
@@ -610,6 +614,10 @@ let getCandidateMessages = async (params) => {
 };
 let getCandidateMessagesDetails = async (params) => {
     try{
+        if(!params?.headers?.authorization){
+            console.log("chat sort Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;

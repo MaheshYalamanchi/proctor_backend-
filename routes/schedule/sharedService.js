@@ -212,6 +212,10 @@ let getNewChatMessagesV2 = async (params) => {
 let getFaceResponse = async (params) => {
     
     try {
+        if(!params?.authorization){
+            console.log("face Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
@@ -306,6 +310,10 @@ let getFaceResponse1 = async (params) => {
 let attachmentPostCall = async (params) => {
    
     try {
+        if(!params?.headers){
+            console.log("Storage Token========>>>>",params.headers)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         decodeToken = jwt_decode(params.headers)
         if (decodeToken) {
             let url;
@@ -425,6 +433,10 @@ let tokenValidation = async(params)=> {
 };
 let getDatails = async (params) => {
     try {  
+        if(!params?.body?.authorization){
+            console.log("Next Token========>>>>",params.body.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         decodeToken = jwt_decode(params.body.authorization)
         let tenantResponse;
         let url;
@@ -501,6 +513,10 @@ let getDatails = async (params) => {
     }
 };
 let getPassportPhotoResponse1 = async (params) => {
+    if(!params?.authorization){
+        console.log("passport Token========>>>>",params.authorization)
+        return { success: false, message: 'Authorization token missing.' }
+    }
     decodeToken = jwt_decode(params.authorization)
     try {
         if (decodeToken){
@@ -937,6 +953,10 @@ let fetchuserwithroom=async(params)=>{
     try {
         let url;
         let database;
+        if(!params?.authorization){
+            console.log("fetchuserwithroom Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         if(params && params.authorization){  
             let decodeToken = jwt_decode(params.authorization);
             if(decodeToken && decodeToken.tenantId){

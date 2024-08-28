@@ -7,6 +7,10 @@ var ObjectID = require('mongodb').ObjectID;
 const moment = require('moment');
 const _schedule = require('../schedule/schedule');
 let getChatDetails = async (params) => {
+    if(!params?.body?.authorization){
+        console.log("Chat put Token========>>>>",params.body.authorization)
+        return { success: false, message: 'Authorization token missing.' }
+    }
     decodeToken = jwt_decode(params.body.authorization)
     try {
         if (decodeToken){
@@ -59,8 +63,9 @@ let getChatDetails = async (params) => {
 
 const getCandidateEventSend = async (params) => {
     try {
-        if (!params.body.authorization) {
-            return { success: false, message: 'Invalid Token Error' };
+        if(!params?.body?.authorization){
+            console.log("Chat event Token========>>>>",params.body.authorization)
+            return { success: false, message: 'Authorization token missing.' }
         }
         const decodeToken = jwt_decode(params.body.authorization);
         let url;
@@ -181,6 +186,10 @@ const getCandidateEventSend = async (params) => {
 };
 let getCandidateFcaeSend = async (params) => {
     try {
+        if(!params?.body?.authorization){
+            console.log("Chat face Token========>>>>",params.body.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         var decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;

@@ -95,6 +95,10 @@ let proctorLoginCall = async (params) => {
 };
 let proctorMeCall = async (params) => {
     try {
+        if(!params?.authorization){
+            console.log("Me Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         var decodeToken = jwt_decode(params.authorization);
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId){
@@ -220,6 +224,10 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
+    if(!params?.authorization){
+        console.log("Fetch Token========>>>>",params.authorization)
+        return { success: false, message: 'Authorization token missing.' }
+    }
     const decodeToken = jwt_decode(params.authorization);
     try {
         let tenantResponse;
@@ -353,6 +361,10 @@ async function processResponseData(responseData, decodeToken, params) {
 
 let proctorAuthCall = async (params) => {
     try {
+        if(!params?.authorization){
+            console.log("Auth Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         var decodeToken = jwt_decode(params.authorization);
         let tenantResponse;
         if(decodeToken && decodeToken.tenantId ){
@@ -1503,7 +1515,10 @@ let proctorusagestatistics = async (params) => {
 };
 let getface = async (params) => {
     try {
-        // console.log('params..................',params)
+        if(!params?.authorization){
+            console.log("Me1 Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         var decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
@@ -1599,6 +1614,10 @@ let getface = async (params) => {
 };
 let getPassport = async (params) => {
     try {
+        if(!params?.authorization){
+            console.log("Me2 Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
         var decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
