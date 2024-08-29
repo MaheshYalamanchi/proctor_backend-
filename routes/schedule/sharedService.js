@@ -470,10 +470,10 @@ let getDatails = async (params) => {
                 database: database,
                 model: "rooms",
                 docType: 1,
-                query: {_id:params.query.id}
+                query: params.query.id
             };
         }
-        let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "findById", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             if(params.body.body.error !== null){
                 params.body.body.createdAt = new Date()
@@ -507,7 +507,7 @@ let getDatails = async (params) => {
             return { success: false, message: 'Data Not Found' };
         }
     } catch (error) {
-        console.log("nect Error Body2========>>>>",JSON.stringify(params.body))
+        console.log("next Error Body2========>>>>",JSON.stringify(params.body))
         console.log("next Error2========>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
