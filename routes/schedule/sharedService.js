@@ -480,7 +480,7 @@ let getDatails = async (params) => {
                 const data = {
                     id : params.query.id,
                     body : params.body.body,
-                    error : responseData.data.statusMessage[0].error,
+                    error : responseData.data.statusMessage.error,
                     tenantResponse: tenantResponse,
                     approvalRequest : params?.body?.body?.approvalRequest
                 }
@@ -500,9 +500,9 @@ let getDatails = async (params) => {
                 }
                 let responsemessage = await scheduleService.updateIpAddress(data)
             }
-            responseData.data.statusMessage[0].id = responseData.data.statusMessage[0]._id;
-            delete responseData.data.statusMessage[0]._id
-            return { success: true, message: responseData.data.statusMessage[0] }
+            responseData.data.statusMessage.id = responseData.data.statusMessage._id;
+            delete responseData.data.statusMessage._id
+            return { success: true, message: responseData.data.statusMessage }
         } else {
             return { success: false, message: 'Data Not Found' };
         }
