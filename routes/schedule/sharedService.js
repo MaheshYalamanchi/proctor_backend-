@@ -495,7 +495,7 @@ let getDatails = async (params) => {
             }
             else{
                 const data = {
-                    ipaddress : body.body.ipaddress,
+                    ipaddress : params.body.body.ipaddress,
                     id : params.query.id,
                 }
                 let responsemessage = await scheduleService.updateIpAddress(data)
@@ -508,7 +508,7 @@ let getDatails = async (params) => {
         }
     } catch (error) {
         console.log("nect Error Body2========>>>>",JSON.stringify(params.body))
-            console.log("next Error2========>>>>",error)
+        console.log("next Error2========>>>>",error)
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
