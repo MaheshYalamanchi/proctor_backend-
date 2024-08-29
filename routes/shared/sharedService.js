@@ -125,9 +125,9 @@ let proctorMeCall = async (params) => {
                     database: database,
                     model: "users",
                     docType: 1,
-                    query: {_id: decodeToken.id}
+                    query: decodeToken.id
                 };
-            let responseData = await invoke.makeHttpCall_commonDataService("post", "read", getdata);
+            let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id;
