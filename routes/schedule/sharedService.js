@@ -1002,43 +1002,57 @@ let fetchuserwithroom=async(params)=>{
                     $match:{_id:params.roomid}
                 },
                 {
-                    $lookup:{
-                        from:'users',
-                        localField:'student',
-                        foreignField:'_id',
-                        as:'userInfo'
+                    "$project": {
+                        "student": 1,
+                        "browser": 1,
+                        "os": 1,
+                        "ipaddress": 1,
+                        "members": 1,
+                        "verified": 1,
+                        "faceArray": 1,
+                        "passportArray": 1
                     }
                 },
-                { $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true } },
                 {
-                    $project:{
-                        roomid:"$_id",
-                        _id:0,
-                        id:"$student",
-                        username:"$student",
-                        face:"$userInfo.face",
-                        passport:"$userInfo.passport",
-                        nickname:"$userInfo.nickname",
-                        browser:"$browser",
-                        os:"$os",
-                        ip:"$ipaddress",
-                        loggedAt:"$userInfo.loggedAt",
-                        createdAt:"$userInfo.createdAt",
-                        member:"$members",
-                        verified:"$verified",
-                        faceArray:"$faceArray",
-                        passportArray:"$passportArray",
-                        preUploadPhoto:"$userInfo.preUploadPhoto",
-                        role:"$userInfo.role",
-                        exclude:"$userInfo.exclude",
-                        labels:"$userInfo.labels",
-                        exclude:"$userInfo.exclude",
-                        provider:"$userInfo.provider",
-                        referer:"$userInfo.referer",
-                        useragent:"$userInfo.useragent",
-                        similar:"$userInfo.similar",
-                        platform:"$userInfo.platform",
-                        verified:"$verified"
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "student",
+                        "foreignField": "_id",
+                        "as": "userInfo"
+                    }
+                },
+                {
+                    "$unwind": {
+                        "path": "$userInfo",
+                    }
+                },
+                {
+                    "$project": {
+                        "_id":0,
+                        "roomid": "$_id",
+                        "id": "$student",
+                        "username": "$student",
+                        "face": "$userInfo.face",
+                        "passport": "$userInfo.passport",
+                        "nickname": "$userInfo.nickname",
+                        "browser": "$browser",
+                        "os": "$os",
+                        "ip": "$ipaddress",
+                        "loggedAt": "$userInfo.loggedAt",
+                        "createdAt": "$userInfo.createdAt",
+                        "member": "$members",
+                        "verified": "$verified",
+                        "faceArray": "$faceArray",
+                        "passportArray": "$passportArray",
+                        "preUploadPhoto": "$userInfo.preUploadPhoto",
+                        "role": "$userInfo.role",
+                        "exclude": "$userInfo.exclude",
+                        "labels": "$userInfo.labels",
+                        "provider": "$userInfo.provider",
+                        "referer": "$userInfo.referer",
+                        "useragent": "$userInfo.useragent",
+                        "similar": "$userInfo.similar",
+                        "platform": "$userInfo.platform"
                     }
                 }
               ]
