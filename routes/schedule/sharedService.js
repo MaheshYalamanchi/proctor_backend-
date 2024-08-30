@@ -238,9 +238,10 @@ let getFaceResponse = async (params) => {
             let userResponse = await scheduleService.userDetails(decodeToken);
             if (userResponse && userResponse.success){
                 var distance = 0;
-                if (userResponse.message[0].rep.length === params.rep.length){
+                let UserresponseMessage = userResponse.message;
+                if (UserresponseMessage.rep.length === params.rep.length){
                     var A=0
-                    _.map(userResponse.message[0].rep, (item) => {
+                    _.map(UserresponseMessage.rep, (item) => {
                         const B = item - params.rep[A];
                         A++
                         return distance += B * B;
