@@ -740,7 +740,7 @@ let SubmitSaveCall = async (params) => {
             params.body.status ='paused';
         }else if(params.body.conclusion=="null"){
             params.body.conclusion=null;
-            params.body.status='stopped';
+            params.body.status='rejected';
         } else if (params.body.conclusion=="negative"){
             params.body.status='rejected';
         } else if (params.body.conclusion=="positive"){
