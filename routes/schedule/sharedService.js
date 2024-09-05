@@ -1001,18 +1001,18 @@ let fetchuserwithroom=async(params)=>{
                 {
                     $match:{_id:params.roomid}
                 },
-                {
-                    "$project": {
-                        "student": 1,
-                        "browser": 1,
-                        "os": 1,
-                        "ipaddress": 1,
-                        "members": 1,
-                        "verified": 1,
-                        "faceArray": 1,
-                        "passportArray": 1
-                    }
-                },
+                // {
+                //     "$project": {
+                //         "student": 1,
+                //         "browser": 1,
+                //         "os": 1,
+                //         "ipaddress": 1,
+                //         "members": 1,
+                //         "verified": 1,
+                //         "faceArray": 1,
+                //         "passportArray": 1
+                //     }
+                // },
                 {
                     "$lookup": {
                         "from": "users",

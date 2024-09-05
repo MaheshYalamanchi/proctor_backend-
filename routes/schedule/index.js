@@ -539,11 +539,11 @@ module.exports = function (params) {
     app.post('/approvecandidate',async(req,res)=>{
         try {
             if(req.body.roomid&&req.body.status){
-                let approvalProcess=await sharedService.approvalProcess(req.body)
                 let fetchuserwithroom=await sharedService.fetchuserwithroom(req.body)
                 if( fetchuserwithroom && fetchuserwithroom.success){
                     fetchuserwithroom.message[0].rejectLog = fetchuserwithroom.message[0]?.verified?null:req.body.rejectLog;
                     app.http.customResponse(res, {success:true,message:'Candidate approved successfully.',data:{student:fetchuserwithroom.message[0],members:fetchuserwithroom.message[0].member}}, 200);
+                    let approvalProcess=await sharedService.approvalProcess(req.body)
                 } else {
                     app.http.customResponse(res, {success:false,message:'Records fetching error'}, 200);
                 }
