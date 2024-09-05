@@ -4,6 +4,7 @@ var Minio = require("minio");
 const tokenService = require('../../routes/proctorToken/tokenService');
 const schedule_Service = require('../schedule/schedule.Service');
 const schedule = require('./schedule');
+const shared = require("../../routes/shared/shared");
 var minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ENDPOINT,
     port: 443,
@@ -168,6 +169,7 @@ module.exports = function (params) {
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
+                    let updatedresponse = await shared.updateRecord(req.body.decodeToken);
                 } else {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);

@@ -288,12 +288,12 @@ let getFaceResponse1 = async (params) => {
         let response = await scheduleservice.faceResponse(params);
         if (response.success){
             if(params.decodeToken.role == "student"){
-                let updatedRecord= await shared.updateRecord(params.decodeToken);
-                if (updatedRecord && updatedRecord.success){
+                // let updatedRecord= await shared.updateRecord(params.decodeToken);
+                // if (updatedRecord && updatedRecord.success){
                     return { success: true, message: response.message }
-                } else {
-                    return { success: false, message: updatedRecord.message }
-                }
+                // } else {
+                //     return { success: false, message: updatedRecord.message }
+                // }
             } else {
                 return { success: true, message: response.message }
             }
