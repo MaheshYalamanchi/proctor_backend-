@@ -310,7 +310,7 @@ function buildQuery(decodeToken) {
                     as: 'student',
                 }
             },
-            { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
+            { "$unwind": { "path": "$student"} },
             { "$project": { ...projectFields,"student.createdAt":"$student.createdAt",
                 "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
                 "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
