@@ -1001,29 +1001,36 @@ let fetchuserwithroom=async(params)=>{
                 {
                     $match:{_id:params.roomid}
                 },
-                // {
-                //     "$project": {
-                //         "student": 1,
-                //         "browser": 1,
-                //         "os": 1,
-                //         "ipaddress": 1,
-                //         "members": 1,
-                //         "verified": 1,
-                //         "faceArray": 1,
-                //         "passportArray": 1
-                //     }
-                // },
                 {
                     "$lookup": {
                         "from": "users",
                         "localField": "student",
                         "foreignField": "_id",
+                        pipeline: [
+                            { $match: { $expr: { $eq: ["$_id", "$$studentId"] } } },
+                            { $project: {
+                              face: 1,
+                              passport: 1,
+                              nickname: 1,
+                              loggedAt: 1,
+                              createdAt: 1,
+                              preUploadPhoto: 1,
+                              role: 1,
+                              exclude: 1,
+                              labels: 1,
+                              provider: 1,
+                              referer: 1,
+                              useragent: 1,
+                              similar: 1,
+                              platform: 1
+                            }}
+                          ],
                         "as": "userInfo"
                     }
                 },
                 {
                     "$unwind": {
-                        "path": "$userInfo",
+                        "path": "$userInfo",preserveNullAndEmptyArrays: false
                     }
                 },
                 {
