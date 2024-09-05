@@ -1004,8 +1004,7 @@ let fetchuserwithroom=async(params)=>{
                 {
                     "$lookup": {
                         "from": "users",
-                        "localField": "student",
-                        "foreignField": "_id",
+                        let: { studentId: "$student" },
                         pipeline: [
                             { $match: { $expr: { $eq: ["$_id", "$$studentId"] } } },
                             { $project: {
