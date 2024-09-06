@@ -68,6 +68,21 @@ spec:
               secretKeyRef:
                 name: proctor-prod-env
                 key: ROOMS_DATA_SERVICE_ENDPOINT
+          - name: DATABASENAME
+            valueFrom:
+              secretKeyRef:
+                name: proctor-prod-env
+                key: DATABASENAME
+          - name: PAUSE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-prod-env
+                key: PAUSE_ENDPOINT
+          - name: COMMON_DATA_SERVICE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: proctor-prod-env
+                key: COMMON_DATA_SERVICE_ENDPOINT
                                                                         
           ports:
           - containerPort: 3002
