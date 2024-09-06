@@ -1923,11 +1923,12 @@ let proctorStreamCall = async (params) => {
                 let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
                 if (responseData && responseData.data) {
                     let response = await schedule_Service.fetchurl(responseData.data) 
+                    let statusIds = _.map(responseData.data.statusMessage[0].data, 'id');
                     var data = {
                         response: responseData.data,
                         start: params,
                         tenantResponse: tenantResponse,
-                        rooms:params.body.rooms
+                        rooms: statusIds
                     };
                     let responsemessage = await schedule_Service.fetchStreamStatus(data)
                     return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start,url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count,status:responsemessage.message} }
