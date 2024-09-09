@@ -282,7 +282,7 @@ function buildQuery(decodeToken) {
         tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
         updatedAt: "$updatedAt", url: "$url", weights: "$weights", browser: "$browser", averages: "$averages", duration: "$duration",
         error: "$error", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", os: "$os", platform: "$platform",
-        score: "$score", signedAt: "$signedAt", template: "$template", useragent: "$useragent", startedAt: "$startedAt"
+        score: "$score", signedAt: "$signedAt", template: "$template", useragent: "$useragent", startedAt: "$startedAt","liveProctoringEnable":"$liveProctoringEnable"
     };
 
     if (decodeToken.role !== "administrator" && decodeToken.room == "check") {
