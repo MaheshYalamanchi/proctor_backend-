@@ -11,19 +11,19 @@ let proctorRoomUserEdit = async (params) => {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         delete params.authorization;
         var updatedAt = new Date();
         params.updatedAt = updatedAt;
@@ -39,21 +39,21 @@ let proctorRoomUserEdit = async (params) => {
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
         if (response && response.data && response.data.statusMessage && response.data.statusMessage.nModified>0) {
-            if(tenantResponse && tenantResponse.success){
-                params.tenantResponse = tenantResponse;
-            }
+            // if(tenantResponse && tenantResponse.success){
+            //     params.tenantResponse = tenantResponse;
+            // }
             let responseData = await schedule.roomUserEdit(params);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 if (responseData.data.statusMessage[0].status == "template"){
-                    if(tenantResponse && tenantResponse.success){
-                        responseData.data.statusMessage[0].tenantResponse = tenantResponse;
-                    }
+                    // if(tenantResponse && tenantResponse.success){
+                    //     responseData.data.statusMessage[0].tenantResponse = tenantResponse;
+                    // }
                     let templateResponse = await schedule.getTemplate(responseData.data.statusMessage[0]);
                     if (templateResponse && templateResponse.data && templateResponse.data.statusMessage.length >0){
                         let jsonData = {
                             members : params.members,
                             array : templateResponse.data.statusMessage[0].array,
-                            tenantResponse: tenantResponse
+                            // tenantResponse: tenantResponse
                         }
                         let updateTemplate = await schedule.updateTemplate(jsonData);
                         if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
@@ -89,19 +89,19 @@ let proctorDeleteSaveCall = async (params) => {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
             database: database,
@@ -131,19 +131,19 @@ let UserLimitCall = async (params) => {
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort) {
             let Y = params.query.sort;
             for (let A in Y) {
@@ -259,19 +259,19 @@ let UserSearchCall = async (params) => {
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort) {
             let Y = params.query.sort;
             for (let A in Y) {
@@ -424,19 +424,19 @@ let UserEdit = async (params) => {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         delete params.authorization;
         var buffer = crypto.randomBytes(32);
         const salt = buffer.toString('base64')
@@ -464,9 +464,9 @@ let UserEdit = async (params) => {
         };
         let response = await invoke.makeHttpCall("post", "update", getdata);
         if (response && response.data && response.data.statusMessage && response.data.statusMessage.nModified == 1) {
-            if (tenantResponse && tenantResponse.success){
-                params.tenantResponse = tenantResponse;
-            }
+            // if (tenantResponse && tenantResponse.success){
+            //     params.tenantResponse = tenantResponse;
+            // }
             let responseData = await schedule.userEdit(params);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 delete responseData.data.statusMessage[0].password;
@@ -490,19 +490,19 @@ let proctorUserSaveCall = async (params) => {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         delete params.authorization;
         var buffer = crypto.randomBytes(32);
         const salt = buffer.toString('base64')
@@ -587,9 +587,9 @@ let proctorUserSaveCall = async (params) => {
                 }
             };
             let responseData = await invoke.makeHttpCall("post", "update", getdata);
-            if (tenantResponse && tenantResponse.success){
-                response.data.statusMessage[0].tenantResponse = tenantResponse;
-            }
+            // if (tenantResponse && tenantResponse.success){
+            //     response.data.statusMessage[0].tenantResponse = tenantResponse;
+            // }
             let getData = await schedule.UserSave(response.data.statusMessage[0]);
             if (getData && getData.data && getData.data.statusMessage) {
                 getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
@@ -608,9 +608,9 @@ let proctorUserSaveCall = async (params) => {
             };
             let responseData = await invoke.makeHttpCall("post", "insert", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage._id) {
-                if (tenantResponse && tenantResponse.success){
-                    responseData.data.statusMessage.tenantResponse = tenantResponse;
-                }
+                // if (tenantResponse && tenantResponse.success){
+                //     responseData.data.statusMessage.tenantResponse = tenantResponse;
+                // }
                 let getData = await schedule.UserSave(responseData.data.statusMessage);
                 if (getData && getData.data && getData.data.statusMessage) {
                     getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
@@ -636,19 +636,19 @@ let proctorUserDeleteCall = async (params) => {
         let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
             database: database,

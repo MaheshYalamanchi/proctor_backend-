@@ -15,19 +15,19 @@ let getCandidateMessages = async (params) => {
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
             var start;
             if(params.query.skip){
@@ -623,19 +623,19 @@ let getCandidateMessagesDetails = async (params) => {
         let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
-        let tenantResponse
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if(params.query.sort.id){
             var getdata = {
                 url: url,
@@ -720,22 +720,22 @@ let getCandidateMessagesDetails = async (params) => {
 let SubmitSaveCall = async (params) => {
     try{ 
         var decodeToken = jwt_decode(params.body.authorization);
-        let tenantResponse;
+        // let tenantResponse;
         let url;
         let database;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-                params.tenantResponse = tenantResponse;
-            } else {
-                return { success: false, message: tenantResponse.message }
-            }
-        } else {
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //         params.tenantResponse = tenantResponse;
+        //     } else {
+        //         return { success: false, message: tenantResponse.message }
+        //     }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if (params.body.status == "paused"){
             params.body.status ='paused';
         }else if(params.body.conclusion=="null"){
@@ -765,10 +765,10 @@ let SubmitSaveCall = async (params) => {
                 if(getData && getData.data && getData.data.statusMessage){
                     let roomData = getData.data.statusMessage[0]
                     if(!(roomData.status == "paused")){
-                        if(tenantResponse && tenantResponse.success){
-                            getData.data.statusMessage[0].tenantResponse = tenantResponse;
-                            params.query.tenantResponse = tenantResponse;
-                        }
+                        // if(tenantResponse && tenantResponse.success){
+                        //     getData.data.statusMessage[0].tenantResponse = tenantResponse;
+                        //     params.query.tenantResponse = tenantResponse;
+                        // }
                         let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
                         let violatedResponse = await shared.getViolated(params.query)
                         if(violatedResponse && violatedResponse.success){
@@ -799,7 +799,7 @@ let SubmitSaveCall = async (params) => {
                                         "ipaddress": roomData.ipaddress,
                                         "duration": roomData.duration,
                                         "status": roomData.status,
-                                        "tenantResponse": tenantResponse
+                                        // "tenantResponse": tenantResponse
                                     }
                                 let  generateReport = await invoke.makeHttpCallReportService("post", "/v1/generate-pdf", jsonData)
                                 if (generateReport) {
