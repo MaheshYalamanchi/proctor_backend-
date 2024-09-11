@@ -42,7 +42,7 @@ let getCandidateMessageSend = async (params) => {
                     model: "rooms",
                     docType: 1,
                     query: [
-                        { $match: { "members": decodeToken.id }},
+                        { $match: { "members": decodeToken.id , subject: params.body.scheduleName}},
                         { $group: {_id: params.params.roomId, count: { $sum: 1 }}},
                         {$project: {_id: 1,count: 1 }}
                     ]

@@ -610,7 +610,8 @@ let chatincidents = async(params) => {
             "message" : params.data.body.message,
             "createdAt" : new Date(),
             "scheduleName" : params.data.body.scheduleName,
-            "testId" : params.data.body.testId
+            "testId" : params.data.body.testId,
+            "roomIds": params.data.body.roomIds
         }
         var getdata = {
             url: url,
