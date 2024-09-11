@@ -447,7 +447,7 @@ let timeoutupdate = async (params) => {
     }
 };
 module.exports = {
-    getSessions,
+    // getSessions,
     updateRecord,
     getRecord,
     getChatDetails,
