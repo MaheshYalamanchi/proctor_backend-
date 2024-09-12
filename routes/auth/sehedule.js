@@ -5,13 +5,13 @@ let roomUserDetails = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var userdata = {
             url: url,
 			database: database,
@@ -66,13 +66,13 @@ let roomUserEdit = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var postdata = {
             url: url,
 			database: database,
@@ -128,13 +128,13 @@ let roomUserSave = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -165,13 +165,13 @@ let userEdit = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var postdata = {
             url: url,
 			database: database,
@@ -201,13 +201,13 @@ let UserSave = async (params) => {
     try{
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -240,13 +240,13 @@ let UserDelete = async (params) => {
     try{
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -274,13 +274,13 @@ let MessageSend = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -347,9 +347,9 @@ let MessageSend = async (params) => {
                 // attachResponse = await scheduleService.getAttach(responseData.data.statusMessage[0].attach[0]);
                 // if(attachResponse){
                 //     responseData.data.statusMessage[0].attach[0] = attachResponse.data.statusMessage[0]
-                    if(params && params.tenantResponse && params.tenantResponse.success){
-                        responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
-                    }
+                    // if(params && params.tenantResponse && params.tenantResponse.success){
+                    //     responseData.data.statusMessage[0].tenantResponse = params.tenantResponse;
+                    // }
                     let response = await scheduleService.getcount(responseData.data.statusMessage[0]);
                     var getdata = {
                         url: url,
@@ -390,13 +390,13 @@ let roomSubmitSave = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var postdata = {
             url: url,
 			database: database,
@@ -513,13 +513,13 @@ let getTemplate = async(params) => {
     try{
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 		    database: database,
@@ -558,13 +558,13 @@ let updateTemplate = async(params) => {
     try{
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 		    database: database,
@@ -593,13 +593,13 @@ let chatincidents = async(params) => {
     try{
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         jsonData = {
             "type" : params.data.body.type,
             "metadata" : {
@@ -610,7 +610,8 @@ let chatincidents = async(params) => {
             "message" : params.data.body.message,
             "createdAt" : new Date(),
             "scheduleName" : params.data.body.scheduleName,
-            "testId" : params.data.body.testId
+            "testId" : params.data.body.testId,
+            "roomIds": params.data.body.roomIds
         }
         var getdata = {
             url: url,
@@ -660,13 +661,13 @@ let logtimeupdate = async (params) => {
     try {
         let url;
         let database;
-        if (params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if (params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         const date = new Date()
         var postdata = {
             url: url,
