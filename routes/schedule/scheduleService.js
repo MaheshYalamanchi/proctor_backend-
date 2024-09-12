@@ -377,6 +377,10 @@ let getCandidateDetailsUpdate = async (params) => {
             console.log("start Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;

@@ -96,9 +96,13 @@ let proctorLoginCall = async (params) => {
 let proctorMeCall = async (params) => {
     try {
         if(!params?.authorization){
-            console.log("Me Token========>>>>",params.authorization)
+            console.log("passport Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         // if(decodeToken && decodeToken.tenantId){
@@ -228,6 +232,10 @@ let proctorFetchCall = async (params) => {
         console.log("Fetch Token========>>>>",params.authorization)
         return { success: false, message: 'Authorization token missing.' }
     }
+    let token  = params?.authorization.split(" ")
+    if(!token[1] || token[1].includes('${')){
+        return { success: false, message: 'Authorization token missing.' }
+    }   
     const decodeToken = jwt_decode(params.authorization);
     try {
         // let tenantResponse;
@@ -365,6 +373,10 @@ let proctorAuthCall = async (params) => {
             console.log("Auth Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         // if(decodeToken && decodeToken.tenantId ){
@@ -378,7 +390,7 @@ let proctorAuthCall = async (params) => {
         if(decodeToken && (decodeToken.room=="check")){
             let response = await tokenService.authCheckToken(decodeToken);
             if(response){
-                var token = jwt_decode(response);
+                // var token = jwt_decode(response);
                 if (decodeToken.exp){
                     return {success: true, message: { exp :token.exp, iat: token.iat, id: token.id,
                         role: token.role,token: response,room:token.room}
@@ -1135,7 +1147,7 @@ let proctorSearchCall = async (params) => {
 };
 let proctorSuggestCall = async (params) => {
     try {
-        let decodeToken = jwt_decode(params.body.authorization);
+        // let decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -1225,7 +1237,7 @@ let proctorSuggestCall = async (params) => {
 let proctorUserDetailsCall = async (params) => {
     
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -1328,7 +1340,7 @@ let proctorUserInfoCall = async (params) => {
 };
 let proctorRoomDetails = async (params) => {
     try {
-        let decodeToken = jwt_decode(params.authorization);
+        // let decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -1383,7 +1395,7 @@ let proctorRoomDetails = async (params) => {
 };
 let proctorSuggestSaveCall = async (params) => {
     try{
-        var decodeToken = jwt_decode(params.authorization);
+        // var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         let url;
         let database;
@@ -1519,6 +1531,10 @@ let getface = async (params) => {
             console.log("Me1 Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
@@ -1619,6 +1635,10 @@ let getPassport = async (params) => {
             console.log("Me2 Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
@@ -1716,7 +1736,7 @@ let getCheck = async (params) => {
 };
 let notificationFetch = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -1803,7 +1823,7 @@ let notificationFetch = async (params) => {
 
 let notificationUpdate = async (params) => {
 try {
-    let  decodeToken = jwt_decode(params.authorization);
+    // let  decodeToken = jwt_decode(params.authorization);
     let url;
     let database;
     // let tenantResponse;

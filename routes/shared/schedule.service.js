@@ -5,14 +5,14 @@ const shared = require('../shared/shared');
 const logger = require('../../logger/logger');
 const jwt_decode = require('jwt-decode');
 const _schedule = require('../schedule/schedule');
-const { param } = require("express-validator/check");
+const { param, body } = require("express-validator/check");
 let getCandidateMessages = async (params) => {
     try {
         if(!params?.headers?.authorization){
             console.log("chat fetch Token========>>>>",params.headers.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let  decodeToken = jwt_decode(params.headers.authorization);
+        // let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -620,7 +620,7 @@ let getCandidateMessagesDetails = async (params) => {
             console.log("chat sort Token========>>>>",params.headers.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let  decodeToken = jwt_decode(params.headers.authorization);
+        // let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
         // let tenantResponse
@@ -719,6 +719,14 @@ let getCandidateMessagesDetails = async (params) => {
 
 let SubmitSaveCall = async (params) => {
     try{ 
+        if(!params?.body?.authorization){
+            console.log("passport Token========>>>>",params.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.body.authorization);
         // let tenantResponse;
         let url;

@@ -128,7 +128,7 @@ let getMessageTemplates = async (params) => {
 };
 let roomUserDatails = async (params) => {
     try {
-        let decodeToken = jwt_decode(params.authorization);
+        // let decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -216,7 +216,11 @@ let getFaceResponse = async (params) => {
             console.log("face Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        decodeToken = jwt_decode(params.authorization);
+        let token  = params?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
+        let decodeToken = jwt_decode(params.authorization);
         if (decodeToken){
             let url;
             let database;
@@ -317,7 +321,8 @@ let attachmentPostCall = async (params) => {
             console.log("Storage Token========>>>>",params.headers)
             return { success: false, message: 'Authorization token missing.' }
         }
-        decodeToken = jwt_decode(params.headers)
+        
+        let decodeToken = jwt_decode(params.headers)
         if (decodeToken) {
             let url;
             let database;
@@ -440,7 +445,11 @@ let getDatails = async (params) => {
             console.log("Next Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        decodeToken = jwt_decode(params.body.authorization)
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
+        let decodeToken = jwt_decode(params.body.authorization)
         // let tenantResponse;
         let url;
         let database;
@@ -522,7 +531,11 @@ let getPassportPhotoResponse1 = async (params) => {
         console.log("passport Token========>>>>",params.authorization)
         return { success: false, message: 'Authorization token missing.' }
     }
-    decodeToken = jwt_decode(params.authorization)
+    let token  = params?.authorization.split(" ")
+    if(!token[1] || token[1].includes('${')){
+        return { success: false, message: 'Authorization token missing.' }
+    }   
+    let decodeToken = jwt_decode(params.authorization)
     try {
         if (decodeToken){
             let url;
@@ -762,8 +775,8 @@ let stoppedAt = async (params) => {
         let url;
         let database;
         // let tenantResponse;
-        if(params && params.body && params.body.authorization){  
-            let decodeToken = jwt_decode(params.body.authorization);
+        // if(params && params.body && params.body.authorization){  
+            // let decodeToken = jwt_decode(params.body.authorization);
             // if(decodeToken && decodeToken.tenantId){
             //     tenantResponse = await _schedule.getTennant(params);
             //     if (tenantResponse && tenantResponse.success){
@@ -777,10 +790,10 @@ let stoppedAt = async (params) => {
                 url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
                 database = process.env.DATABASENAME; 
             // }
-        } else {
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME; 
-        }
+        // }
         var date = new Date()
         var getdata = {
             url: url,

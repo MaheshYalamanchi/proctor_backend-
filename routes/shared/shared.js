@@ -406,7 +406,7 @@ let roomstatusUpdate = async (params) => {
 };
 let timeoutupdate = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.header.authorization);
+        // let  decodeToken = jwt_decode(params.header.authorization);
         let url;
         let database;
         // let tenantResponse;

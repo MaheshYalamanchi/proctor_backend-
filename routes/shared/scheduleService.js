@@ -4,11 +4,11 @@ const globalMsg = require('../../configuration/messages/message');
 const crypto =require("crypto");
 var bowser = require("bowser");
 const _schedule = require("../schedule/schedule");
-const jwt_decode = require('jwt-decode');
+// const jwt_decode = require('jwt-decode');
 // const logger =require('../../logger/logger')
 let proctorRoomUserEdit = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -86,7 +86,7 @@ let proctorRoomUserEdit = async (params) => {
 };
 let proctorDeleteSaveCall = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -128,7 +128,7 @@ let proctorDeleteSaveCall = async (params) => {
 };
 let UserLimitCall = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.headers.authorization);
+        // let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -256,7 +256,7 @@ let UserLimitCall = async (params) => {
 };
 let UserSearchCall = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.headers.authorization);
+        // let  decodeToken = jwt_decode(params.headers.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -421,7 +421,7 @@ let UserSearchCall = async (params) => {
 };
 let UserEdit = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -487,7 +487,7 @@ let UserEdit = async (params) => {
 };
 let proctorUserSaveCall = async (params) => {
     try{
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;
@@ -633,7 +633,7 @@ let proctorUserSaveCall = async (params) => {
 };
 let proctorUserDeleteCall = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.authorization);
+        // let  decodeToken = jwt_decode(params.authorization);
         let url;
         let database;
         // let tenantResponse;

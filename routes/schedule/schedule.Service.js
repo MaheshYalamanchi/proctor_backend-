@@ -11,6 +11,10 @@ let getChatDetails = async (params) => {
         console.log("Chat put Token========>>>>",params.body.authorization)
         return { success: false, message: 'Authorization token missing.' }
     }
+    let token  = params?.body?.authorization.split(" ")
+    if(!token[1] || token[1].includes('${')){
+        return { success: false, message: 'Authorization token missing.' }
+    }   
     decodeToken = jwt_decode(params.body.authorization)
     try {
         if (decodeToken){
@@ -67,6 +71,10 @@ const getCandidateEventSend = async (params) => {
             console.log("Chat event Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         const decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
@@ -190,6 +198,10 @@ let getCandidateFcaeSend = async (params) => {
             console.log("Chat face Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
