@@ -190,7 +190,7 @@ let checkToken = async (req) => {
 let authCheckToken = async (req) => {
     try {
         let getdata;
-        if (req.tenantResponse && req.tenantResponse.success){
+        /*if (req.tenantResponse && req.tenantResponse.success){
             getdata = {
                 url: req.tenantResponse.message.connectionString+'/'+req.tenantResponse.message.databaseName,
                 database: req.tenantResponse.message.databaseName,
@@ -198,7 +198,7 @@ let authCheckToken = async (req) => {
                 docType: 1,
                 query:{ "_id":req.room}
             };
-        } else {
+        } else {*/
             getdata = {
                 url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
                 database: process.env.DATABASENAME,
@@ -206,7 +206,7 @@ let authCheckToken = async (req) => {
                 docType: 1,
                 query:{ "_id":req.room}
             };
-        }
+        // }
         
         let responseData = await invoke.makeHttpCall_roomDataService("post", "read", getdata);
         if (responseData && responseData.data.statusMessage && responseData.data.statusMessage) {

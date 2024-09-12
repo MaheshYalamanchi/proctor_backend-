@@ -5,84 +5,84 @@ var qrcode = require("qrcode");
 const jwt_decode = require('jwt-decode');
 const _schedule = require('../schedule/schedule')
 
-let getSessions = async (params) => {
-    try {
-        let fetchTenantResponse = await _schedule.fetchTenant();
-        if(fetchTenantResponse && fetchTenantResponse.success){
-            fetchTenantResponse.message.forEach(async element => {
-                var getdata = {
-                    url: element?.connectionString+'/'+element?.databaseName,
-                    database: element?.databaseName,
-                    model: "rooms",
-                    docType: 1,
-                    query: {
-                        filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
-                        update:{$set:{ status: "paused"}}
-                    }   
-                };
-                // let response = await schedule.fetchdata(getdata)
-                let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
-                if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-                    // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-                    // for (const iterator of response.data.statusMessage) {
-                    //     let jsondata = {
-                    //         pausetime : new Date(),
-                    //         room : iterator._id
-                    //     }
-                    //     let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
-                    // }
-                    return { success: true, message: 'Status updated successfully...' };
-                } else {
-                    // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-                    return { success: false, message: 'Status not updated...' };
-                }
-            });
-        }
-        var getdata = {
-            url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
-            database: process.env.DATABASENAME,
-            model: "rooms",
-            docType: 1,
-            query: {
-                filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
-                update:{$set:{ status: "paused"}}
-            }   
-        };
-        // let response = await schedule.fetchdata(getdata)
-        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
-        if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
-            // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-            // for (const iterator of response.data.statusMessage) {
-            //     let jsondata = {
-            //         pausetime : new Date(),
-            //         room : iterator._id
-            //     }
-            //     let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
-            // }
-            return { success: true, message: 'Status updated successfully...' };
-        } else {
-            // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
-            return { success: false, message: 'Status not updated...' };
-        }
-    } catch (error) {
-        if (error && error.code == 'ECONNREFUSED') {
-            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-        } else {
-            return { success: false, message: error }
-        }
-    }
-};
+// let getSessions = async (params) => {
+//     try {
+//         let fetchTenantResponse = await _schedule.fetchTenant();
+//         if(fetchTenantResponse && fetchTenantResponse.success){
+//             fetchTenantResponse.message.forEach(async element => {
+//                 var getdata = {
+//                     url: element?.connectionString+'/'+element?.databaseName,
+//                     database: element?.databaseName,
+//                     model: "rooms",
+//                     docType: 1,
+//                     query: {
+//                         filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
+//                         update:{$set:{ status: "paused"}}
+//                     }   
+//                 };
+//                 // let response = await schedule.fetchdata(getdata)
+//                 let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+//                 if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+//                     // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//                     // for (const iterator of response.data.statusMessage) {
+//                     //     let jsondata = {
+//                     //         pausetime : new Date(),
+//                     //         room : iterator._id
+//                     //     }
+//                     //     let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
+//                     // }
+//                     return { success: true, message: 'Status updated successfully...' };
+//                 } else {
+//                     // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//                     return { success: false, message: 'Status not updated...' };
+//                 }
+//             });
+//         }
+//         var getdata = {
+//             url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
+//             database: process.env.DATABASENAME,
+//             model: "rooms",
+//             docType: 1,
+//             query: {
+//                 filter:{ complete: { $ne: !0 }, status: "started", updatedAt: { $lt: new Date(Date.now() - 12e4) } },
+//                 update:{$set:{ status: "paused"}}
+//             }   
+//         };
+//         // let response = await schedule.fetchdata(getdata)
+//         let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+//         if(responseData && responseData.data && responseData.data.statusMessage.nModified>0) {
+//             // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//             // for (const iterator of response.data.statusMessage) {
+//             //     let jsondata = {
+//             //         pausetime : new Date(),
+//             //         room : iterator._id
+//             //     }
+//             //     let reportlog = await invoke.makeHttpCalluserservice("post", "/api/reportlog", jsondata);
+//             // }
+//             return { success: true, message: 'Status updated successfully...' };
+//         } else {
+//             // let closeconnection = await invoke.makeHttpCall("get", "closeconnection");
+//             return { success: false, message: 'Status not updated...' };
+//         }
+//     } catch (error) {
+//         if (error && error.code == 'ECONNREFUSED') {
+//             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+//         } else {
+//             return { success: false, message: error }
+//         }
+//     }
+// };
 let updateRecord = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         let updatedAt = new Date().toISOString()    
         var getdata = {
             url: url,
@@ -226,13 +226,13 @@ let getViolated = async (params) => {
     try { 
         let url;
         let database;
-        if (params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if (params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        } 
+        // } 
         var getdata = {
             url: url,
             database: database,
@@ -322,13 +322,13 @@ let stoped = async (params) => {
     try {
         let url;
         let database;
-        if (params && params.tenantResponse && params.tenantResponse.success){
-            url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-            database = tenantResponse.message.databaseName;
-        } else {
+        // if (params && params.tenantResponse && params.tenantResponse.success){
+        //     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //     database = tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -406,22 +406,22 @@ let roomstatusUpdate = async (params) => {
 };
 let timeoutupdate = async (params) => {
     try {
-        let  decodeToken = jwt_decode(params.header.authorization);
+        // let  decodeToken = jwt_decode(params.header.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
             database: database,
@@ -447,7 +447,7 @@ let timeoutupdate = async (params) => {
     }
 };
 module.exports = {
-    getSessions,
+    // getSessions,
     updateRecord,
     getRecord,
     getChatDetails,

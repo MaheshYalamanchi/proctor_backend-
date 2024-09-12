@@ -11,24 +11,28 @@ let getChatDetails = async (params) => {
         console.log("Chat put Token========>>>>",params.body.authorization)
         return { success: false, message: 'Authorization token missing.' }
     }
+    let token  = params?.body?.authorization.split(" ")
+    if(!token[1] || token[1].includes('${')){
+        return { success: false, message: 'Authorization token missing.' }
+    }   
     decodeToken = jwt_decode(params.body.authorization)
     try {
         if (decodeToken){
             let url;
             let database;
-            let tenantResponse;
-            if(decodeToken && decodeToken.tenantId){
-                tenantResponse = await _schedule.getTennant(decodeToken);
-                if (tenantResponse && tenantResponse.success){
-                    url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                    database = tenantResponse.message.databaseName;
-                }else {
-                        return { success: false, message: tenantResponse.message }
-                    }
-            } else {
+            // let tenantResponse;
+            // if(decodeToken && decodeToken.tenantId){
+            //     tenantResponse = await _schedule.getTennant(decodeToken);
+            //     if (tenantResponse && tenantResponse.success){
+            //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+            //         database = tenantResponse.message.databaseName;
+            //     }else {
+            //             return { success: false, message: tenantResponse.message }
+            //         }
+            // } else {
                 url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
                 database = process.env.DATABASENAME;
-            }
+            // }
             var getdata = {
                 url: url,
                 database: database,
@@ -67,23 +71,27 @@ const getCandidateEventSend = async (params) => {
             console.log("Chat event Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         const decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-                req.body.tenantResponse = tenantResponse;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //         req.body.tenantResponse = tenantResponse;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         const violation = (params.body.filename || []).map((filename, i) => ({
             image: filename,
             peak: Array.isArray(params.body.peak) ? params.body.peak[i] : params.body.peak,
@@ -135,7 +143,7 @@ const getCandidateEventSend = async (params) => {
                     room: params.params.roomId,
                     metrics: params.body.metadata.metrics,
                     peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
-                    tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+                    // tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
                 };
                 return { success: true, message: { data: responseJson, json } };
             }
@@ -173,7 +181,7 @@ const getCandidateEventSend = async (params) => {
                 room: params.params.roomId,
                 metrics: params.body.metadata.metrics,
                 peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
-                tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+                // tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
             };
             return { success: true, message: { data: responseData.data.statusMessage, json } };
         }
@@ -190,22 +198,26 @@ let getCandidateFcaeSend = async (params) => {
             console.log("Chat face Token========>>>>",params.body.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
+        let token  = params?.body?.authorization.split(" ")
+        if(!token[1] || token[1].includes('${')){
+            return { success: false, message: 'Authorization token missing.' }
+        }   
         var decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            }else {
-                    return { success: false, message: tenantResponse.message }
-                }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         if (decodeToken){
             jsonData = {
                 "type" : params.body.type,
@@ -373,13 +385,13 @@ let getPassport = async (params) => {
 };
 let broadcastMesssage = async (params) => {
     try {
-        let tenantResponse = await _schedule.tenantResponse(params);
-        if (tenantResponse && tenantResponse.success){
+        // let tenantResponse = await _schedule.tenantResponse(params);
+        // if (tenantResponse && tenantResponse.success){
             const date = moment()
             const formattedDate = date.format('YYYY-MM-DD');
             var getdata = {
-                url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-				database: tenantResponse.message.databaseName,
+                url : process.env.MONGO_URI+'/'+process.env.DATABASENAME,
+                database : process.env.DATABASENAME,
                 model: "rooms",
                 docType: 1,
                 query:[
@@ -415,8 +427,8 @@ let broadcastMesssage = async (params) => {
                         data.push(obj)
                     }
                     var postdata = {
-                        url: tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName,
-					    database: tenantResponse.message.databaseName,
+                        url : process.env.MONGO_URI+'/'+process.env.DATABASENAME,
+                        database : process.env.DATABASENAME,
                         model: "chats",
                         docType: 0,
                         query: data
@@ -430,9 +442,10 @@ let broadcastMesssage = async (params) => {
                 } else {
                     return { success: false, message: 'Data Not Found' };
                 }
-        } else {
-            return { success: false, message: tenantResponse.message }
-        }
+        // } 
+        // else {
+        //     return { success: false, message: tenantResponse.message }
+        // }
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -467,13 +480,13 @@ let fetchstatus = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.message){
+        /*if(params && params.tenantResponse && params.tenantResponse.message){
             url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
             database = tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         const data = params.response.statusMessage[0].data
         var sort = -1;
         var start;
@@ -539,13 +552,13 @@ let fetchStreamStatus = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.message){
+        /*if(params && params.tenantResponse && params.tenantResponse.message){
             url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
             database = tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         // const data = params.response.statusMessage[0].data
         var sort = -1;
         var start=0;
@@ -612,13 +625,13 @@ let getFacePassportResponse = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
+        /*if(params && params.tenantResponse && params.tenantResponse.success){
             url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
             database = params.tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -644,13 +657,13 @@ let unreadmessagefetch = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
+        /*if(params && params.tenantResponse && params.tenantResponse.success){
             url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
             database = params.tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -711,13 +724,13 @@ let getUserRoomsCount = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
+        /*if(params && params.tenantResponse && params.tenantResponse.success){
             url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
             database = params.tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -744,13 +757,13 @@ let GetFaceInsertionResponse = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
+        /*if(params && params.tenantResponse && params.tenantResponse.success){
             url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
             database = params.tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -786,13 +799,13 @@ let GetPassportInsertionResponse = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
+        /*if(params && params.tenantResponse && params.tenantResponse.success){
             url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
             database = params.tenantResponse.message.databaseName;
-        } else {
+        } else {*/
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
