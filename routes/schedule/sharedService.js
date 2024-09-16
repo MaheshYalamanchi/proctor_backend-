@@ -988,7 +988,7 @@ let fetchuserwithroom=async(params)=>{
             console.log("fetchuserwithroom Token========>>>>",params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        if(params && params.authorization){  
+        // if(params && params.authorization){  
             // let decodeToken = jwt_decode(params.authorization);
             // if(decodeToken && decodeToken.tenantId){
             //     tenantResponse = await _schedule.getTennant(params);
@@ -1000,13 +1000,13 @@ let fetchuserwithroom=async(params)=>{
             //         return { success: false, message: tenantResponse.message }
             //     }
             // }else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME; 
+                // url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                // database = process.env.DATABASENAME; 
             // }
-        } else {
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME; 
-        }
+        // }
         var getdata = {
             url:url,
             database:database,
