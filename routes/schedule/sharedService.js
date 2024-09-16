@@ -933,7 +933,7 @@ let approvalProcess=async(params)=>{
             return { success: false, message: 'Authorization token missing.' }
         }
         let url,database
-        if(params && params.authorization){  
+        // if(params && params.authorization){  
             // let decodeToken = jwt_decode(params.authorization);
             // if(decodeToken && decodeToken.tenantId){
             //     tenantResponse = await _schedule.getTennant(params);
@@ -945,13 +945,13 @@ let approvalProcess=async(params)=>{
             //         return { success: false, message: tenantResponse.message }
             //     }
             // }else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME; 
+                // url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+                // database = process.env.DATABASENAME; 
             // }
-        } else {
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME; 
-        }
+        // }
         let jsonData;
         if(params.verified){
             jsonData = { $set: { verified: params.verified,status:params.status,color:params.color} }
