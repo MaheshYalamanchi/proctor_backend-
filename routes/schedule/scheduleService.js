@@ -80,7 +80,7 @@ let userInsertion = async (params) => {
 
 
         let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
-        jsonData = {
+        let jsonData = {
             "_id" : username,
             "browser" : {
                 "name" : browserInfo,
