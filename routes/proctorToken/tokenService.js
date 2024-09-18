@@ -11,20 +11,20 @@ let generateProctorToken = async (req) => {
     try {
         let user;
         let tokenArg;
-        if (req.data.statusMessage[0].tenantId){
-            user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id,tenantId: req.data.statusMessage[0].tenantId};
+        // if (req.data.statusMessage.tenantId){
+        //     user = { "provider": req.data.statusMessage.role, "username": req.data.statusMessage[0]._id,tenantId: req.data.statusMessage[0].tenantId};
+        //     tokenArg = {
+        //         id: user.username,
+        //         role: user.provider,
+        //         tenantId: user.tenantId
+        //     };
+        // }else {
+            user = { "provider": req.data.statusMessage.role, "username": req.data.statusMessage._id };
             tokenArg = {
                 id: user.username,
                 role: user.provider,
-                tenantId: user.tenantId
             };
-        }else {
-            user = { "provider": req.data.statusMessage[0].role, "username": req.data.statusMessage[0]._id };
-            tokenArg = {
-                id: user.username,
-                role: user.provider,
-            };
-        }
+        // }
         user.proctorToken = jwt.sign(tokenArg, secret, { expiresIn: 5400000 });
         if (user.proctorToken) {
             return user.proctorToken;
