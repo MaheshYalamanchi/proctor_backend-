@@ -355,7 +355,7 @@ let userDetails = async (params) => {
             docType: 1,
             query: params.id
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "findById", getdata);
+        let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
