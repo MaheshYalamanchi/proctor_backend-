@@ -578,7 +578,7 @@ let getCandidateMessages = async (params) => {
                             "as": 'data',
                         }
                     },
-                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": false } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
@@ -595,7 +595,7 @@ let getCandidateMessages = async (params) => {
                     },
                 ]
             };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage }
             } else {
