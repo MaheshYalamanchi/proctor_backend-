@@ -384,26 +384,26 @@ let getCandidateDetailsUpdate = async (params) => {
         decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId ){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            } else {
-                return { success: false, message: tenantResponse.message }
-            }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId ){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     } else {
+        //         return { success: false, message: tenantResponse.message }
+        //     }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;  
-        }
+        // }
         var roomStatus;
         if(params&&(params.query.status=='paused')){
             roomStatus='paused'
         }else{
             roomStatus='started'
         }
-        console.log(roomStatus)
+        // console.log(roomStatus)
         let jsonData = {
             startedAt: {
             $cond: {
@@ -454,13 +454,13 @@ let userDetailsUpdate = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {   
             url: url,
             database: database,
