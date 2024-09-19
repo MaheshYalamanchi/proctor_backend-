@@ -431,7 +431,7 @@ let getCandidateDetailsUpdate = async (params) => {
                     
                 }
             };
-            let responseData = await invoke.makeHttpCall_commonDataService("post", "findOneAndUpdate", getdata);
+            let responseData = await invoke.makeHttpCall("post", "findOneAndUpdate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id
