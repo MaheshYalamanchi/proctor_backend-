@@ -22,7 +22,7 @@ module.exports = function (params) {
                 let result = await sharedService.getCandidateMessageSend(req);
                 if (result && result.success) {
                     // console.log(result.message,'final msg..............')
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
                 } else {
@@ -32,7 +32,7 @@ module.exports = function (params) {
             } else if(req && req.body && req.body.type && req.body.type == 'face') {
                 let result = await schedule_Service.getCandidateFcaeSend(req);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
                 } else {
@@ -42,7 +42,7 @@ module.exports = function (params) {
             }else if(req && req.body && req.body.type && req.body.type == 'event') {
                 let result = await schedule_Service.getCandidateEventSend(req);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message.data });
+                    // app.logger.info({ success: true, message: result.message.data });
                     app.http.customResponse(res, result.message.data, 200);
                     let score = await schedule.updateScore(result.message.json)
                     //await socketService.messageTrigger(result.message)
