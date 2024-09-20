@@ -665,7 +665,7 @@ let getCandidateMessagesDetails = async (params) => {
                             "as": 'data',
                         }
                     },
-                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": false } },
                     
                     {
                         "$lookup": {
@@ -675,7 +675,7 @@ let getCandidateMessagesDetails = async (params) => {
                             "as": 'attach',
                         }
                     },
-                    { "$unwind": { "path": "$attacheData", "preserveNullAndEmptyArrays": true } },
+                    { "$unwind": { "path": "$attacheData", "preserveNullAndEmptyArrays": false } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,"updatedAt":1,
