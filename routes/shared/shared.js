@@ -89,12 +89,16 @@ let updateRecord = async (params) => {
 			database: database,
             model: "rooms",
             docType: 0,
-            query: {
+            /*query: {
                 _id: params.room,
                 updatedAt: updatedAt
-            } 
+            } */
+                query: {
+                    filter: { "_id": params.room },
+                    update: updatedAt
+                }
         };
-        let responseData = await invoke.makeHttpCall("post", "saveById", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             //console.log(JSON.stringify(getdata.query,'update api success'))
             return { success: true, message: responseData.data.statusMessage };
