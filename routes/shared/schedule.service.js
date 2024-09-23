@@ -57,7 +57,7 @@ let getCandidateMessages = async (params) => {
                             "as": 'data',
                         }
                     },
-                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": false } },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
@@ -70,7 +70,7 @@ let getCandidateMessages = async (params) => {
                             
                         }
                     },
-                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": false } },
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
                     {
                         "$lookup": {
                             "from": 'attaches',
@@ -79,7 +79,7 @@ let getCandidateMessages = async (params) => {
                             "as": 'attaches',
                         }
                     },
-                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": false } },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
                     {
                         "$project": {
                             "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
@@ -111,7 +111,7 @@ let getCandidateMessages = async (params) => {
                             ]
                         }
                     },
-                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": false } },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
                     {"$project":{"data":"$data","total":"$total_count.count"}}
                 ]
             };
