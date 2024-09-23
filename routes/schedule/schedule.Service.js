@@ -121,6 +121,7 @@ const getCandidateEventSend = async (params) => {
                 docType: 1,
                 query: jsonData
             };
+            console.log("chat Event request=======>>>>",JSON.stringify(getdata.query))
             const responseData = await invoke.makeHttpCall_commonDataService("post", "bulkwrite", getdata);
             if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.insertedIds && responseData.data.statusMessage.insertedIds.length>0){
                 const responseJson = {
