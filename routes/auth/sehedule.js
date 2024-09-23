@@ -388,6 +388,7 @@ let MessageSend = async (params) => {
 };
 let roomSubmitSave = async (params) => {
     try {
+        console.log('roomSubmitSave entry point')
         let url;
         let database;
         // if(params && params.tenantResponse && params.tenantResponse.success){
@@ -434,6 +435,7 @@ let roomSubmitSave = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
+        console.log('roomSubmitSave',responseData.data.statusMessage)
         if (responseData) {
             if(responseData.data.statusMessage[0].conclusion != null){
                 data = responseData.data.statusMessage[0].student.username
@@ -454,7 +456,9 @@ let roomSubmitSave = async (params) => {
                     update: {$set: { rating: ratingdata}},
                     }
                 };
+                console.log('udpate result entry point')
                 let result = await invoke.makeHttpCall("post", "update", getdata);
+                console.log('update result end point')
             }
             return responseData;
         } else {

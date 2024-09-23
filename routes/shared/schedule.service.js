@@ -779,10 +779,14 @@ let SubmitSaveCall = async (params) => {
                         //     getData.data.statusMessage[0].tenantResponse = tenantResponse;
                         //     params.query.tenantResponse = tenantResponse;
                         // }
+                        console.log('login func call')
                         let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
+                        console.log('.............')
                         let violatedResponse = await shared.getViolated(params.query)
+                        console.log('getViolated')
                         if(violatedResponse && violatedResponse.success){
                             try {
+                                console.log('preparing for report pdf')
                                 let jsonData = {
                                         "score": roomData.score,
                                         "student": roomData.student.nickname,

@@ -305,6 +305,7 @@ let getViolated = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        console.log('getViolated calll.................')
         if(responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage};
         } else {
