@@ -614,6 +614,720 @@ let getCandidateMessages = async (params) => {
         }
     }
 };
+
+let getCandidateMessage = async (params) => {
+    try {
+        if(!params?.headers?.authorization){
+            console.log("chat fetch Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
+        // let  decodeToken = jwt_decode(params.headers.authorization);
+        let url;
+        let database;
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        // }
+        if (params.query.limit && params.query.skip && params.query.filter && params.query.filter.type == 'message') {
+            var start;
+            if(params.query.skip){
+                start = parseInt(params.query.skip)
+            }else {
+                start = 0;
+            }
+            sort = -1;
+            var limit = parseInt(params.query.limit);
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query: [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                            
+                        }
+                    },
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attaches',
+                        }
+                    },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
+                            "user": {
+                                        "id": "$user.id",
+                                        "nickname": "$user.nickname",
+                                        "role": "$user.role",
+                                        "username": "$user.id"
+                                    },
+                            "attach":[
+                                        {
+                                            "filename":"$attaches.filename",
+                                            "mimetype":"$attaches.mimetype",
+                                            "id":"$attaches._id"
+                                        }
+                                    ]
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$skip": start },
+                                { "$limit": limit }, 
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
+                ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0]}
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query.limit && params.query.filter && params.query.filter.type == 'message'){
+            var limit = parseInt(params.query.limit);
+            let sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query: [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id","message":1,
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                            
+                        }
+                    },
+                    { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attaches',
+                        }
+                    },
+                    { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id","message":"$message",
+                            "user": {
+                                        "id": "$user.id",
+                                        "nickname": "$user.nickname",
+                                        "role": "$user.role",
+                                        "username": "$user.id"
+                                    },
+                            "attach":[
+                                        {
+                                            "filename":"$attaches.filename",
+                                            "mimetype":"$attaches.mimetype",
+                                            "id":"$attaches._id"
+                                        }
+                                    ]
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
+                ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
+        }
+    } catch (error) {
+        console.log("chat fetch Error Token2========>>>>",JSON.stringify(params.headers.authorization))
+        console.log(error,"chat fetch error2=======>>>>>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getCandidateFace = async (params) => {
+    try {
+        if(!params?.headers?.authorization){
+            console.log("chat fetch Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
+        // let  decodeToken = jwt_decode(params.headers.authorization);
+        let url;
+        let database;
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        // }
+        if (params.query && params.query.skip && params.query.filter && params.query.filter.type == 'face') {
+            var limit = parseInt(params.query.limit);
+            var start = parseInt(params.query.skip);
+            var sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query:[
+                        {
+                            "$match": {
+                                "room": params.params.roomId,
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'users',
+                                "localField": 'user',
+                                "foreignField": '_id',
+                                "as": 'data',
+                            }
+                        },
+                        { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "user": {
+                                    "id": "$data._id",
+                                    "nickname": "$data.nickname",
+                                    "role": "$data.role",
+                                    "username": "$data._id"
+                                }
+                                
+                            }
+                        },
+                        { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$lookup": {
+                                "from": 'attaches',
+                                "localField": 'attach',
+                                "foreignField": '_id',
+                                "as": 'attaches',
+                            }
+                        },
+                        { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id",
+                                "user": {
+                                            "id": "$user.id",
+                                            "nickname": "$user.nickname",
+                                            "role": "$user.role",
+                                            "username": "$user.id"
+                                        },
+                                "attach":[
+                                            {
+                                                "filename":"$attaches.filename",
+                                                "mimetype":"$attaches.mimetype",
+                                                "id":"$attaches._id"
+                                            }
+                                        ]
+                            }
+                        },
+                        {
+                            "$facet": {
+                                "data": [
+                                    { "$sort": { "createdAt": sort } },
+                                    { "$skip" : start},
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                    { "$project" : {_id:0 }}
+                                ]
+                            }
+                        },
+                        { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                        {"$project":{"data":"$data","total":"$total_count.count"}}
+                        ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query && params.query.filter && params.query.filter.type == 'face') {
+            var limit = parseInt(params.query.limit);
+            var sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query:[
+                        {
+                            "$match": {
+                                "room": params.params.roomId,
+                                "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                                "attach": { $exists: true ,$ne:[null]}
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'users',
+                                "localField": 'user',
+                                "foreignField": '_id',
+                                "as": 'data',
+                            }
+                        },
+                        { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                                "user": {
+                                    "id": "$data._id",
+                                    "nickname": "$data.nickname",
+                                    "role": "$data.role",
+                                    "username": "$data._id"
+                                }
+                                
+                            }
+                        },
+                        { "$unwind": { "path": "$attach", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$lookup": {
+                                "from": 'attaches',
+                                "localField": 'attach',
+                                "foreignField": '_id',
+                                "as": 'attaches',
+                            }
+                        },
+                        { "$unwind": { "path": "$attaches", "preserveNullAndEmptyArrays": true } },
+                        {
+                            "$project": {
+                                "type":"$type","createdAt": "$createdAt", "metadata": "$metadata", "room": "$room", "id":"$id",
+                                "user": {
+                                            "id": "$user.id",
+                                            "nickname": "$user.nickname",
+                                            "role": "$user.role",
+                                            "username": "$user.id"
+                                        },
+                                "attach":[
+                                            {
+                                                "filename":"$attaches.filename",
+                                                "mimetype":"$attaches.mimetype",
+                                                "id":"$attaches._id"
+                                            }
+                                        ]
+                            }
+                        },
+                        {
+                            "$facet": {
+                                "data": [
+                                    { "$sort": { "createdAt": sort } },
+                                    { "$limit": limit }
+                                ],
+                                "total_count": [
+                                    { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                    { "$project" : {_id:0 }}
+                                ]
+                            }
+                        },
+                        { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                        {"$project":{"data":"$data","total":"$total_count.count"}}
+                        ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
+        }
+    } catch (error) {
+        console.log("chat fetch Error Token2========>>>>",JSON.stringify(params.headers.authorization))
+        console.log(error,"chat fetch error2=======>>>>>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getCandidateEvent = async (params) => {
+    try {
+        if(!params?.headers?.authorization){
+            console.log("chat fetch Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
+        // let  decodeToken = jwt_decode(params.headers.authorization);
+        let url;
+        let database;
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        // }
+        if (params.query && params.query.skip && params.query.filter && params.query.filter.type == 'event') {
+            var limit = parseInt(params.query.limit);
+            var start = parseInt(params.query.skip);
+            var sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query: 
+                [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attachesData',
+                        }
+                    },
+                    {
+                        $project:{
+                            attach:{
+                                $map:{
+                                    "input":"$attachesData",
+                                    as:"sec",
+                                    in:{
+                                        "id":"$$sec._id",
+                                        "filename":"$$sec.filename",
+                                        "mimetype":"$$sec.mimetype",
+                                    }
+                                }
+                            },
+                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
+                            "user": 1
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                {"$skip":start},
+                                { "$limit": limit },
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
+                ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else if (params.query && params.query.filter && params.query.filter.type == 'event') {
+            var limit = parseInt(params.query.limit);
+            var sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query: 
+                [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' },
+                            "attach": { $exists: true ,$ne:[]}
+                        }
+                    },
+                    /*{ "$sort": { "createdAt": -1 } },
+                    { "$limit": 20 },*/
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$_id",
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'attaches',
+                            "localField": 'attach',
+                            "foreignField": '_id',
+                            "as": 'attachesData',
+                        }
+                    },
+                    {
+                        $project:{
+                            attach:{
+                                $map:{
+                                    "input":"$attachesData",
+                                    as:"sec",
+                                    in:{
+                                        "id":"$$sec._id",
+                                        "filename":"$$sec.filename",
+                                        "mimetype":"$$sec.mimetype",
+                                    }
+                                }
+                            },
+                            "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
+                            "user":1
+                        }
+                    },
+                    {
+                        "$facet": {
+                            "data": [
+                                { "$sort": { "createdAt": sort } },
+                                { "$limit": limit }
+                            ],
+                            "total_count": [
+                                { "$group": { _id: null, "count": { "$sum": 1 } } },
+                                { "$project" : {_id:0 }}
+                            ]
+                        }
+                    },
+                    { "$unwind": { "path": "$total_count", "preserveNullAndEmptyArrays": true } },
+                    {"$project":{"data":"$data","total":"$total_count.count"}}
+                ]
+            };
+            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage[0] }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
+        }
+    } catch (error) {
+        console.log("chat fetch Error Token2========>>>>",JSON.stringify(params.headers.authorization))
+        console.log(error,"chat fetch error2=======>>>>>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
+let getCandidateRemark = async (params) => {
+    try {
+        if(!params?.headers?.authorization){
+            console.log("chat fetch Token========>>>>",params.headers.authorization)
+            return { success: false, message: 'Authorization token missing.' }
+        }
+        // let  decodeToken = jwt_decode(params.headers.authorization);
+        let url;
+        let database;
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
+            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
+        // }
+        if (params.query && params.query.filter && params.query.filter.type == 'remark') {
+            var limit = parseInt(params.query.limit);
+            var sort = -1;
+            var getdata = {
+                url: url,
+                database: database,
+                model: "chats",
+                docType: 1,
+                query: [
+                    {
+                        "$match": {
+                            "room": params.params.roomId,
+                            "type": { "$regex": params.query.filter.type, "$options": 'i' }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'users',
+                            "localField": 'user',
+                            "foreignField": '_id',
+                            "as": 'data',
+                        }
+                    },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": false } },
+                    {
+                        "$project": {
+                            "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
+                            "user": {
+                                "id": "$data._id",
+                                "nickname": "$data.nickname",
+                                "role": "$data.role",
+                                "username": "$data._id"
+                            }
+                        }
+                    },
+                    {
+                        $sort: { createdAt: sort }
+                    },
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+        } else {
+            return { success: false, message: 'Invalid Params Error' }
+        }
+    } catch (error) {
+        console.log("chat fetch Error Token2========>>>>",JSON.stringify(params.headers.authorization))
+        console.log(error,"chat fetch error2=======>>>>>>>>")
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
+    }
+};
 let getCandidateMessagesDetails = async (params) => {
     try{
         if(!params?.headers?.authorization){
@@ -849,5 +1563,9 @@ let SubmitSaveCall = async (params) => {
 module.exports = {
     getCandidateMessages,
     SubmitSaveCall,
-    getCandidateMessagesDetails
+    getCandidateMessagesDetails,
+    getCandidateMessage,
+    getCandidateFace,
+    getCandidateEvent,
+    getCandidateRemark
 }

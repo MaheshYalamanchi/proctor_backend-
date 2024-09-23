@@ -163,11 +163,47 @@ module.exports = function (params) {
             }
         }
     });
-    app.get("/api/chat/:roomId", async (req, res) => {
+    // app.get("/api/chat/:roomId", async (req, res) => {
+    //     "use strict";
+    //     try {
+    //         if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
+    //             let result = await service.getCandidateMessages(req);
+    //             if (result && result.success) {
+    //                 app.logger.info({ success: true, message: result.message });
+    //                 app.http.customResponse(res, result.message, 200);
+                   
+    //             } else {
+    //                 app.logger.info({ success: false, message: result.message });
+    //                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //             }
+    //         } else if (req.query && req.query.sort && req.query.sort.id) {
+    //             let result = await service.getCandidateMessagesDetails(req);
+    //             if (result && result.success) {
+    //                 app.logger.info({ success: true, message: result.message });
+    //                 app.http.customResponse(res, result.message, 200); 
+    //             } else {
+    //                 app.logger.info({ success: false, message: result.message });
+    //                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //             }
+    //         } else {
+    //             app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+    //         }
+    //     } catch (error) {
+    //         console.log("chat fetch Error Token1========>>>>",JSON.stringify(req.headers.authorization))
+    //         console.log(error,"chat fetch error1=======>>>>>>>>")
+    //         app.logger.error({ success: false, message: error });
+    //         if (error && error.message) {
+    //             app.http.customResponse(res, { success: false, message: error.message }, 400);
+    //         } else {
+    //             app.http.customResponse(res, { success: false, message: error }, 400);
+    //         }
+    //     }
+    // }); 
+    app.get("/api/chat/message/:roomId", async (req, res) => {
         "use strict";
         try {
             if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
-                let result = await service.getCandidateMessages(req);
+                let result = await service.getCandidateMessage(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
@@ -176,7 +212,105 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            } else if (req.query && req.query.sort && req.query.sort.id) {
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat fetch Error Token1========>>>>",JSON.stringify(req.headers.authorization))
+            console.log(error,"chat fetch error1=======>>>>>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    }); 
+    app.get("/api/chat/face/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
+                let result = await service.getCandidateFace(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                   
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            }else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat fetch Error Token1========>>>>",JSON.stringify(req.headers.authorization))
+            console.log(error,"chat fetch error1=======>>>>>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    }); 
+    app.get("/api/chat/event/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
+                let result = await service.getCandidateEvent(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                   
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat fetch Error Token1========>>>>",JSON.stringify(req.headers.authorization))
+            console.log(error,"chat fetch error1=======>>>>>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    }); 
+    app.get("/api/chat/remark/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if (req.query.limit && req.query.count && req.query.filter && req.query.filter.type || req.query.filter && req.query.filter.type ||req.query.limit && req.query.skip && req.query.filter && req.query.filter.type) {
+                let result = await service.getCandidateRemark(req);
+                if (result && result.success) {
+                    app.logger.info({ success: true, message: result.message });
+                    app.http.customResponse(res, result.message, 200);
+                   
+                } else {
+                    app.logger.info({ success: false, message: result.message });
+                    app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+                }
+            } else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat fetch Error Token1========>>>>",JSON.stringify(req.headers.authorization))
+            console.log(error,"chat fetch error1=======>>>>>>>>")
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+    app.get("/api/chat/sort/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if (req.query && req.query.sort && req.query.sort.id) {
                 let result = await service.getCandidateMessagesDetails(req);
                 if (result && result.success) {
                     app.logger.info({ success: true, message: result.message });
