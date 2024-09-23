@@ -388,7 +388,7 @@ let MessageSend = async (params) => {
 };
 let roomSubmitSave = async (params) => {
     try {
-        console.log('roomSubmitSave entry point')
+        // console.log('roomSubmitSave entry point')
         let url;
         let database;
         // if(params && params.tenantResponse && params.tenantResponse.success){
@@ -456,11 +456,11 @@ let roomSubmitSave = async (params) => {
                     update: {$set: { rating: ratingdata}},
                     }
                 };
-                console.log('udpate result entry point')
+                // console.log('udpate result entry point')
                 let result = await invoke.makeHttpCall("post", "update", getdata);
-                console.log('update result end point')
+                // console.log('update result end point')
             }
-            console.log(responseData,'return response')
+            // console.log(responseData,'return response')
             return responseData;
         } else {
             return "Data Not Found";

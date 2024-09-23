@@ -771,7 +771,7 @@ let SubmitSaveCall = async (params) => {
         console.log(responseData.data.statusMessage,'nModified')
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
                 let getData = await schedule.roomSubmitSave(params);
-                console.log(getData.data.statusMessage,'roomData.status')
+                // console.log(getData.data.statusMessage,'roomData.status')
                 if(getData && getData.data && getData.data.statusMessage){
                     let roomData = getData.data.statusMessage[0]
                     if(!(roomData.status == "paused")){
@@ -779,11 +779,11 @@ let SubmitSaveCall = async (params) => {
                         //     getData.data.statusMessage[0].tenantResponse = tenantResponse;
                         //     params.query.tenantResponse = tenantResponse;
                         // }
-                        console.log('login func call')
+                        // console.log('login func call')
                         let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
-                        console.log('.............')
+                        // console.log('.............')
                         let violatedResponse = await shared.getViolated(params.query)
-                        console.log('getViolated')
+                        // console.log('getViolated')
                         if(violatedResponse && violatedResponse.success){
                             try {
                                 console.log('preparing for report pdf')
@@ -828,7 +828,7 @@ let SubmitSaveCall = async (params) => {
                         // console.log(JSON.stringify(getData.data.statusMessage[0]))
                         return { success: true, message: getData.data.statusMessage[0] }
                     } else {
-                        console.log('stataus not paused')
+                        // console.log('stataus not paused')
                         return { success: true, message: getData.data.statusMessage[0] }
                     }
                 } else {
