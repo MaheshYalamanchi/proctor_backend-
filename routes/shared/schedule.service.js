@@ -767,7 +767,7 @@ let SubmitSaveCall = async (params) => {
                 update: { $set: params.body }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
         console.log(responseData.data.statusMessage,'nModified')
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
                 let getData = await schedule.roomSubmitSave(params);
