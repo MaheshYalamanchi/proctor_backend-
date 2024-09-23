@@ -204,7 +204,7 @@ module.exports = function (params) {
         try {
             let result = await service.SubmitSaveCall(req)
             if (result && result.success) { 
-                app.logger.info({ success: true, message: result.message });
+                // app.logger.info({ success: true, message: result.message });
                 app.http.customResponse(res, result.message, 200);
             } else {
                 app.logger.info({ success: false, message: result.message });
