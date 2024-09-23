@@ -15,7 +15,58 @@ var minioClient = new Minio.Client({
 });
 module.exports = function (params) {
     var app = params.app;
-    app.post("/api/chat/:roomId", async (req, res) => {
+    // app.post("/api/chat/:roomId", async (req, res) => {
+    //     "use strict";
+    //     try {
+    //         if (req && req.body && req.body.type && req.body.type== 'message') {
+    //             let result = await sharedService.getCandidateMessageSend(req);
+    //             if (result && result.success) {
+    //                 // console.log(result.message,'final msg..............')
+    //                 // app.logger.info({ success: true, message: result.message });
+    //                 app.http.customResponse(res, result.message, 200);
+    //                 //await socketService.messageTrigger(result.message)
+    //             } else {
+    //                 app.logger.info({ success: false, message: result.message });
+    //                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //             }
+    //         } else if(req && req.body && req.body.type && req.body.type == 'face') {
+    //             let result = await schedule_Service.getCandidateFcaeSend(req);
+    //             if (result && result.success) {
+    //                 // app.logger.info({ success: true, message: result.message });
+    //                 app.http.customResponse(res, result.message, 200);
+    //                 //await socketService.messageTrigger(result.message)
+    //             } else {
+    //                 app.logger.info({ success: false, message: result.message });
+    //                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //             }
+    //         }else if(req && req.body && req.body.type && req.body.type == 'event') {
+    //             let result = await schedule_Service.getCandidateEventSend(req);
+    //             if (result && result.success) {
+    //                 // app.logger.info({ success: true, message: result.message.data });
+    //                 app.http.customResponse(res, result.message.data, 200);
+    //                 let score = await schedule.updateScore(result.message.json)
+    //                 //await socketService.messageTrigger(result.message)
+    //             } else {
+    //                 app.logger.info({ success: false, message: result.message });
+    //                 app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
+    //             }
+    //         }
+    //         else {
+    //             app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+    //         }
+    //     } catch (error) {
+    //         console.log("chat Error================>>>>>>"+req.body.type+"", error)
+    //         console.log("chat Body================>>>>>>", JSON.stringify(req.body))
+    //         app.logger.error({ success: false, message: error });
+    //         if (error && error.message) {
+    //             app.http.customResponse(res, { success: false, message: error.message }, 400);
+    //         } else {
+    //             app.http.customResponse(res, { success: false, message: error }, 400);
+    //         }
+    //     }
+    // });
+
+    app.post("/api/chat/message/:roomId", async (req, res) => {
         "use strict";
         try {
             if (req && req.body && req.body.type && req.body.type== 'message') {
@@ -29,7 +80,26 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            } else if(req && req.body && req.body.type && req.body.type == 'face') {
+            } 
+            else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat Error================>>>>>>"+req.body.type+"", error)
+            console.log("chat Body================>>>>>>", JSON.stringify(req.body))
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+
+    app.post("/api/chat/face/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if(req && req.body && req.body.type && req.body.type == 'face') {
                 let result = await schedule_Service.getCandidateFcaeSend(req);
                 if (result && result.success) {
                     // app.logger.info({ success: true, message: result.message });
@@ -39,7 +109,26 @@ module.exports = function (params) {
                     app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
-            }else if(req && req.body && req.body.type && req.body.type == 'event') {
+            }
+            else {
+                app.http.customResponse(res, { success: false, message: 'requset body error' }, 200);
+            }
+        } catch (error) {
+            console.log("chat Error================>>>>>>"+req.body.type+"", error)
+            console.log("chat Body================>>>>>>", JSON.stringify(req.body))
+            app.logger.error({ success: false, message: error });
+            if (error && error.message) {
+                app.http.customResponse(res, { success: false, message: error.message }, 400);
+            } else {
+                app.http.customResponse(res, { success: false, message: error }, 400);
+            }
+        }
+    });
+
+    app.post("/api/chat/event/:roomId", async (req, res) => {
+        "use strict";
+        try {
+            if(req && req.body && req.body.type && req.body.type == 'event') {
                 let result = await schedule_Service.getCandidateEventSend(req);
                 if (result && result.success) {
                     // app.logger.info({ success: true, message: result.message.data });
