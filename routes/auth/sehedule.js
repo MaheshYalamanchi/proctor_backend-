@@ -435,7 +435,7 @@ let roomSubmitSave = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
-        console.log('roomSubmitSave',responseData.data.statusMessage)
+        // console.log('roomSubmitSave',responseData.data.statusMessage)
         if (responseData) {
             if(responseData.data.statusMessage[0].conclusion != null){
                 data = responseData.data.statusMessage[0].student.username
@@ -460,6 +460,7 @@ let roomSubmitSave = async (params) => {
                 let result = await invoke.makeHttpCall("post", "update", getdata);
                 console.log('update result end point')
             }
+            console.log(responseData,'return response')
             return responseData;
         } else {
             return "Data Not Found";
