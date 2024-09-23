@@ -1051,6 +1051,7 @@ let fetchuserwithroom=async(params)=>{
                     "$project": {
                         "_id":0,
                         "roomid": "$_id",
+                        "status":"$status",
                         "id": "$student",
                         "username": "$student",
                         "face": "$userInfo.face",
