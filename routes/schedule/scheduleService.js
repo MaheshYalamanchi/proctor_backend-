@@ -80,7 +80,7 @@ let userInsertion = async (params) => {
 
 
         let username = params.username.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'_')
-        jsonData = {
+        let jsonData = {
             "_id" : username,
             "browser" : {
                 "name" : browserInfo,
@@ -303,13 +303,13 @@ let usersDetailsUpdate = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.decodeToken && params.decodeToken.tenantResponse && params.decodeToken.tenantResponse.success){
-            url = params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName;
-            database = params.decodeToken.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.decodeToken && params.decodeToken.tenantResponse && params.decodeToken.tenantResponse.success){
+        //     url = params.decodeToken.tenantResponse.message.connectionString+'/'+params.decodeToken.tenantResponse.message.databaseName;
+        //     database = params.decodeToken.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -341,13 +341,13 @@ let userDetails = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {
             url: url,
 			database: database,
@@ -355,7 +355,7 @@ let userDetails = async (params) => {
             docType: 1,
             query: params.id
         };
-        let responseData = await invoke.makeHttpCall_userDataService("post", "findById", getdata);
+        let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
         if (responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message:responseData.data.statusMessage}
         } else {
@@ -384,26 +384,26 @@ let getCandidateDetailsUpdate = async (params) => {
         decodeToken = jwt_decode(params.body.authorization);
         let url;
         let database;
-        let tenantResponse;
-        if(decodeToken && decodeToken.tenantId ){
-            tenantResponse = await _schedule.getTennant(decodeToken);
-            if (tenantResponse && tenantResponse.success){
-                url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-                database = tenantResponse.message.databaseName;
-            } else {
-                return { success: false, message: tenantResponse.message }
-            }
-        } else {
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId ){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     } else {
+        //         return { success: false, message: tenantResponse.message }
+        //     }
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;  
-        }
+        // }
         var roomStatus;
         if(params&&(params.query.status=='paused')){
             roomStatus='paused'
         }else{
             roomStatus='started'
         }
-        console.log(roomStatus)
+        // console.log(roomStatus)
         let jsonData = {
             startedAt: {
             $cond: {
@@ -431,7 +431,7 @@ let getCandidateDetailsUpdate = async (params) => {
                     
                 }
             };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "findOneAndUpdate", getdata);
+            let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id
@@ -454,13 +454,13 @@ let userDetailsUpdate = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         var getdata = {   
             url: url,
             database: database,
@@ -489,13 +489,13 @@ let getCandidateDetailsUpdateStop = async (params) => {
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         jsonData = {
             status : 'stopped',
             stoppedAt : new Date()
@@ -607,13 +607,13 @@ let errorupdate =async(params)=>{
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
+        // }
         let errorCounter = params.error
         errorCounter++;
         data = {
@@ -647,14 +647,14 @@ let updateIpAddress =async(params)=>{
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
-        data = {
+        // }
+        let data = {
             url: url,
 			database: database,
             model: "rooms",
@@ -684,14 +684,14 @@ let updateApproveStatus =async(params)=>{
     try {
         let url;
         let database;
-        if(params && params.tenantResponse && params.tenantResponse.success){
-            url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
-            database = params.tenantResponse.message.databaseName;
-        } else {
+        // if(params && params.tenantResponse && params.tenantResponse.success){
+        //     url = params.tenantResponse.message.connectionString+'/'+params.tenantResponse.message.databaseName;
+        //     database = params.tenantResponse.message.databaseName;
+        // } else {
             url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
             database = process.env.DATABASENAME;
-        }
-        data = {
+        // }
+        let data = {
             url: url,
 			database: database,
             model: "rooms",

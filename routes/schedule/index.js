@@ -22,7 +22,7 @@ module.exports = function (params) {
                 let result = await sharedService.getCandidateMessageSend(req);
                 if (result && result.success) {
                     // console.log(result.message,'final msg..............')
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
                 } else {
@@ -32,7 +32,7 @@ module.exports = function (params) {
             } else if(req && req.body && req.body.type && req.body.type == 'face') {
                 let result = await schedule_Service.getCandidateFcaeSend(req);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     //await socketService.messageTrigger(result.message)
                 } else {
@@ -42,7 +42,7 @@ module.exports = function (params) {
             }else if(req && req.body && req.body.type && req.body.type == 'event') {
                 let result = await schedule_Service.getCandidateEventSend(req);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message.data });
+                    // app.logger.info({ success: true, message: result.message.data });
                     app.http.customResponse(res, result.message.data, 200);
                     let score = await schedule.updateScore(result.message.json)
                     //await socketService.messageTrigger(result.message)
@@ -142,10 +142,10 @@ module.exports = function (params) {
             if(req.body){
                 let result = await sharedService.getFaceResponse(req.body);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                 } else {
-                    app.logger.info({ success: false, message: result.message });
+                    // app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else{
@@ -154,7 +154,7 @@ module.exports = function (params) {
         } catch (error) {
             console.log("face Error Body1========>>>>",JSON.stringify(req.body))
             console.log(error,"face1====>>>>")
-            app.logger.error({ success: false, message: error });
+            // app.logger.error({ success: false, message: error });
             if (error && error.message) {
                 app.http.customResponse(res, { success: false, message: error.message }, 400);
             } else {
@@ -167,11 +167,11 @@ module.exports = function (params) {
             if(req.body){
                 let result = await sharedService.getFaceResponse1(req.body);
                 if (result && result.success) {
-                    app.logger.info({ success: true, message: result.message });
+                    // app.logger.info({ success: true, message: result.message });
                     app.http.customResponse(res, result.message, 200);
                     let updatedresponse = await shared.updateRecord(req.body.decodeToken);
                 } else {
-                    app.logger.info({ success: false, message: result.message });
+                    // app.logger.info({ success: false, message: result.message });
                     app.http.customResponse(res, { success: false, message: 'Data Not Found' }, 200);
                 }
             }else{

@@ -97,57 +97,58 @@ const getCandidateEventSend = async (params) => {
             peak: Array.isArray(params.body.peak) ? params.body.peak[i] : params.body.peak,
             createdAt: new Date(Array.isArray(params.body.createdAt) ? params.body.createdAt[i] : params.body.createdAt)
         }));
-        if (params.body.chatId && params.body.chatId !== 'undefined') {
-            // await schedule.chatUpdateResponse(params.body);
-            const jsonData = {
-                insertOne: {
-                    type: params.body.type,
-                    attach: [],
-                    room: params.params.roomId,
-                    user: decodeToken.id,
-                    createdAt: new Date(params.body.createdAtEvent),
-                    metadata: params.body.metadata,
-                    violation
-                },
-                updateOne: {
-                    filter: { "id": params.body.chatId },
-                    update: {$set: { updatedAt:  new Date(params.body.createdAtEvent)}}
-                }
-            };
-            const getdata = {
-                url,
-                database,
-                model: "chats",
-                docType: 1,
-                query: jsonData
-            };
-            const responseData = await invoke.makeHttpCall_commonDataService("post", "bulkwrite", getdata);
-            if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.insertedIds && responseData.data.statusMessage.insertedIds.length>0){
-                const responseJson = {
-                    type: params.body.type,
-                    attach: [],
-                    room: params.params.roomId,
-                    user: {
-                        id: decodeToken.id,
-                        nickname: decodeToken.nickname,
-                        role: decodeToken.role,
-                        username: decodeToken.id
-                    },
-                    createdAt: new Date(params.body.createdAtEvent),
-                    metadata: params.body.metadata,
-                    id: responseData.data.statusMessage.insertedIds[0]._id,
-                    violation
-                };
-                const json = {
-                    timestamp: new Date(),
-                    room: params.params.roomId,
-                    metrics: params.body.metadata.metrics,
-                    peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
-                    // tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
-                };
-                return { success: true, message: { data: responseJson, json } };
-            }
-        } else {
+        // if (params.body.chatId && params.body.chatId !== 'undefined') {
+        //     // await schedule.chatUpdateResponse(params.body);
+        //     const jsonData = {
+        //         insertOne: {
+        //             type: params.body.type,
+        //             attach: [],
+        //             room: params.params.roomId,
+        //             user: decodeToken.id,
+        //             createdAt: new Date(params.body.createdAtEvent),
+        //             metadata: params.body.metadata,
+        //             violation
+        //         },
+        //         updateOne: {
+        //             filter: { "id": params.body.chatId },
+        //             update: {$set: { updatedAt:  new Date(params.body.createdAtEvent)}}
+        //         }
+        //     };
+        //     const getdata = {
+        //         url,
+        //         database,
+        //         model: "chats",
+        //         docType: 1,
+        //         query: jsonData
+        //     };
+        //     console.log("chat Event request=======>>>>",JSON.stringify(getdata.query))
+        //     const responseData = await invoke.makeHttpCall_commonDataService("post", "bulkwrite", getdata);
+        //     if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.insertedIds && responseData.data.statusMessage.insertedIds.length>0){
+        //         const responseJson = {
+        //             type: params.body.type,
+        //             attach: [],
+        //             room: params.params.roomId,
+        //             user: {
+        //                 id: decodeToken.id,
+        //                 nickname: decodeToken.nickname,
+        //                 role: decodeToken.role,
+        //                 username: decodeToken.id
+        //             },
+        //             createdAt: new Date(params.body.createdAtEvent),
+        //             metadata: params.body.metadata,
+        //             id: responseData.data.statusMessage.insertedIds[0]._id,
+        //             violation
+        //         };
+        //         const json = {
+        //             timestamp: new Date(),
+        //             room: params.params.roomId,
+        //             metrics: params.body.metadata.metrics,
+        //             peak: params.body.metadata.peak === "m3" ? params.body.metadata.peak : undefined,
+        //             // tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
+        //         };
+        //         return { success: true, message: { data: responseJson, json } };
+        //     }
+        // } else {
             const jsonData = {
                 type: params.body.type,
                 attach: [],
@@ -168,6 +169,9 @@ const getCandidateEventSend = async (params) => {
             if (!responseData?.data?.statusMessage?._id) {
                 return { success: false, message: 'Failed to write data' };
             }
+            if(params.body.chatId && (params.body.chatId !== 'undefined')){
+                let chatUpdateResponse = await schedule.chatUpdateResponse(params.body)
+            }
             const user = {
                 id: decodeToken.id,
                 nickname: decodeToken.nickname,
@@ -184,7 +188,7 @@ const getCandidateEventSend = async (params) => {
                 // tenantResponse: params.body.metadata.peak !== "m3" ? tenantResponse : undefined
             };
             return { success: true, message: { data: responseData.data.statusMessage, json } };
-        }
+        // }
     } catch (error) {
         const errorMsg = error?.code === 'ECONNREFUSED'
             ? { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }

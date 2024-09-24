@@ -94,7 +94,7 @@ let updateRecord = async (params) => {
                 updatedAt: updatedAt
             } 
         };
-        let responseData = await invoke.makeHttpCall_commonDataService("post", "saveById", getdata);
+        let responseData = await invoke.makeHttpCall("post", "saveById", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             //console.log(JSON.stringify(getdata.query,'update api success'))
             return { success: true, message: responseData.data.statusMessage };
@@ -305,6 +305,7 @@ let getViolated = async (params) => {
             ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+        // console.log('getViolated calll.................')
         if(responseData && responseData.data && responseData.data.statusMessage) {
             return { success: true, message: responseData.data.statusMessage};
         } else {

@@ -39,39 +39,40 @@ let proctorLoginCall = async (params) => {
                 database: process.env.DATABASENAME,
                 model: "users",
                 docType: 1,
-                query: [
-                    { $match: { _id: params.username } }
-                ]
+                // query: [
+                //     { $match: { _id: params.username } }
+                // ]
+                query:params.username
             };
         // }
-        let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
+        let responseData = await invoke.makeHttpCall("post", "findById", postdata);
         if (responseData && responseData.data) {
-            if(responseData.data.statusMessage[0].locked === false || responseData.data.statusMessage[0].locked === 0 ){
-            let salt = responseData.data.statusMessage[0].salt;
-            let hashedPassword = responseData.data.statusMessage[0].hashedPassword;
+            if(responseData.data.statusMessage.locked === false || responseData.data.statusMessage.locked === 0 ){
+            let salt = responseData.data.statusMessage.salt;
+            let hashedPassword = responseData.data.statusMessage.hashedPassword;
             let encryptPassword = crypto.createHmac("sha1", salt).update(params.password).digest("hex");
             let validPassword = !(!params.password || !salt) && encryptPassword === hashedPassword;
-            if(params.tenantId){
-                responseData.data.statusMessage[0].tenantId = params.tenantId;
-            }
+            // if(params.tenantId){
+            //     responseData.data.statusMessage.tenantId = params.tenantId;
+            // }
             let response = await tokenService.generateProctorToken(responseData);
             if (validPassword) {
-                if(responseData.data.statusMessage[0].role == 'proctor'){
+                if(responseData.data.statusMessage.role == 'proctor'){
                     return {
                         success: true, message: {
-                            id: responseData.data.statusMessage[0]._id,
-                            role: responseData.data.statusMessage[0].role,
-                            roleId: responseData.data.statusMessage[0].roleId,
-                            approve: responseData.data.statusMessage[0].approve,
+                            id: responseData.data.statusMessage._id,
+                            role: responseData.data.statusMessage.role,
+                            roleId: responseData.data.statusMessage.roleId,
+                            approve: responseData.data.statusMessage.approve,
                             token: response,
                         }
                     }
-                } else if(responseData.data.statusMessage[0].role == 'administrator'){
+                } else if(responseData.data.statusMessage.role == 'administrator'){
                     return {
                         success: true, message: {
-                            id: responseData.data.statusMessage[0]._id,
-                            role: responseData.data.statusMessage[0].role,
-                            roleId: responseData.data.statusMessage[0].roleId,
+                            id: responseData.data.statusMessage._id,
+                            role: responseData.data.statusMessage.role,
+                            roleId: responseData.data.statusMessage.roleId,
                             token: response,
                         }
                     }

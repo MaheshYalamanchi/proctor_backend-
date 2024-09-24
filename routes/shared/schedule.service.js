@@ -578,7 +578,7 @@ let getCandidateMessages = async (params) => {
                             "as": 'data',
                         }
                     },
-                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": true } },
+                    { "$unwind": { "path": "$data", "preserveNullAndEmptyArrays": false } },
                     {
                         "$project": {
                             "attach": 1, "createdAt": 1, "_id": 0, "metadata": 1, "room": 1, "type": 1, "id": "$id",
@@ -595,7 +595,7 @@ let getCandidateMessages = async (params) => {
                     },
                 ]
             };
-            let responseData = await invoke.makeHttpCall_roomDataService("post", "aggregate", getdata);
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 return { success: true, message: responseData.data.statusMessage }
             } else {
@@ -767,9 +767,11 @@ let SubmitSaveCall = async (params) => {
                 update: { $set: params.body }
             }
         };
-        let responseData = await invoke.makeHttpCall("post", "update", getdata);
+        let responseData = await invoke.makeHttpCall_roomDataService("post", "update", getdata);
+        console.log(responseData.data.statusMessage,'nModified')
         if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.nModified == 1){
                 let getData = await schedule.roomSubmitSave(params);
+                // console.log(getData.data.statusMessage,'roomData.status')
                 if(getData && getData.data && getData.data.statusMessage){
                     let roomData = getData.data.statusMessage[0]
                     if(!(roomData.status == "paused")){
@@ -777,10 +779,14 @@ let SubmitSaveCall = async (params) => {
                         //     getData.data.statusMessage[0].tenantResponse = tenantResponse;
                         //     params.query.tenantResponse = tenantResponse;
                         // }
+                        // console.log('login func call')
                         let result = await schedule.logtimeupdate(getData.data.statusMessage[0])
+                        // console.log('.............')
                         let violatedResponse = await shared.getViolated(params.query)
+                        // console.log('getViolated')
                         if(violatedResponse && violatedResponse.success){
                             try {
+                                console.log('preparing for report pdf')
                                 let jsonData = {
                                         "score": roomData.score,
                                         "student": roomData.student.nickname,
@@ -822,6 +828,7 @@ let SubmitSaveCall = async (params) => {
                         // console.log(JSON.stringify(getData.data.statusMessage[0]))
                         return { success: true, message: getData.data.statusMessage[0] }
                     } else {
+                        // console.log('stataus not paused')
                         return { success: true, message: getData.data.statusMessage[0] }
                     }
                 } else {
