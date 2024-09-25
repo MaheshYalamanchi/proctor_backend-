@@ -1,9 +1,7 @@
 const invoke = require("../../lib/http/invoke");
 const globalMsg = require('../../configuration/messages/message');
-const schedule = require("../auth/sehedule");
 var qrcode = require("qrcode");
 const jwt_decode = require('jwt-decode');
-const _schedule = require('../schedule/schedule')
 
 // let getSessions = async (params) => {
 //     try {
@@ -89,12 +87,16 @@ let updateRecord = async (params) => {
 			database: database,
             model: "rooms",
             docType: 0,
+            // query: {
+            //     _id: params.room,
+            //     updatedAt: updatedAt
+            // } 
             query: {
-                _id: params.room,
-                updatedAt: updatedAt
-            } 
+                filter:{_id: params.room},
+                update:{$set:{updatedAt: updatedAt}}
+            }
         };
-        let responseData = await invoke.makeHttpCall("post", "saveById", getdata);
+        let responseData = await invoke.makeHttpCall("post", "update", getdata);
         if(responseData && responseData.data && responseData.data.statusMessage) {
             //console.log(JSON.stringify(getdata.query,'update api success'))
             return { success: true, message: responseData.data.statusMessage };

@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const schedule_Service = require('../schedule/schedule.Service');
 const shared = require('../../routes/schedule/sharedService')
 const search = require('../../routes/search');
-const logger =require('../../logger/logger')
+const logger = require('../../logger/logger')
 const _ = require('lodash');
 const _schedule = require('../schedule/schedule');
 const { param } = require("express-validator/check");
@@ -34,55 +34,56 @@ let proctorLoginCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            postdata = {
-                url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
-                database: process.env.DATABASENAME,
-                model: "users",
-                docType: 1,
-                // query: [
-                //     { $match: { _id: params.username } }
-                // ]
-                query:params.username
-            };
+        postdata = {
+            url: process.env.MONGO_URI + '/' + process.env.DATABASENAME,
+            database: process.env.DATABASENAME,
+            model: "users",
+            docType: 1,
+            query: [
+                { $match: { _id: params.username } }
+            ]
+            // query:params.username
+        };
         // }
-        let responseData = await invoke.makeHttpCall("post", "findById", postdata);
+        let responseData = await invoke.makeHttpCall("post", "aggregate", postdata);
         if (responseData && responseData.data) {
-            if(responseData.data.statusMessage.locked === false || responseData.data.statusMessage.locked === 0 ){
-            let salt = responseData.data.statusMessage.salt;
-            let hashedPassword = responseData.data.statusMessage.hashedPassword;
-            let encryptPassword = crypto.createHmac("sha1", salt).update(params.password).digest("hex");
-            let validPassword = !(!params.password || !salt) && encryptPassword === hashedPassword;
-            // if(params.tenantId){
-            //     responseData.data.statusMessage.tenantId = params.tenantId;
-            // }
-            let response = await tokenService.generateProctorToken(responseData);
-            if (validPassword) {
-                if(responseData.data.statusMessage.role == 'proctor'){
-                    return {
-                        success: true, message: {
-                            id: responseData.data.statusMessage._id,
-                            role: responseData.data.statusMessage.role,
-                            roleId: responseData.data.statusMessage.roleId,
-                            approve: responseData.data.statusMessage.approve,
-                            token: response,
+            responseData.data.statusMessage = responseData.data.statusMessage[0]
+            if (responseData.data.statusMessage.locked === false || responseData.data.statusMessage.locked === 0) {
+                let salt = responseData.data.statusMessage.salt;
+                let hashedPassword = responseData.data.statusMessage.hashedPassword;
+                let encryptPassword = crypto.createHmac("sha1", salt).update(params.password).digest("hex");
+                let validPassword = !(!params.password || !salt) && encryptPassword === hashedPassword;
+                // if(params.tenantId){
+                //     responseData.data.statusMessage.tenantId = params.tenantId;
+                // }
+                let response = await tokenService.generateProctorToken(responseData);
+                if (validPassword) {
+                    if (responseData.data.statusMessage.role == 'proctor') {
+                        return {
+                            success: true, message: {
+                                id: responseData.data.statusMessage._id,
+                                role: responseData.data.statusMessage.role,
+                                roleId: responseData.data.statusMessage.roleId,
+                                approve: responseData.data.statusMessage.approve,
+                                token: response,
+                            }
+                        }
+                    } else if (responseData.data.statusMessage.role == 'administrator') {
+                        return {
+                            success: true, message: {
+                                id: responseData.data.statusMessage._id,
+                                role: responseData.data.statusMessage.role,
+                                roleId: responseData.data.statusMessage.roleId,
+                                token: response,
+                            }
                         }
                     }
-                } else if(responseData.data.statusMessage.role == 'administrator'){
-                    return {
-                        success: true, message: {
-                            id: responseData.data.statusMessage._id,
-                            role: responseData.data.statusMessage.role,
-                            roleId: responseData.data.statusMessage.roleId,
-                            token: response,
-                        }
-                    }
+                } else {
+                    return { success: false, message: 'Please check password.' }
                 }
             } else {
                 return { success: false, message: 'Please check password.' }
             }
-        }else{
-            return { success: false, message: 'Please check password.' }
-        }
         } else {
             return { success: false, message: 'Please check username' }
         }
@@ -96,14 +97,14 @@ let proctorLoginCall = async (params) => {
 };
 let proctorMeCall = async (params) => {
     try {
-        if(!params?.authorization){
-            console.log("passport Token========>>>>",params.authorization)
+        if (!params?.authorization) {
+            console.log("passport Token========>>>>", params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let token  = params?.authorization.split(" ")
-        if(!token[1] || token[1].includes('${')){
+        let token = params?.authorization.split(" ")
+        if (!token[1] || token[1].includes('${')) {
             return { success: false, message: 'Authorization token missing.' }
-        }   
+        }
         var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         // if(decodeToken && decodeToken.tenantId){
@@ -113,34 +114,34 @@ let proctorMeCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // }
-        if(decodeToken && decodeToken.room == "check"){
+        if (decodeToken && decodeToken.room == "check") {
             return { success: true, message: "null" }
-        }else if(decodeToken && decodeToken.role == "student"){
+        } else if (decodeToken && decodeToken.role == "student") {
             let url;
             let database;
             // if(tenantResponse && tenantResponse.message){
             //     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
             //     database = tenantResponse.message.databaseName;
             // } else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
+            url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
             // }
             let getdata = {
-                    url: url,
-                    database: database,
-                    model: "users",
-                    docType: 1,
-                    query: decodeToken.id
-                };
+                url: url,
+                database: database,
+                model: "users",
+                docType: 1,
+                query: decodeToken.id
+            };
             let responseData = await invoke.makeHttpCall_commonDataService("post", "findById", getdata);
             if (responseData && responseData.data && responseData.data.statusMessage) {
                 responseData.data.statusMessage.id = responseData.data.statusMessage._id;
                 delete responseData.data.statusMessage._id;
-                if (responseData.data.statusMessage.rep){
+                if (responseData.data.statusMessage.rep) {
                     delete responseData.data.statusMessage.rep
                 }
                 return { success: true, message: responseData.data.statusMessage }
-                
+
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
@@ -151,10 +152,10 @@ let proctorMeCall = async (params) => {
             //     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
             //     database = tenantResponse.message.databaseName;
             // } else {
-                url = process.env.MONGO_URI+'/'+ process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
+            url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
             // }
-                
+
             var getdata = {
                 url: url,
                 database: database,
@@ -169,7 +170,7 @@ let proctorMeCall = async (params) => {
                             id: "$_id", _id: 0, browser: "$browser", createdAt: "$createdAt", exclude: "$exclude", group: "$group",
                             ipaddress: "$ipaddress", labels: "$labels", lang: "$lang", locked: "$locked", loggedAt: "$loggedAt",
                             nickname: "$nickname", os: "$os", platform: "$platform", role: "$role", secure: "$secure", similar: "$similar",
-                            useragent: "$useragent", username: "$_id",provider:"$provider",referer:"$referer"
+                            useragent: "$useragent", username: "$_id", provider: "$provider", referer: "$referer"
                         }
                     }
                 ]
@@ -187,8 +188,8 @@ let proctorMeCall = async (params) => {
             //     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
             //     database = tenantResponse.message.databaseName;
             // } else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
+            url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
             // }
             var getdata = {
                 url: url,
@@ -218,9 +219,9 @@ let proctorMeCall = async (params) => {
         } else {
             return { success: false, message: 'Invaild Token Error' }
         }
-        
+
     } catch (error) {
-        console.log(error,"userError2=======>>>>>>")
+        console.log(error, "userError2=======>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -229,14 +230,14 @@ let proctorMeCall = async (params) => {
     }
 };
 let proctorFetchCall = async (params) => {
-    if(!params?.authorization){
-        console.log("Fetch Token========>>>>",params.authorization)
+    if (!params?.authorization) {
+        console.log("Fetch Token========>>>>", params.authorization)
         return { success: false, message: 'Authorization token missing.' }
     }
-    let token  = params?.authorization.split(" ")
-    if(!token[1] || token[1].includes('${')){
+    let token = params?.authorization.split(" ")
+    if (!token[1] || token[1].includes('${')) {
         return { success: false, message: 'Authorization token missing.' }
-    }   
+    }
     const decodeToken = jwt_decode(params.authorization);
     try {
         // let tenantResponse;
@@ -253,8 +254,8 @@ let proctorFetchCall = async (params) => {
         //     url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
         //     database = tenantResponse.message.databaseName;
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
         let getdata = {
             url,
@@ -291,7 +292,7 @@ function buildQuery(decodeToken) {
         tags: "$tags", threshold: "$threshold", timeout: "$timeout", timesheet: "$timesheet", timezone: "$timezone",
         updatedAt: "$updatedAt", url: "$url", weights: "$weights", browser: "$browser", averages: "$averages", duration: "$duration",
         error: "$error", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", os: "$os", platform: "$platform",
-        score: "$score", signedAt: "$signedAt", template: "$template", useragent: "$useragent", startedAt: "$startedAt","liveProctoringEnable":"$liveProctoringEnable"
+        score: "$score", signedAt: "$signedAt", template: "$template", useragent: "$useragent", startedAt: "$startedAt", "liveProctoringEnable": "$liveProctoringEnable"
     };
 
     if (decodeToken.role !== "administrator" && decodeToken.room == "check") {
@@ -306,9 +307,9 @@ function buildQuery(decodeToken) {
                 }
             },
             { "$unwind": { "path": "$student", "preserveNullAndEmptyArrays": true } },
-            { "$project": { ...projectFields} }
+            { "$project": { ...projectFields } }
         ];
-    } else if(decodeToken.role !== "administrator") {
+    } else if (decodeToken.role !== "administrator") {
         return [
             { "$match": matchCondition },
             {
@@ -319,16 +320,20 @@ function buildQuery(decodeToken) {
                     as: 'student',
                 }
             },
-            { "$unwind": { "path": "$student"} },
-            { "$project": { ...projectFields,"student.createdAt":"$student.createdAt",
-                "student.exclude":"$student.exclude","student.face":"$student.face","student.id":"$student._id","student.ipaddress":"$student.ipaddress",
-                "student.labels":"$student.labels","student.loggedAt":"$student.loggedAt","student.nickname":"$student.nickname","student.os":"$student.os",
-                "student.passport":"$student.passport","student.platform":"$student.platform","student.provider":"$student.provider","student.referer":"$student.referer",
-                "student.role":"$student.role","student.similar":"$student.similar","student.useragent":"$student.useragent","student.username":"$student._id",
-                "student.verified":"$student.verified","verified":"$verified"} }
+            { "$unwind": { "path": "$student" } },
+            {
+                "$project": {
+                    ...projectFields, "student.createdAt": "$student.createdAt",
+                    "student.exclude": "$student.exclude", "student.face": "$student.face", "student.id": "$student._id", "student.ipaddress": "$student.ipaddress",
+                    "student.labels": "$student.labels", "student.loggedAt": "$student.loggedAt", "student.nickname": "$student.nickname", "student.os": "$student.os",
+                    "student.passport": "$student.passport", "student.platform": "$student.platform", "student.provider": "$student.provider", "student.referer": "$student.referer",
+                    "student.role": "$student.role", "student.similar": "$student.similar", "student.useragent": "$student.useragent", "student.username": "$student._id",
+                    "student.verified": "$student.verified", "verified": "$verified"
+                }
+            }
         ];
     } else {
-        matchCondition = { "student": decodeToken.id}
+        matchCondition = { "student": decodeToken.id }
         return [
             { "$match": matchCondition },
             { "$project": projectFields }
@@ -361,7 +366,7 @@ async function processResponseData(responseData, decodeToken, params) {
         } else {
             return { success: true, message: statusMessage };
         }
-    } else if(responseData?.data?.statusMessage.length == 0) {
+    } else if (responseData?.data?.statusMessage.length == 0) {
         return { success: true, message: {} }
     }
     return { success: false, message: "Data not Found" };
@@ -370,14 +375,14 @@ async function processResponseData(responseData, decodeToken, params) {
 
 let proctorAuthCall = async (params) => {
     try {
-        if(!params?.authorization){
-            console.log("Auth Token========>>>>",params.authorization)
+        if (!params?.authorization) {
+            console.log("Auth Token========>>>>", params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let token  = params?.authorization.split(" ")
-        if(!token[1] || token[1].includes('${')){
+        let token = params?.authorization.split(" ")
+        if (!token[1] || token[1].includes('${')) {
             return { success: false, message: 'Authorization token missing.' }
-        }   
+        }
         var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         // if(decodeToken && decodeToken.tenantId ){
@@ -388,24 +393,30 @@ let proctorAuthCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // }
-        if(decodeToken && (decodeToken.room=="check")){
+        if (decodeToken && (decodeToken.room == "check")) {
             let response = await tokenService.authCheckToken(decodeToken);
-            if(response){
+            if (response) {
                 // var token = jwt_decode(response);
-                if (decodeToken.exp){
-                    return {success: true, message: { exp :token.exp, iat: token.iat, id: token.id,
-                        role: token.role,token: response,room:token.room}
+                if (decodeToken.exp) {
+                    return {
+                        success: true, message: {
+                            exp: token.exp, iat: token.iat, id: token.id,
+                            role: token.role, token: response, room: token.room
+                        }
                     }
                 } else {
-                    return {success: true, message: { iat: token.iat, id: token.id,
-                        role: token.role,token: response,room:token.room}
+                    return {
+                        success: true, message: {
+                            iat: token.iat, id: token.id,
+                            role: token.role, token: response, room: token.room
+                        }
                     }
                 }
-                
+
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else if (decodeToken){
+        } else if (decodeToken) {
             let getdata;
             // if(tenantResponse && tenantResponse.success){
             //     getdata = {
@@ -416,22 +427,25 @@ let proctorAuthCall = async (params) => {
             //         query: {_id: decodeToken.id}
             //     };
             // } else {
-                getdata = {
-                    url: process.env.MONGO_URI+'/'+process.env.DATABASENAME,
-                    database: process.env.DATABASENAME,
-                    model: "users",
-                    docType: 1,
-                    query: {_id: decodeToken.id}
-                };
+            getdata = {
+                url: process.env.MONGO_URI + '/' + process.env.DATABASENAME,
+                database: process.env.DATABASENAME,
+                model: "users",
+                docType: 1,
+                query: { _id: decodeToken.id }
+            };
             // }
             let responseData = await invoke.makeHttpCall_commonDataService("post", "read", getdata);
-            if (responseData && responseData.data&&responseData.data.statusMessage&&responseData.data.statusMessage._id) {
+            if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage._id) {
                 var splitToken = params.authorization.split(" ");
-                if (decodeToken && decodeToken.room && decodeToken.provider){
-                    return {success: true, message: {exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage._id,
-                            role: responseData.data.statusMessage.role,token: splitToken[1],provider:decodeToken.provider,room:decodeToken.room}
+                if (decodeToken && decodeToken.room && decodeToken.provider) {
+                    return {
+                        success: true, message: {
+                            exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage._id,
+                            role: responseData.data.statusMessage.role, token: splitToken[1], provider: decodeToken.provider, room: decodeToken.room
+                        }
                     }
-                } else { 
+                } else {
                     return {
                         success: true, message: {
                             exp: decodeToken.exp, iat: decodeToken.iat, id: responseData.data.statusMessage._id,
@@ -447,7 +461,7 @@ let proctorAuthCall = async (params) => {
             return { success: false, message: 'Invalid Token Error' }
         }
     } catch (error) {
-        console.log(error,"authError2====>>>>")
+        console.log(error, "authError2====>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -470,16 +484,16 @@ let proctorLimitCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
-        if (decodeToken.role == "proctor"){
-            if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
+        if (decodeToken.role == "proctor") {
+            if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue) {
                 var sort = -1;
                 var start;
-                if (params.query.start){
+                if (params.query.start) {
                     start = parseInt(params.query.start);
-                }else{
+                } else {
                     start = 0;
                 }
                 var limit = parseInt(params.query.limit);
@@ -488,12 +502,13 @@ let proctorLimitCall = async (params) => {
                     database: database,
                     model: "rooms",
                     docType: 1,
-                    query: [ 
+                    query: [
                         { $match: { isActive: true } },
-                        {$match: {
-                        members:decodeToken.id 
-                    }
-                    },
+                        {
+                            $match: {
+                                members: decodeToken.id
+                            }
+                        },
                         {
                             $lookup: {
                                 from: 'users',
@@ -505,15 +520,15 @@ let proctorLimitCall = async (params) => {
                         { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                         {
                             $project: {
-                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
+                                id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", color: "$color", quota: "$quota", concurrent: "$concurrent",
                                 members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                 subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                 updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
-                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
-                                startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
-                                os: "$os", platform: "$platform",errorlog:"$errorlog", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                                "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt", pdf: "$pdf",
+                                startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$createdAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                os: "$os", platform: "$platform", errorlog: "$errorlog", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                                "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id"
                             }
                         },
                         {
@@ -532,25 +547,25 @@ let proctorLimitCall = async (params) => {
                 };
                 let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
                 if (responseData && responseData.data) {
-                    let response = await schedule_Service.fetchurl(responseData.data) 
+                    let response = await schedule_Service.fetchurl(responseData.data)
                     var data = {
                         response: responseData.data,
                         start: params,
                         // tenantResponse: tenantResponse
                     };
                     let responsemessage = await schedule_Service.fetchstatus(data)
-                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start,url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count,status:responsemessage.message} }
+                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count, status: responsemessage.message } }
                 } else {
                     return { success: false, message: 'Data Not Found' }
                 }
             }
-        }    
-        else if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
+        }
+        else if (params.query && params.query.limit && params.query.start && params.query.count && params.query.continue && params.query.sort) {
             let Y = params.query.sort;
             for (let A in Y) {
                 const B = Y[A];
-                ("1" !== B && "asc" !== B) || (Y[A] = 1), 
-                ("-1" !== B && "desc" !== B) || (Y[A] = -1);
+                ("1" !== B && "asc" !== B) || (Y[A] = 1),
+                    ("-1" !== B && "desc" !== B) || (Y[A] = -1);
             }
             let sort = Y
             var limit = parseInt(params.query.limit);
@@ -562,7 +577,7 @@ let proctorLimitCall = async (params) => {
                 docType: 1,
                 query: [
                     { $match: { isActive: true } },
-                    { "$sort":sort },
+                    { "$sort": sort },
                     { "$skip": start },
                     { "$limit": limit },
                     {
@@ -576,15 +591,15 @@ let proctorLimitCall = async (params) => {
                     { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                     {
                         $project: {
-                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
+                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", color: "$color", quota: "$quota", concurrent: "$concurrent",
                             members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
-                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
-                            startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$updatedAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt", pdf: "$pdf",
+                            startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$updatedAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id"
                         }
                     },
                     {
@@ -604,21 +619,21 @@ let proctorLimitCall = async (params) => {
                     database: database,
                     model: "rooms",
                     docType: 1,
-                    query:[{ $group: { _id: null, count: { $sum: 1 } } }]
+                    query: [{ $group: { _id: null, count: { $sum: 1 } } }]
                 }
                 let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (getCount && getCount.data){
+                if (getCount && getCount.data) {
                     return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
                 }
             } else {
                 return { success: false, message: 'Data Not Found' }
             }
-        } else if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
+        } else if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue) {
             var sort = -1;
             var start;
-            if (params.query.start){
+            if (params.query.start) {
                 start = parseInt(params.query.start);
-            }else{
+            } else {
                 start = 0;
             }
             var limit = parseInt(params.query.limit);
@@ -654,15 +669,15 @@ let proctorLimitCall = async (params) => {
                     { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                     {
                         $project: {
-                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
+                            id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", color: "$color", quota: "$quota", concurrent: "$concurrent",
                             members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                             subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                             updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
-                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
-                            startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$updatedAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt", pdf: "$pdf",
+                            startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$updatedAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                             os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                            "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                            "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id"
                         }
                     },
                     {
@@ -682,10 +697,10 @@ let proctorLimitCall = async (params) => {
                     database: database,
                     model: "rooms",
                     docType: 1,
-                    query:[{ $group: { _id: null, count: { $sum: 1 } } }]
+                    query: [{ $group: { _id: null, count: { $sum: 1 } } }]
                 }
                 let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (getCount && getCount.data){
+                if (getCount && getCount.data) {
 
                     return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
                 }
@@ -716,13 +731,13 @@ let proctorSearchCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
-        if (decodeToken.role == "proctor"){
+        if (decodeToken.role == "proctor") {
             if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue) {
                 let filterData = await search.searchData(params.query.filter);
-                var start ;
+                var start;
                 if (params.query.start) {
                     start = parseInt(params.query.start);
                 } else {
@@ -730,10 +745,10 @@ let proctorSearchCall = async (params) => {
                 }
                 var limit = parseInt(params.query.count) || parseInt(params.query.limit);
                 let sort;
-                if (!params.query.sort){
-                    sort = {"startedAt":-1}
+                if (!params.query.sort) {
+                    sort = { "startedAt": -1 }
                 }
-                if ("string" == typeof filterData){
+                if ("string" == typeof filterData) {
                     var getdata = {
                         url: url,
                         database: url,
@@ -741,14 +756,16 @@ let proctorSearchCall = async (params) => {
                         docType: 1,
                         query: [
                             { $match: { isActive: true } },
-                            {$match: {
-                                $and: [
-                                    { members:decodeToken.id } ,
-                                    { student: { $regex: filterData, $options: 'i' } }
-                                ]
-                            }},
                             {
-                                $lookup: {  
+                                $match: {
+                                    $and: [
+                                        { members: decodeToken.id },
+                                        { student: { $regex: filterData, $options: 'i' } }
+                                    ]
+                                }
+                            },
+                            {
+                                $lookup: {
                                     from: 'users',
                                     localField: 'student',
                                     foreignField: '_id',
@@ -758,15 +775,15 @@ let proctorSearchCall = async (params) => {
                             { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
                             {
                                 $project: {
-                                    id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
+                                    id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", color: "$color", quota: "$quota", concurrent: "$concurrent",
                                     members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                     subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                     updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
                                     duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                                    startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$updatedAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                    startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$updatedAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                                     os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                                    "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id",//"student.verified":"$student.verified"
+                                    "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id",//"student.verified":"$student.verified"
                                 }
                             },
                             {
@@ -798,14 +815,14 @@ let proctorSearchCall = async (params) => {
                     } else {
                         return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, total_count: responseData.data.statusMessage[0].total_count.length } };
                     }
-                } else if ("object"== typeof filterData){
-                    filterData.members={$in:[decodeToken.id]},
-                    filterData.student= {$ne: null}   
+                } else if ("object" == typeof filterData) {
+                    filterData.members = { $in: [decodeToken.id] },
+                        filterData.student = { $ne: null }
                     let jsonData = {
-                        filter : filterData,
-                        skip :start,
-                        limit:limit,
-                        sort:sort,
+                        filter: filterData,
+                        skip: start,
+                        limit: limit,
+                        sort: sort,
                         populate: limit && [
                             { path: "student", select: "nickname face passport verified similar" },
                             { path: "proctor", select: "nickname" },
@@ -817,38 +834,38 @@ let proctorSearchCall = async (params) => {
                         database: url,
                         model: "rooms",
                         docType: 0,
-                        query:jsonData
+                        query: jsonData
                     }
                     let responseData = await invoke.makeHttpCall("post", "exec", getdata);
                     if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.total) {
                         for (const iterator of responseData.data.statusMessage.data) {
-                            if (iterator.student == null){
+                            if (iterator.student == null) {
                                 iterator.student = iterator.student;
-                            } else if(!iterator.student.id){
-                                    iterator.student.id =iterator.student._id;
-                                    delete iterator.student._id;
-                            } 
+                            } else if (!iterator.student.id) {
+                                iterator.student.id = iterator.student._id;
+                                delete iterator.student._id;
+                            }
                         }
-                        
+
                         return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     } else {
-                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total} };
+                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     }
                 }
-            }        
-        }else if (decodeToken.role == "administrator"){
-            if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort ) {
+            }
+        } else if (decodeToken.role == "administrator") {
+            if (params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue && params.query.sort) {
                 let filterData = await search.searchData(params.query.filter);
                 let Y = params.query.sort;
                 for (let A in Y) {
                     const B = Y[A];
-                    ("1" !== B && "asc" !== B) || (Y[A] = 1), 
-                    ("-1" !== B && "desc" !== B) || (Y[A] = -1);
+                    ("1" !== B && "asc" !== B) || (Y[A] = 1),
+                        ("-1" !== B && "desc" !== B) || (Y[A] = -1);
                 }
                 let sort = Y;
                 var limit = parseInt(params.query.limit);
                 var start = parseInt(params.query.start);
-                if ("string" == typeof filterData){
+                if ("string" == typeof filterData) {
                     var getdata = {
                         url: url,
                         database: database,
@@ -890,11 +907,11 @@ let proctorSearchCall = async (params) => {
                                     members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                     subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                     updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
-                                    duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
-                                    startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$updatedAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                                    duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt", pdf: "$pdf",
+                                    startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$updatedAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
                                     os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                                    "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
+                                    "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id"
                                 }
                             },
                             {
@@ -914,7 +931,7 @@ let proctorSearchCall = async (params) => {
                             database: database,
                             model: "rooms",
                             docType: 1,
-                            query:[
+                            query: [
                                 {
                                     $match: {
                                         $or: [
@@ -935,18 +952,18 @@ let proctorSearchCall = async (params) => {
                             ]
                         }
                         let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        if (getCount && getCount.data){
+                        if (getCount && getCount.data) {
                             return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
                         }
                     } else {
                         return { success: false, message: 'Data Not Found' }
                     }
-                } else if ("object"== typeof filterData){
+                } else if ("object" == typeof filterData) {
                     let jsonData = {
-                        filter : filterData,
-                        skip :start,
-                        limit:limit,
-                        sort:sort,
+                        filter: filterData,
+                        skip: start,
+                        limit: limit,
+                        sort: sort,
                         populate: limit && [
                             { path: "student", select: "nickname face passport verified similar" },
                             { path: "proctor", select: "nickname" },
@@ -958,26 +975,26 @@ let proctorSearchCall = async (params) => {
                         database: database,
                         model: "rooms",
                         docType: 0,
-                        query:jsonData
+                        query: jsonData
                     }
                     let responseData = await invoke.makeHttpCall("post", "exec", getdata);
                     if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.total) {
                         for (const iterator of responseData.data.statusMessage.data) {
-                            if (iterator.student == null){
+                            if (iterator.student == null) {
                                 iterator.student = iterator.student;
-                            } else if(!iterator.student.id){
-                                    iterator.student.id =iterator.student._id;
-                                    delete iterator.student._id;
-                            } 
+                            } else if (!iterator.student.id) {
+                                iterator.student.id = iterator.student._id;
+                                delete iterator.student._id;
+                            }
                         }
                         return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     } else {
-                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total} };
+                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     }
                 }
             } else if (params.query.limit && params.query.filter || params.query.limit && params.query.filter && params.query.start && params.query.count && params.query.continue) {
                 let filterData = await search.searchData(params.query.filter);
-                var start ;
+                var start;
                 if (params.query.start) {
                     start = parseInt(params.query.start);
                 } else {
@@ -985,10 +1002,10 @@ let proctorSearchCall = async (params) => {
                 }
                 var limit = parseInt(params.query.count) || parseInt(params.query.limit);
                 let sort;
-                if (!params.query.sort){
-                    sort = {"createdAt":-1}
+                if (!params.query.sort) {
+                    sort = { "createdAt": -1 }
                 }
-                if ("string" == typeof filterData){
+                if ("string" == typeof filterData) {
                     var getdata = {
                         url: url,
                         database: database,
@@ -1016,7 +1033,7 @@ let proctorSearchCall = async (params) => {
                             { "$skip": start },
                             { "$limit": limit },
                             {
-                                $lookup: {  
+                                $lookup: {
                                     from: 'users',
                                     localField: 'student',
                                     foreignField: '_id',
@@ -1030,11 +1047,11 @@ let proctorSearchCall = async (params) => {
                                     members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                                     subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                                     updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                                    stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
                                     duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
-                                    startedAt:"$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",pdf:"$pdf",
+                                    startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser", pdf: "$pdf",
                                     os: "$os", platform: "$platform", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                                    "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id",//"student.verified":"$student.verified"
+                                    "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id",//"student.verified":"$student.verified"
                                 }
                             }
                         ]
@@ -1046,7 +1063,7 @@ let proctorSearchCall = async (params) => {
                             database: database,
                             model: "rooms",
                             docType: 1,
-                            query:[
+                            query: [
                                 {
                                     $match: {
                                         $or: [
@@ -1067,34 +1084,34 @@ let proctorSearchCall = async (params) => {
                             ]
                         }
                         let getCount = await invoke.makeHttpCall("post", "aggregate", getdata);
-                        if (getCount && getCount.data && getCount.data.statusMessage.length != 0){
+                        if (getCount && getCount.data && getCount.data.statusMessage.length != 0) {
                             return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: getCount.data.statusMessage[0].count } }
-                        }else{
-                            return { success: true, message: { data: responseData.data.statusMessage, pos: start ,total_count: 0 } }
+                        } else {
+                            return { success: true, message: { data: responseData.data.statusMessage, pos: start, total_count: 0 } }
                         }
                     } else {
                         return { success: false, message: 'Data Not Found' }
                     }
-                } else if ("object"== typeof filterData){
+                } else if ("object" == typeof filterData) {
                     let startedAtFilter;
                     let jsonData;
-                    if(filterData && filterData.startedAt){
-                        if(filterData.startedAt && filterData.startedAt.$gt){
-                            startedAtFilter = {startedAt:{$gt: new Date(filterData.startedAt.$gt)}}
-                        } else if(filterData.startedAt && filterData.startedAt.$lt){
-                            startedAtFilter = {startedAt:{$lt: new Date(filterData.startedAt.$lt)}}
-                        } else if(filterData.startedAt && filterData.startedAt.$gte){
-                            startedAtFilter = {startedAt:{$gte: new Date(filterData.startedAt.$gte)}}
-                        } else if(filterData.startedAt && filterData.startedAt.$lte){
-                            startedAtFilter = {startedAt:{$lte: new Date(filterData.startedAt.$lte)}}
-                        } else if(filterData.startedAt && filterData.startedAt){
-                            startedAtFilter = {startedAt: new Date(filterData.startedAt)}
+                    if (filterData && filterData.startedAt) {
+                        if (filterData.startedAt && filterData.startedAt.$gt) {
+                            startedAtFilter = { startedAt: { $gt: new Date(filterData.startedAt.$gt) } }
+                        } else if (filterData.startedAt && filterData.startedAt.$lt) {
+                            startedAtFilter = { startedAt: { $lt: new Date(filterData.startedAt.$lt) } }
+                        } else if (filterData.startedAt && filterData.startedAt.$gte) {
+                            startedAtFilter = { startedAt: { $gte: new Date(filterData.startedAt.$gte) } }
+                        } else if (filterData.startedAt && filterData.startedAt.$lte) {
+                            startedAtFilter = { startedAt: { $lte: new Date(filterData.startedAt.$lte) } }
+                        } else if (filterData.startedAt && filterData.startedAt) {
+                            startedAtFilter = { startedAt: new Date(filterData.startedAt) }
                         }
                         jsonData = {
-                            filter : startedAtFilter,
-                            skip :start,
-                            limit:limit,
-                            sort:sort,
+                            filter: startedAtFilter,
+                            skip: start,
+                            limit: limit,
+                            sort: sort,
                             populate: limit && [
                                 { path: "student", select: "nickname face passport verified similar" },
                                 { path: "proctor", select: "nickname" },
@@ -1103,10 +1120,10 @@ let proctorSearchCall = async (params) => {
                         }
                     } else {
                         jsonData = {
-                            filter : filterData,
-                            skip :start,
-                            limit:limit,
-                            sort:sort,
+                            filter: filterData,
+                            skip: start,
+                            limit: limit,
+                            sort: sort,
                             populate: limit && [
                                 { path: "student", select: "nickname face passport verified similar" },
                                 { path: "proctor", select: "nickname" },
@@ -1119,21 +1136,21 @@ let proctorSearchCall = async (params) => {
                         database: database,
                         model: "rooms",
                         docType: 0,
-                        query:jsonData
+                        query: jsonData
                     }
                     let responseData = await invoke.makeHttpCall("post", "exec", getdata);
                     if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.total) {
                         for (const iterator of responseData.data.statusMessage.data) {
-                            if (iterator.student == null){
+                            if (iterator.student == null) {
                                 iterator.student = iterator.student;
-                            } else if(!iterator.student.id){
-                                    iterator.student.id =iterator.student._id;
-                                    delete iterator.student._id;
-                            } 
+                            } else if (!iterator.student.id) {
+                                iterator.student.id = iterator.student._id;
+                                delete iterator.student._id;
+                            }
                         }
                         return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     } else {
-                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total} };
+                        return { success: true, message: { data: responseData.data.statusMessage.data, pos: start, total_count: responseData.data.statusMessage.total } };
                     }
                 }
             }
@@ -1161,39 +1178,39 @@ let proctorSuggestCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
-        if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "proctor" ){
+        if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "proctor") {
             var getdata = {
                 url: url,
                 database: database,
                 model: "users",
                 docType: 1,
                 query: [
-                        {
-                            "$match": {
-                                    $and: [
-                                        { role: { $regex: params.query.filter.role, $options: 'i' } },
-                                        { _id: { $regex: params.query.filter.value, $options: 'i' } }
-                                        ]
-                                    }
-                        },
-                        {
-                            $project : {id:"$_id",_id:0,nickname:"$nickname",role:"$role",username:"$username"}
-                        },
-                        {
-                            $limit : 100
+                    {
+                        "$match": {
+                            $and: [
+                                { role: { $regex: params.query.filter.role, $options: 'i' } },
+                                { _id: { $regex: params.query.filter.value, $options: 'i' } }
+                            ]
                         }
-                    ]
+                    },
+                    {
+                        $project: { id: "$_id", _id: 0, nickname: "$nickname", role: "$role", username: "$username" }
+                    },
+                    {
+                        $limit: 100
+                    }
+                ]
             };
             let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-            if(responseData && responseData.data && responseData.data.statusMessage) {
-                return { success: true, message: responseData.data.statusMessage};
+            if (responseData && responseData.data && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage };
             } else {
-                return { success: false, message: "data not found"};
+                return { success: false, message: "data not found" };
             }
-        } else if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "student" ){
+        } else if (params.query && params.query.filter && params.query.filter.role && params.query.filter.role == "student") {
             var getdata = {
                 url: url,
                 database: database,
@@ -1212,7 +1229,7 @@ let proctorSuggestCall = async (params) => {
                         $limit: 100
                     },
                     {
-                        $project: { "_id":0, id: "$_id", "nickname": 1, "role": 1, username: "$_id" }
+                        $project: { "_id": 0, id: "$_id", "nickname": 1, "role": 1, username: "$_id" }
                     },
 
                     {
@@ -1236,7 +1253,7 @@ let proctorSuggestCall = async (params) => {
     }
 };
 let proctorUserDetailsCall = async (params) => {
-    
+
     try {
         // let  decodeToken = jwt_decode(params.authorization);
         let url;
@@ -1251,8 +1268,8 @@ let proctorUserDetailsCall = async (params) => {
         //             return { success: false, message: tenantResponse.message }
         //         }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
         var getusername = params.username;
         var getdata = {
@@ -1300,8 +1317,8 @@ let proctorUserDetailsCall = async (params) => {
 let proctorUserInfoCall = async (params) => {
     try {
         var postdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: process.env.MONGO_URI,
+            database: "proctor",
             model: "users",
             docType: 1,
             query: [
@@ -1354,8 +1371,8 @@ let proctorRoomDetails = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
         var postdata = {
             url: url,
@@ -1368,14 +1385,14 @@ let proctorRoomDetails = async (params) => {
                 },
                 {
                     $project: {
-                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites",color:"$color", quota: "$quota", concurrent: "$concurrent",
+                        id: "$_id", _id: 0, timesheet: "$timesheet", invites: "$invites", color: "$color", quota: "$quota", concurrent: "$concurrent",
                         members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
                         subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
                         updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
                         stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", scheduledAt: "$scheduledAt",
                         duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",
                         startedAt: "$startedAt", useragent: "$useragent", proctor: "$proctor", student: "$student", template: "$template", browser: "$browser",
-                        os: "$os", platform: "$platform", averages: "$averages",pdf:"$pdf",errorlog:"$errorlog"
+                        os: "$os", platform: "$platform", averages: "$averages", pdf: "$pdf", errorlog: "$errorlog"
                     }
                 }
             ]
@@ -1395,7 +1412,7 @@ let proctorRoomDetails = async (params) => {
     }
 };
 let proctorSuggestSaveCall = async (params) => {
-    try{
+    try {
         // var decodeToken = jwt_decode(params.authorization);
         // let tenantResponse;
         let url;
@@ -1409,17 +1426,17 @@ let proctorSuggestSaveCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
         delete params.authorization;
-        params.status = "created"; 
-        if(!params.id){
-            params._id  = uuidv4()
-        }else{
+        params.status = "created";
+        if (!params.id) {
+            params._id = uuidv4()
+        } else {
             params._id = params.id
         }
-        if(!params.createdAt){
+        if (!params.createdAt) {
             params.createdAt = new Date()
         }
         params.updatedAt = new Date()
@@ -1427,7 +1444,7 @@ let proctorSuggestSaveCall = async (params) => {
             xaxis: [],
             yaxis: []
         }
-        delete params.id; 
+        delete params.id;
         var getdata = {
             url: url,
             database: database,
@@ -1436,26 +1453,26 @@ let proctorSuggestSaveCall = async (params) => {
             query: params
         };
         let responseData = await invoke.makeHttpCall("post", "insert", getdata);
-        if(responseData && responseData.data&&responseData.data.statusMessage._id){
+        if (responseData && responseData.data && responseData.data.statusMessage._id) {
             let jsonData1 = {
                 id: responseData.data.statusMessage._id,
                 // tenantResponse: tenantResponse
             }
             let getData = await schedule.roomUserSave(jsonData1);
-            if(getData && getData.data && getData.data.statusMessage){
-                if (getData.data.statusMessage[0].status=="template"){
+            if (getData && getData.data && getData.data.statusMessage) {
+                if (getData.data.statusMessage[0].status == "template") {
                     // if(tenantResponse && tenantResponse.success){
                     //     getData.data.statusMessage[0].tenantResponse = tenantResponse;
                     // }
                     let templateResponse = await schedule.getTemplate(getData.data.statusMessage[0]);
-                    if (templateResponse && templateResponse.data && templateResponse.data.statusMessage.length >0){
+                    if (templateResponse && templateResponse.data && templateResponse.data.statusMessage.length > 0) {
                         let jsonData = {
-                            members : params.members,
-                            array : templateResponse.data.statusMessage[0].array,
+                            members: params.members,
+                            array: templateResponse.data.statusMessage[0].array,
                             // tenantResponse : tenantResponse
                         }
                         let updateTemplate = await schedule.updateTemplate(jsonData);
-                        if(updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified >0){
+                        if (updateTemplate && updateTemplate.data && updateTemplate.data.statusMessage.nModified > 0) {
                             logger.info({ success: true, message: updateTemplate.data.statusMessage });
                         } else {
                             logger.info({ success: false, message: "records updated not successfully..." });
@@ -1464,8 +1481,8 @@ let proctorSuggestSaveCall = async (params) => {
                         return { success: false, message: templateResponse };
                     }
                 }
-                getData.data.statusMessage[0].id=getData.data.statusMessage[0]._id;
-                getData.data.statusMessage[0].subject=getData.data.statusMessage[0].id;
+                getData.data.statusMessage[0].id = getData.data.statusMessage[0]._id;
+                getData.data.statusMessage[0].subject = getData.data.statusMessage[0].id;
                 delete getData.data.statusMessage[0]._id;
                 return { success: true, message: getData.data.statusMessage[0] }
             } else {
@@ -1484,33 +1501,34 @@ let proctorSuggestSaveCall = async (params) => {
 };
 let proctorusagestatistics = async (params) => {
     try {
-        let E=params.size
-        let A=params.fd
-        let B=params.td
+        let E = params.size
+        let A = params.fd
+        let B = params.td
         //(E = parseInt(E) || 100) > 100 && (E = 100);
         const Q = Date.now();
         A = new Date(A || Q - 60 * E * 1e3).getTime();
         const s = (B = ~~((B = new Date(B || Q).getTime()) / 6e4)) - (A = ~~(A / 6e4))
-              //{ value: l, index: g } = this.getTimeFrames(s / E);
+        //{ value: l, index: g } = this.getTimeFrames(s / E);
         var getdata = {
-            url:process.env.MONGO_URI,
-            database:"proctor",
+            url: process.env.MONGO_URI,
+            database: "proctor",
             model: "stats",
             docType: 1,
             query: [
-                {$match:{ timestamp: { $mod: [1, 0], $gt: A, $lte: B } }},
-                                {$project:
-                                    {
-                                        rooms: { $arrayElemAt: [ "$rooms", 0 ] },
-                                        cpu: { $arrayElemAt: [ "$cpu", 0 ] },
-                                        ram: { $arrayElemAt: [ "$ram", 0 ] },
-                                        users: { $arrayElemAt: [ "$users", 0 ] },
-                                        timestamp:"$timestamp",
-                                        _id:0
-                                    },
+                { $match: { timestamp: { $mod: [1, 0], $gt: A, $lte: B } } },
+                {
+                    $project:
+                    {
+                        rooms: { $arrayElemAt: ["$rooms", 0] },
+                        cpu: { $arrayElemAt: ["$cpu", 0] },
+                        ram: { $arrayElemAt: ["$ram", 0] },
+                        users: { $arrayElemAt: ["$users", 0] },
+                        timestamp: "$timestamp",
+                        _id: 0
+                    },
 
-                                }
-                    ]
+                }
+            ]
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
         if (responseData && responseData.data) {
@@ -1528,16 +1546,16 @@ let proctorusagestatistics = async (params) => {
 };
 let getface = async (params) => {
     try {
-        if(!params?.authorization){
-            console.log("Me1 Token========>>>>",params.authorization)
+        if (!params?.authorization) {
+            console.log("Me1 Token========>>>>", params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let token  = params?.authorization.split(" ")
-        if(!token[1] || token[1].includes('${')){
+        let token = params?.authorization.split(" ")
+        if (!token[1] || token[1].includes('${')) {
             return { success: false, message: 'Authorization token missing.' }
-        }   
+        }
         var decodeToken = jwt_decode(params.authorization);
-        if (decodeToken){
+        if (decodeToken) {
             let url;
             let database;
             // let tenantResponse;
@@ -1551,14 +1569,14 @@ let getface = async (params) => {
             //         return { success: false, message: tenantResponse.message }
             //     }
             // } else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
+            url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
             // }
             // if(tenantResponse && tenantResponse.success){
             //     params.tenantResponse = tenantResponse;
             // }
             let faceResponse = await schedule_Service.getFacePassportResponse(params);
-            if (faceResponse && faceResponse.success){
+            if (faceResponse && faceResponse.success) {
                 // let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
                 // if ( getCount.message.length >1 ){
                 //     params.decodeToken = decodeToken
@@ -1575,54 +1593,54 @@ let getface = async (params) => {
                 //         return { success: false, message: getFaceResponse.message }
                 //     }
                 // } else {
-                    let jsonData =  {
-                        "face" : params.face,
-                        "rep" : faceResponse.message[0].metadata.rep,
-                        "threshold" : faceResponse.message[0].metadata.threshold,
-                        "similar" : faceResponse.message[0].metadata.similar
-                    };
-                    var getdata = {
-                        url: url,
-                        database: database,
-                        model: "users",
-                        docType: 1,
-                        query: {
-                            filter: { "_id": decodeToken.id },
-                            update: { $set: jsonData },
-                            projection: {
-                                id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
-                                exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
-                                useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
-                                username:"$_id",
-                            }
+                let jsonData = {
+                    "face": params.face,
+                    "rep": faceResponse.message[0].metadata.rep,
+                    "threshold": faceResponse.message[0].metadata.threshold,
+                    "similar": faceResponse.message[0].metadata.similar
+                };
+                var getdata = {
+                    url: url,
+                    database: database,
+                    model: "users",
+                    docType: 1,
+                    query: {
+                        filter: { "_id": decodeToken.id },
+                        update: { $set: jsonData },
+                        projection: {
+                            id: "$_id", _id: 0, browser: "$browser", os: "$os", platform: "$platform", role: "$role", labels: "$labels",
+                            exclude: "$exclude", nickname: "$nickname", provider: "$provider", loggedAt: "$loggedAt", ipaddress: "$ipaddress",
+                            useragent: "$useragent", referer: "$referer", createdAt: "$createdAt", similar: "$similar", face: "$face",
+                            username: "$_id",
                         }
-                    };
-                    let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
-                    // console.log('before response ',responseData.data)
-                    if (responseData && responseData.data.statusMessage ) {
-                        return { success: true, message: responseData.data.statusMessage }
-                        // console.log('after response',responseData.data)
-                        // console.log('before calling getface',decodeToken)
-                        // let response = await schedule_Service.getface(decodeToken)
-                        // console.log('response before........................',response)
-                        // if (response.success){
-                        //     // console.log('response after........................',response)
-                        //     return { success: true, message: response.message[0] }
-                        // }
-                    } else {
-                        return { success: false, message: 'Data Not Found' }
                     }
+                };
+                let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
+                // console.log('before response ',responseData.data)
+                if (responseData && responseData.data.statusMessage) {
+                    return { success: true, message: responseData.data.statusMessage }
+                    // console.log('after response',responseData.data)
+                    // console.log('before calling getface',decodeToken)
+                    // let response = await schedule_Service.getface(decodeToken)
+                    // console.log('response before........................',response)
+                    // if (response.success){
+                    //     // console.log('response after........................',response)
+                    //     return { success: true, message: response.message[0] }
+                    // }
+                } else {
+                    return { success: false, message: 'Data Not Found' }
+                }
                 // }
             } else {
                 return { success: false, message: faceResponse.message }
             }
-            
+
         } else {
             return { success: false, message: 'Invalid Token Error' }
         }
     } catch (error) {
-        console.log("putme1 Error Body========>>>>",JSON.stringify(params))
-            console.log(error,"putme1====>>>>putme1")
+        console.log("putme1 Error Body========>>>>", JSON.stringify(params))
+        console.log(error, "putme1====>>>>putme1")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -1632,16 +1650,16 @@ let getface = async (params) => {
 };
 let getPassport = async (params) => {
     try {
-        if(!params?.authorization){
-            console.log("Me2 Token========>>>>",params.authorization)
+        if (!params?.authorization) {
+            console.log("Me2 Token========>>>>", params.authorization)
             return { success: false, message: 'Authorization token missing.' }
         }
-        let token  = params?.authorization.split(" ")
-        if(!token[1] || token[1].includes('${')){
+        let token = params?.authorization.split(" ")
+        if (!token[1] || token[1].includes('${')) {
             return { success: false, message: 'Authorization token missing.' }
-        }   
+        }
         var decodeToken = jwt_decode(params.authorization);
-        if (decodeToken){
+        if (decodeToken) {
             let url;
             let database;
             // let tenantResponse;
@@ -1656,8 +1674,8 @@ let getPassport = async (params) => {
             //         return { success: false, message: tenantResponse.message }
             //     }
             // } else {
-                url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-                database = process.env.DATABASENAME;
+            url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+            database = process.env.DATABASENAME;
             // }
             let getCount = await schedule_Service.getUserRoomsCount(decodeToken);
             // if ( getCount.message.length>1 ){
@@ -1674,42 +1692,42 @@ let getPassport = async (params) => {
             //         return { success: false, message: getPassportResponse.message }
             //     }
             // } else {
-                let jsonData =  {
-                    "passport" : params.passport,
-                };
-                var getdata = {
-                    url: url,
-                    database: database,
-                    model: "users",
-                    docType: 1,
-                    query: {
-                        filter: { "_id": decodeToken.id },
-                        update: { $set: jsonData },
-                        projection: {
-                            id:"$_id",_id:0,browser:"$browser",os:"$os",platform:"$platform",role:"$role",labels:"$labels",
-                            exclude:"$exclude",nickname:"$nickname",provider:"$provider",loggedAt:"$loggedAt",ipaddress:"$ipaddress",
-                            useragent:"$useragent",referer:"$referer",createdAt:"$createdAt",similar:"$similar",face:"$face",
-                            username:"$_id",passport:"$passport",verified:"$verified"
-                        }
+            let jsonData = {
+                "passport": params.passport,
+            };
+            var getdata = {
+                url: url,
+                database: database,
+                model: "users",
+                docType: 1,
+                query: {
+                    filter: { "_id": decodeToken.id },
+                    update: { $set: jsonData },
+                    projection: {
+                        id: "$_id", _id: 0, browser: "$browser", os: "$os", platform: "$platform", role: "$role", labels: "$labels",
+                        exclude: "$exclude", nickname: "$nickname", provider: "$provider", loggedAt: "$loggedAt", ipaddress: "$ipaddress",
+                        useragent: "$useragent", referer: "$referer", createdAt: "$createdAt", similar: "$similar", face: "$face",
+                        username: "$_id", passport: "$passport", verified: "$verified"
                     }
-                };
-                let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
-                if (responseData && responseData.data.statusMessage) {
-                    return { success: true, message: responseData.data.statusMessage }
-                    // let response = await schedule_Service.getPassport(decodeToken)
-                    // if (response.success){
-                    //     return { success: true, message: response.message[0] }
-                    // }
-                } else {
-                    return { success: false, message: 'Data Not Found' }
                 }
+            };
+            let responseData = await invoke.makeHttpCall_userDataService("post", "findOneAndUpdate", getdata);
+            if (responseData && responseData.data.statusMessage) {
+                return { success: true, message: responseData.data.statusMessage }
+                // let response = await schedule_Service.getPassport(decodeToken)
+                // if (response.success){
+                //     return { success: true, message: response.message[0] }
+                // }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
             // }
         } else {
             return { success: false, message: 'Invalid Token Error' }
         }
     } catch (error) {
-        console.log("putme2 Error Body========>>>>",JSON.stringify(params))
-        console.log(error,"putme2====>>>>>>")
+        console.log("putme2 Error Body========>>>>", JSON.stringify(params))
+        console.log(error, "putme2====>>>>>>")
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
         } else {
@@ -1720,13 +1738,13 @@ let getPassport = async (params) => {
 let getCheck = async (params) => {
     try {
         let response = await tokenService.checkToken();
-        if (response){
+        if (response) {
             return { success: true, message: response }
-        } 
+        }
         else {
             return { success: false, message: 'Data Not Found' }
         }
-    
+
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
@@ -1750,8 +1768,8 @@ let notificationFetch = async (params) => {
         //             return { success: false, message: tenantResponse.message }
         //         }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
         var getdata = {
             url: url,
@@ -1784,7 +1802,7 @@ let notificationFetch = async (params) => {
                         }
                     }
                 }
-            ]         
+            ]
 
             // [
             //     {
@@ -1798,72 +1816,72 @@ let notificationFetch = async (params) => {
             //     },    
             //     { $group: { _id: null, data: { $push: "$id" }}}
             // ]
-            
+
         };
         let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-        if(responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.length>0){
+        if (responseData && responseData.data && responseData.data.statusMessage && responseData.data.statusMessage.length > 0) {
             // if(tenantResponse && tenantResponse.success){
             //     responseData.data.statusMessage[0].templateResponse = tenantResponse;
             // }
             let result = await schedule_Service.unreadmessagefetch(responseData.data.statusMessage[0])
-            if(result && result.success){
-                return { success: true, message: result.message}
+            if (result && result.success) {
+                return { success: true, message: result.message }
             }
         } else {
-            return { success: true, message: "No records found"}
+            return { success: true, message: "No records found" }
         }
     }
     catch (error) {
-      if (error && error.code == 'ECONNREFUSED') {
-        return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-      } else {
-        return { success: false, message: error }
-      }
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
     }
-  };
+};
 
 let notificationUpdate = async (params) => {
-try {
-    // let  decodeToken = jwt_decode(params.authorization);
-    let url;
-    let database;
-    // let tenantResponse;
-    // if(decodeToken && decodeToken.tenantId){
-    //     tenantResponse = await _schedule.getTennant(decodeToken);
-    //     if (tenantResponse && tenantResponse.success){
-    //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
-    //         database = tenantResponse.message.databaseName;
-    //     }else {
-    //             return { success: false, message: tenantResponse.message }
-    //         }
-    // } else {
-        url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
+    try {
+        // let  decodeToken = jwt_decode(params.authorization);
+        let url;
+        let database;
+        // let tenantResponse;
+        // if(decodeToken && decodeToken.tenantId){
+        //     tenantResponse = await _schedule.getTennant(decodeToken);
+        //     if (tenantResponse && tenantResponse.success){
+        //         url = tenantResponse.message.connectionString+'/'+tenantResponse.message.databaseName;
+        //         database = tenantResponse.message.databaseName;
+        //     }else {
+        //             return { success: false, message: tenantResponse.message }
+        //         }
+        // } else {
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
         database = process.env.DATABASENAME;
-    // }
-    var getdata = {
-        url: url,
-        database: database,
-        model: "chats",
-        docType: 1,
-        query:{
-            filter :{id:{$in:params.chatId}},
-            update :{$set:{notification:"read"}}
-        } 
-    };
-    let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
-    if(responseData && responseData.data && responseData.data.statusMessage){
-        return { success: true, message: responseData.data.statusMessage.nModified}
-    } else {
-        return { success: false, message: "Data not found" }
+        // }
+        var getdata = {
+            url: url,
+            database: database,
+            model: "chats",
+            docType: 1,
+            query: {
+                filter: { id: { $in: params.chatId } },
+                update: { $set: { notification: "read" } }
+            }
+        };
+        let responseData = await invoke.makeHttpCall("post", "updatedataMany", getdata);
+        if (responseData && responseData.data && responseData.data.statusMessage) {
+            return { success: true, message: responseData.data.statusMessage.nModified }
+        } else {
+            return { success: false, message: "Data not found" }
+        }
     }
-}
-catch (error) {
-    if (error && error.code == 'ECONNREFUSED') {
-    return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
-    } else {
-    return { success: false, message: error }
+    catch (error) {
+        if (error && error.code == 'ECONNREFUSED') {
+            return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
+        } else {
+            return { success: false, message: error }
+        }
     }
-}
 };
 ///////////////stream
 let proctorStreamCall = async (params) => {
@@ -1881,84 +1899,85 @@ let proctorStreamCall = async (params) => {
         //         return { success: false, message: tenantResponse.message }
         //     }
         // } else {
-            url = process.env.MONGO_URI+'/'+process.env.DATABASENAME;
-            database = process.env.DATABASENAME;
+        url = process.env.MONGO_URI + '/' + process.env.DATABASENAME;
+        database = process.env.DATABASENAME;
         // }
-        if (decodeToken.role == "proctor"){
+        if (decodeToken.role == "proctor") {
             // if (params.query && params.query.limit || params.query.limit && params.query.start && params.query.count && params.query.continue){
-                var sort = -1;
-                var start=0;
-                // if (params.query.start){
-                //     start = parseInt(params.query.start);
-                // }else{
-                //     start = 0;
-                // }
-                // var limit = parseInt(params.query.limit);
-                var getdata = {
-                    url: url,
-                    database: database,
-                    model: "rooms",
-                    docType: 1,
-                    query: [ 
-                        { $match: { isActive: true,_id:{$in:params.body.rooms} } },
-                        {$match: {
-                        members:decodeToken.id 
-                    }
-                    },
-                        {
-                            $lookup: {
-                                from: 'users',
-                                localField: 'student',
-                                foreignField: '_id',
-                                as: 'student',
-                            }
-                        },
-                        { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
-                        {
-                            $project: {
-                                id: "$_id", _id: 0, timesheet: "$timesheet",color:"$color", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
-                                members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
-                                subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
-                                updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
-                                stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error",errorlog: "$errorlog", scheduledAt: "$scheduledAt",
-                                duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt",pdf:"$pdf",
-                                startedAt:{$cond: { if: { $eq: [ "$startedAt", null ] }, then: "$createdAt", else: "$startedAt" }}, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
-                                os: "$os", platform: "$platform",errorlog:"$errorlog", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
-                                "student.face":"$student.face","student.passport":"$student.passport","student.similar": "$student.similar", "student.username": "$student._id"
-                            }
-                        },
-                        {
-                            $facet: {
-                                "data": [
-                                    { "$sort": { startedAt: sort } },
-                                    { "$skip": 0 },
-                                    { "$limit": 30 }
-                                ],
-                                "total_count": [
-                                    { $group: { _id: null, count: { $sum: 1 } } }
-                                ]
-                            }
-                        }
-                    ]
-                };
-                let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
-                if (responseData && responseData.data) {
-                    let response = await schedule_Service.fetchurl(responseData.data) 
-                    let statusIds = _.map(responseData.data.statusMessage[0].data, 'id');
-                    var data = {
-                        response: responseData.data,
-                        start: params,
-                        // tenantResponse: tenantResponse,
-                        rooms: statusIds
-                    };
-                    let responsemessage = await schedule_Service.fetchStreamStatus(data)
-                    return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start,url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count,status:responsemessage.message} }
-                } else {
-                    return { success: false, message: 'Data Not Found' }
-                }
+            var sort = -1;
+            var start = 0;
+            // if (params.query.start){
+            //     start = parseInt(params.query.start);
+            // }else{
+            //     start = 0;
             // }
-        }    
-   
+            // var limit = parseInt(params.query.limit);
+            var getdata = {
+                url: url,
+                database: database,
+                model: "rooms",
+                docType: 1,
+                query: [
+                    { $match: { isActive: true, _id: { $in: params.body.rooms } } },
+                    {
+                        $match: {
+                            members: decodeToken.id
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'student',
+                            foreignField: '_id',
+                            as: 'student',
+                        }
+                    },
+                    { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+                    {
+                        $project: {
+                            id: "$_id", _id: 0, timesheet: "$timesheet", color: "$color", invites: "$invites", quota: "$quota", concurrent: "$concurrent",
+                            members: "$members", addons: "$addons", metrics: "$metrics", weights: "$weights", status: "$status", tags: "$tags",
+                            subject: "$subject", locale: "$locale", timeout: "$timeout", rules: "$rules", threshold: "$threshold", createdAt: "$createdAt",
+                            updatedAt: "$updatedAt", api: "$api", comment: "$comment", complete: "$complete", conclusion: "$conclusion", deadline: "$deadline",
+                            stoppedAt: "$stoppedAt", timezone: "$timezone", url: "$url", lifetime: "$lifetime", error: "$error", errorlog: "$errorlog", scheduledAt: "$scheduledAt",
+                            duration: "$duration", incidents: "$incidents", integrator: "$integrator", ipaddress: "$ipaddress", score: "$score", signedAt: "$signedAt", pdf: "$pdf",
+                            startedAt: { $cond: { if: { $eq: ["$startedAt", null] }, then: "$createdAt", else: "$startedAt" } }, useragent: "$useragent", proctor: "$proctor", template: "$template", browser: "$browser",
+                            os: "$os", platform: "$platform", errorlog: "$errorlog", averages: "$averages", "student.id": "$student._id", "student.nickname": "$student.nickname",
+                            "student.face": "$student.face", "student.passport": "$student.passport", "student.similar": "$student.similar", "student.username": "$student._id"
+                        }
+                    },
+                    {
+                        $facet: {
+                            "data": [
+                                { "$sort": { startedAt: sort } },
+                                { "$skip": 0 },
+                                { "$limit": 30 }
+                            ],
+                            "total_count": [
+                                { $group: { _id: null, count: { $sum: 1 } } }
+                            ]
+                        }
+                    }
+                ]
+            };
+            let responseData = await invoke.makeHttpCall("post", "aggregate", getdata);
+            if (responseData && responseData.data) {
+                let response = await schedule_Service.fetchurl(responseData.data)
+                let statusIds = _.map(responseData.data.statusMessage[0].data, 'id');
+                var data = {
+                    response: responseData.data,
+                    start: params,
+                    // tenantResponse: tenantResponse,
+                    rooms: statusIds
+                };
+                let responsemessage = await schedule_Service.fetchStreamStatus(data)
+                return { success: true, message: { data: responseData.data.statusMessage[0].data, pos: start, url: response.message, total_count: responseData.data.statusMessage[0].total_count[0].count, status: responsemessage.message } }
+            } else {
+                return { success: false, message: 'Data Not Found' }
+            }
+            // }
+        }
+
     } catch (error) {
         if (error && error.code == 'ECONNREFUSED') {
             return { success: false, message: globalMsg[0].MSG000, status: globalMsg[0].status }
